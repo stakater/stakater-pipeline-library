@@ -19,12 +19,17 @@ def call(body) {
         profile = '-P kubernetes'
     }
 
+    // this seems nice as its being checked out into specific branch
     sh "git checkout -b ${env.JOB_NAME}-${config.version}"
-    sh "mvn org.codehaus.mojo:versions-maven-plugin:2.2:set -U -DnewVersion=${config.version}"
-    sh "mvn clean -e -U deploy -Dmaven.test.skip=${skipTests} ${profile}"
 
+    // set new version!
+    sh "./mvnw org.codehaus.mojo:versions-maven-plugin:2.2:set -U -DnewVersion=${config.version}"
 
-    junitResults(body);
+    // what is happening here?
+    sh "./mvnw clean -e -U deploy -Dmaven.test.skip=${skipTests} ${profile}"
+
+    // TODO: what is this doing?
+    junitResults(body)
 
     def buildName = ""
     try {
@@ -43,13 +48,11 @@ def call(body) {
             utils.addAnnotationToBuild('fabric8.io/jenkins.changeUrl', changeUrl)
         }
 
-        bayesianScanner(body);
+        // TODO: what is this doing?
+        bayesianScanner(body)
     }
 
-
-
-    sonarQubeScanner(body);
-
+    sonarQubeScanner(body)
 
     def s2iMode = flow.isOpenShiftS2I()
     echo "s2i mode: ${s2iMode}"
@@ -70,9 +73,12 @@ def call(body) {
                 echo "WARNING: cannot tag the docker image ${user}/${artifactId}:${config.version} as there is no FABRIC8_DOCKER_REGISTRY_SERVICE_HOST or FABRIC8_DOCKER_REGISTRY_SERVICE_PORT environment variable!"
             }
         } else {
+            // this will work in our case!
+            // TODO: when is the docker image built?
+            // TODO: figure out how is the docker image tagged & version?
             if (registryHost && registryPort) {
                 retry(3) {
-                    sh "mvn fabric8:push -Ddocker.push.registry=${registryHost}:${registryPort}"
+                    sh "./mvnw fabric8:push -Ddocker.push.registry=${registryHost}:${registryPort}"
                 }
             } else {
                 error "Cannot push the docker image ${user}/${artifactId}:${config.version} as there is no FABRIC8_DOCKER_REGISTRY_SERVICE_HOST or FABRIC8_DOCKER_REGISTRY_SERVICE_PORT environment variables\nTry run the fabric8-docker-registry?"
@@ -80,5 +86,6 @@ def call(body) {
         }
     }
 
-    contentRepository(body);
+    // TODO: what is this doing?
+    contentRepository(body)
   }
