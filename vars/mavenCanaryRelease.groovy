@@ -26,7 +26,7 @@ def call(body) {
     sh "./mvnw org.codehaus.mojo:versions-maven-plugin:2.2:set -U -DnewVersion=${config.version}"
 
     // what is happening here?
-    sh "./mvnw clean -e -U deploy -Dmaven.test.skip=${skipTests} ${profile} -X"
+    sh "./mvnw clean -e -U package deploy -Pprod -DskipTests -X"
 
     // TODO: what is this doing?
     junitResults(body)
