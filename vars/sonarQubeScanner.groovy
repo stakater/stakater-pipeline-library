@@ -31,7 +31,8 @@ def call(body) {
 
                     echo("executing sonar scanner ")
 
-                    sh "java -jar ${localScanner}  -Dsonar.host.url=http://${serviceName}:${port}  -Dsonar.projectKey=${env.JOB_NAME} -Dsonar.sources=${srcDirectory}"
+                    // it must ignore node_modules
+                    sh "java -jar ${localScanner}  -Dsonar.host.url=http://${serviceName}:${port}  -Dsonar.projectKey=${env.JOB_NAME} -Dsonar.sources=${srcDirectory}/src"
                 }
 
             } catch (err) {
