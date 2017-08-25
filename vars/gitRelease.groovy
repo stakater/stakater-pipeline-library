@@ -6,16 +6,41 @@ def call(body) {
     body.delegate = config
     body()
 
-    sh "git remote set-url origin ${config.remote}"
-    sh "git config user.email admin@stakater.com"
-    sh "git config user.name stakater-release"
-    
-    sh "chmod 600 /root/.ssh-git/ssh-key"
-    sh "chmod 600 /root/.ssh-git/ssh-key.pub"
-    sh "chmod 700 /root/.ssh-git"
-    
-    sh "git checkout -b release-${config.version}"
-    sh "git tag -fa v${config.version} -m 'Release version ${config.version}'"
-    sh "git push origin v${config.version}"
-    sh "git push origin release-${config.version}"
-  }
+    def flow = new io.fabric8.Fabric8Commands()
+    def sFlow = new io.stakater.StakaterCommands()
+    def repoId
+    def releaseVersion
+    def extraStageImages = config.extraImagesToStage ?: []
+    def extraSetVersionArgs = config.setVersionExtraArgs ?: ""
+    def containerName = config.containerName ?: 'maven'
+    def useGitTagOrBranchForNextVersion = config.useGitTagOrBranchForNextVersion ?: ""
+
+    container(name: containerName) {
+
+        sh 'chmod 600 /root/.ssh-git/ssh-key'
+        sh 'chmod 600 /root/.ssh-git/ssh-key.pub'
+        sh 'chmod 700 /root/.ssh-git'
+        sh 'chmod 600 /home/jenkins/.gnupg/pubring.gpg'
+        sh 'chmod 600 /home/jenkins/.gnupg/secring.gpg'
+        sh 'chmod 600 /home/jenkins/.gnupg/trustdb.gpg'
+        sh 'chmod 700 /home/jenkins/.gnupg'
+
+        sh "git remote set-url origin git@github.com:${config.project}.git"
+
+        def currentVersion = flow.getProjectVersion()
+
+        sFlow.setupWorkspaceForRelease(config.project, useGitTagOrBranchForNextVersion, extraSetVersionArgs, currentVersion)
+
+        repoId = sFlow.stageSonartypeRepo()
+        releaseVersion = flow.getProjectVersion()
+
+        if (!useGitTagOrBranchForNextVersion.equalsIgnoreCase("tag")){
+            flow.updateGithub()
+        }
+
+        echo "About to release ${name} repo ids ${repoIds}"
+        sFlow.releaseSonartypeRepo(repoId)
+    }
+
+    return [config.project, releaseVersion, repoId]
+}
