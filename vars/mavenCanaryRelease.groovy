@@ -19,16 +19,10 @@ def call(body) {
         profile = '-P kubernetes'
     }
 
-    // this seems nice as its being checked out into specific branch
     sh "git checkout -b ${env.JOB_NAME}-${config.version}"
-
-    // set new version!
     sh "./mvnw org.codehaus.mojo:versions-maven-plugin:2.2:set -U -DnewVersion=${config.version}"
-
-    // what is happening here?
     sh "./mvnw clean -e -U deploy -Pprod -DskipTests"
 
-    // TODO: what is this doing?
     junitResults(body)
 
     def buildName = ""
@@ -48,7 +42,6 @@ def call(body) {
             utils.addAnnotationToBuild('fabric8.io/jenkins.changeUrl', changeUrl)
         }
 
-        // TODO: what is this doing?
         bayesianScanner(body)
     }
 
@@ -73,9 +66,6 @@ def call(body) {
                 echo "WARNING: cannot tag the docker image ${user}/${artifactId}:${config.version} as there is no FABRIC8_DOCKER_REGISTRY_SERVICE_HOST or FABRIC8_DOCKER_REGISTRY_SERVICE_PORT environment variable!"
             }
         } else {
-            // this will work in our case!
-            // TODO: when is the docker image built?
-            // TODO: figure out how is the docker image tagged & version?
             if (registryHost && registryPort) {
                 retry(3) {
                     sh "./mvnw fabric8:push -Ddocker.push.registry=${registryHost}:${registryPort}"
@@ -86,6 +76,5 @@ def call(body) {
         }
     }
 
-    // TODO: what is this doing?
     contentRepository(body)
   }
