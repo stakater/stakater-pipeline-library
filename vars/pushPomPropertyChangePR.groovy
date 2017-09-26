@@ -59,7 +59,7 @@ def call(body) {
         id = flow.createPullRequest("${message}","${project}","versionUpdate${uid}")
       }
       echo "received Pull Request Id: ${id}"
-      
+
       if (autoMerge){
         sleep 5 // give a bit of time for GitHub to get itself in order after the new PR
         flow.mergePR(project, id)

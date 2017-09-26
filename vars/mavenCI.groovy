@@ -34,14 +34,17 @@ def call(body) {
             profile = '-P kubernetes'
         }
 
+        def version = 'PR-' + getNewVersion{} + "-${env.BUILD_NUMBER}"
+
         stage ('Build + Unit test'){
-            sh "mvn clean -e -U deploy -Dmaven.test.skip=${skipTests} ${profile}"
+            // set a unique temp version so we can download artifacts from nexus and run acceptance tests
+            sh "mvn -U versions:set -DnewVersion=${version}"
+            sh "mvn clean -B -e -U deploy -Dmaven.test.skip=${skipTests} ${profile}"
         }
 
-        def s2iMode = flow.isOpenShiftS2I()
+        def s2iMode = utils.supportsOpenShiftS2I()
         echo "s2i mode: ${s2iMode}"
         def m = readMavenPom file: 'pom.xml'
-        def version = m.version
 
         if (!s2iMode){
             stage ('Push snapshot image to registry'){

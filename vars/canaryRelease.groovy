@@ -20,10 +20,6 @@ def call(body) {
     }
 
     sh "git checkout -b ${env.JOB_NAME}-${config.version}"
-    sh "mvn org.codehaus.mojo:versions-maven-plugin:2.2:set -U -DnewVersion=${config.version}"
-    sh "mvn clean -B -e -U deploy -Dmaven.test.skip=${skipTests} ${profile}"
-
-    junitResults(body)
 
     def buildName = ""
     try {
@@ -42,10 +38,9 @@ def call(body) {
             utils.addAnnotationToBuild('fabric8.io/jenkins.changeUrl', changeUrl)
         }
 
-        bayesianScanner(body)
+        bayesianScanner(body);
     }
 
-    sonarQubeScanner(body)
 
 
     sonarQubeScanner(body);
@@ -63,14 +58,10 @@ def call(body) {
             def user = groupId[groupId.size() - 1].trim()
             def artifactId = m.artifactId
 
-            sh "docker tag ${user}/${artifactId}:${config.version} ${registry}/${user}/${artifactId}:${config.version}"
+            sh "docker tag ${config.version} ${registry}/${config.version}"
 
-        } else {
-            retry(5) {
-                sh "mvn fabric8:push -Ddocker.push.registry=${registry}"
-            }
         }
     }
 
-    contentRepository(body)
+    contentRepository(body);
   }

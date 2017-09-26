@@ -25,6 +25,10 @@ def updatePackageJSONVersion(f, p, v) {
     sh "sed -i -r 's/\"${p}\": \"[0-9][0-9]{0,2}.[0-9][0-9]{0,2}(.[0-9][0-9]{0,2})?(.[0-9][0-9]{0,2})?(-development)?\"/\"${p}\": \"${v}\"/g' ${f}"
 }
 
+def updateDockerfileEnvVar(f, p, v) {
+    sh "sed -i -r 's/ENV ${p}.*/ENV ${p} ${v}/g' ${f}"
+}
+
 def getProjectVersion() {
     def file = readFile('pom.xml')
     def project = new XmlSlurper().parseText(file)
@@ -133,11 +137,11 @@ def setupWorkspaceForRelease(String project, Boolean useGitTagForNextVersion, St
     if (useGitTagForNextVersion) {
         def newVersion = getNewVersionFromTag(currentVersion)
         echo "New release version ${newVersion}"
-        sh "mvn -U versions:set -DnewVersion=${newVersion} " + mvnExtraArgs
+        sh "mvn -B -U versions:set -DnewVersion=${newVersion} " + mvnExtraArgs
         sh "git commit -a -m 'release ${newVersion}'"
         pushTag(newVersion)
     } else {
-        sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} ' + mvnExtraArgs
+        sh 'mvn -B build-helper:parse-version versions:set -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} ' + mvnExtraArgs
     }
 
     def releaseVersion = getProjectVersion()
@@ -249,7 +253,7 @@ def stageSonartypeRepo() {
 def releaseSonartypeRepo(String repoId) {
     try {
         // release the sonartype staging repo
-        sh "mvn org.sonatype.plugins:nexus-staging-maven-plugin:1.6.5:rc-release -DserverId=oss-sonatype-staging -DnexusUrl=https://oss.sonatype.org -DstagingRepositoryId=${repoId} -Ddescription=\"Next release is ready\" -DstagingProgressTimeoutMinutes=60"
+        sh "mvn -B org.sonatype.plugins:nexus-staging-maven-plugin:1.6.5:rc-release -DserverId=oss-sonatype-staging -DnexusUrl=https://oss.sonatype.org -DstagingRepositoryId=${repoId} -Ddescription=\"Next release is ready\" -DstagingProgressTimeoutMinutes=60"
 
     } catch (err) {
         sh "mvn org.sonatype.plugins:nexus-staging-maven-plugin:1.6.5:rc-drop -DserverId=oss-sonatype-staging -DnexusUrl=https://oss.sonatype.org -DstagingRepositoryId=${repoId} -Ddescription=\"Error during release: ${err}\" -DstagingProgressTimeoutMinutes=60"
@@ -266,8 +270,8 @@ def dropStagingRepo(String repoId) {
 def helm() {
     def pluginVersion = getReleaseVersion("io/fabric8/fabric8-maven-plugin")
     try {
-        sh "mvn io.fabric8:fabric8-maven-plugin:${pluginVersion}:helm"
-        sh "mvn io.fabric8:fabric8-maven-plugin:${pluginVersion}:helm-push"
+        sh "mvn -B io.fabric8:fabric8-maven-plugin:${pluginVersion}:helm"
+        sh "mvn -B io.fabric8:fabric8-maven-plugin:${pluginVersion}:helm-push"
     } catch (err) {
         error "ERROR with helm push ${err}"
     }
@@ -286,7 +290,7 @@ def updateGithub() {
 
 def updateNextDevelopmentVersion(String releaseVersion, String mvnExtraArgs = "") {
     // update poms back to snapshot again
-    sh 'mvn build-helper:parse-version versions:set -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT ' + mvnExtraArgs
+    sh 'mvn -B build-helper:parse-version versions:set -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion}-SNAPSHOT ' + mvnExtraArgs
     def snapshotVersion = getProjectVersion()
     sh "git commit -a -m '[CD] prepare for next development iteration ${snapshotVersion}'"
     sh "git push origin release-v${releaseVersion}"
@@ -443,8 +447,77 @@ def getIssueComments(project, id, githubToken = null) {
     return rs
 }
 
+def waitUntilSuccessStatus(project, ref) {
+
+    def githubToken = getGitHubToken()
+
+    def apiUrl = new URL("https://api.github.com/repos/${project}/commits/${ref}/status")
+    waitUntil {
+        def HttpURLConnection connection = apiUrl.openConnection()
+        if (githubToken != null && githubToken.length() > 0) {
+            connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
+        }
+
+        connection.setRequestMethod("GET")
+        connection.setDoOutput(true)
+        connection.connect()
+
+        def rs
+        def code
+
+        try {
+            rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
+
+            code = connection.getResponseCode()
+        } catch (err){
+            echo "CI checks have not passed yet so waiting before merging"
+        } finally {
+            connection.disconnect()
+        }
+
+        if (rs == null){
+            echo "Error getting commit status, are CI builds enabled for this PR?"
+            return false
+        }
+        if (rs != null && rs.state == 'success') {
+            return true
+        } else {
+            echo "Commit status is ${rs.state}.  Waiting to merge"
+            return false
+        }
+    }
+}
+
+def getGithubBranch(project, id, githubToken){
+
+    def apiUrl = new URL("https://api.github.com/repos/${project}/pulls/${id}")
+    def HttpURLConnection connection = apiUrl.openConnection()
+    if (githubToken != null && githubToken.length() > 0) {
+        connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
+    }
+
+    connection.setRequestMethod("GET")
+    connection.setDoOutput(true)
+    connection.connect()
+    try{
+        def rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream(), "UTF-8"))
+        branch = rs.head.ref
+        echo "${branch}"
+        return branch
+    }catch(err){
+        echo "Error while fetching the github branch"
+    }finally {
+        if (connection){
+            connection.disconnect()
+        }
+    }
+}
+
 def mergePR(project, id) {
     def githubToken = getGitHubToken()
+    def branch = getGithubBranch(project, id, githubToken)
+    waitUntilSuccessStatus(project, branch)
+
     def apiUrl = new URL("https://api.github.com/repos/${project}/pulls/${id}/merge")
 
     def HttpURLConnection connection = apiUrl.openConnection()
@@ -761,7 +834,7 @@ def getServiceURL(String serviceName, String namespace = null, String protocol =
     return KubernetesHelper.getServiceURL(kubernetes, serviceName, namespace, protocol, external)
 }
 
-def isOpenShiftS2I() {
+def hasOpenShiftYaml() {
   def openshiftYaml = findFiles(glob: '**/openshift.yml')
     try {
         if (openshiftYaml) {
@@ -836,6 +909,46 @@ def getScmPushUrl() {
         error "no URL found for git config --get remote.origin.url "
     }
     return url
+}
+
+@NonCPS
+def openShiftImageStreamExists(String name){
+    if (isOpenShift()) {
+        try {
+            def result = sh(returnStdout: true, script: 'oc describe is ${name} --namespace openshift')
+            if (result && result.contains(name)){
+                echo "ImageStream  ${name} is already installed globally"
+                return true;
+            }else {
+                //see if its already in our namespace
+                def namespace = kubernetes.getNamespace();
+                result = sh(returnStdout: true, script: 'oc describe is ${name} --namespace ${namespace}')
+                if (result && result.contains(name)){
+                    echo "ImageStream  ${name} is already installed in project ${namespace}"
+                    return true;
+                }
+            }
+        }catch (e){
+            echo "Warning: ${e} "
+        }
+    }
+    return false;
+}
+
+@NonCPS
+def openShiftImageStreamInstall(String name, String location){
+    if (openShiftImageStreamExists(name)) {
+        echo "ImageStream ${name} does not exist - installing ..."
+        try {
+            def result = sh(returnStdout: true, script: 'oc create -f  ${location}')
+            def namespace = kubernetes.getNamespace();
+            echo "ImageStream ${name} now installed in project ${namespace}"
+            return true;
+        }catch (e){
+            echo "Warning: ${e} "
+        }
+    }
+    return false;
 }
 
 return this

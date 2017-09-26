@@ -31,7 +31,7 @@ def call(body) {
             npm run semantic-release
             """
         } catch (err) {
-            echo "ERROR publishing: ${err}"
+            echo "ERROR publishing: ${err.getMessage()}"
             echo "No artifacts published so skip updating downstream projects"
             return false
         }

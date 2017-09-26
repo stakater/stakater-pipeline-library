@@ -168,7 +168,70 @@ boolean isUseDockerSocket() {
   return supportsOpenShiftS2I() ? false : true;
 }
 
+@NonCPS
+String getDockerRegistry() {
 
+    def externalDockerRegistryURL = getUsersPipelineConfig('external-docker-registry-url')
+    if (externalDockerRegistryURL){
+      return externalDockerRegistryURL
+    }
+
+    // fall back to the old < 4.x when the registry was in the same namespace
+    def registryHost = env.FABRIC8_DOCKER_REGISTRY_SERVICE_HOST
+    def registryPort = env.FABRIC8_DOCKER_REGISTRY_SERVICE_PORT
+    if (!registryHost || !registryPort){
+       error "No external-docker-registry found in Jenkins configmap or no FABRIC8_DOCKER_REGISTRY_SERVICE_HOST FABRIC8_DOCKER_REGISTRY_SERVICE_PORT environment variables"
+    }
+    return registryHost + ':' + registryPort
+}
+
+@NonCPS
+String getUsersPipelineConfig(k) {
+
+    // first lets check if we have the new pipeliens configmap in the users home namespace
+    KubernetesClient client = new DefaultKubernetesClient()
+    def ns = getUsersNamespace()
+    def r = client.configMaps().inNamespace(ns).withName('fabric8-pipelines').get()
+    if (!r){
+      error "no fabric8-pipelines configmap found in namespace ${ns}"
+    }
+    def d = r.getData()
+    def v = d[k]
+    if (!v){
+      error "no value for key ${k} found in ${ns}/fabric8-pipelines configmap"
+    }
+    return v
+}
+
+// returns a map of the configmap data in a given namepspace
+@NonCPS
+String getConfigMap(ns, cm, key) {
+
+    // first lets check if we have the new pipeliens configmap in the users home namespace
+    KubernetesClient client = new DefaultKubernetesClient()
+    if (!ns){
+      ns = getNamespace()
+    }
+
+    def r = client.configMaps().inNamespace(ns).withName(cm).get()
+    if (!r){
+      error "no ${cm} configmap found in namespace ${ns}"
+    }
+    if (key){
+      return r.getData()[key]
+    }
+    return r.getData()
+}
+
+@NonCPS
+private Map<String, String> parseConfigMapData(final String input) {
+    final Map<String, String> map = new HashMap<String, String>();
+    for (String pair : input.split("\n")) {
+        String[] kv = pair.split(":");
+        map.put(kv[0].trim(), kv[1].trim());
+    }
+    return map;
+}
 
 @NonCPS
 String getNamespace() {
@@ -387,15 +450,14 @@ def getExistingPR(project, pair){
     }
 
     if (rs == null || rs.isEmpty()){
-      return false
+      return null
     }
     for(int i = 0; i < rs.size(); i++){
       def pr = rs[i]
-
-      if (pr.state == 'open' && pr.title.contains("fix(version): update ${property}")){
-        if (!pr.title.contains("fix(version): update ${property} to ${version}")){
-          return pr.number
-        }
+      echo "checking PR ${pr.number}"
+      if (pr.state == 'open' && pr.title.contains("fix(version): update ${property} to ${version}")){
+        echo 'matched'
+        return pr.number
       }
     }
     return null
@@ -460,23 +522,13 @@ def getDownstreamProjectOverrides(project, id, downstreamProject, botName = '@fa
   }
 }
 
-def hasPRComment(token, match){
+def hasPRComment(project, id, match){
   def flow = new Fabric8Commands()
-
-  def project = flow.getGitHubProject()
-  def pr = env.CHANGE_ID
-  if (!pr){
-    error 'no pull request number found so cannot get comments'
-  }
-  if (!match){
-    error 'provide a comment to match on'
-  }
-
-  def comments = flow.getIssueComments(project, pr, token)
+  def comments = flow.getIssueComments(project, id)
   // start by looking at the most recent commments and work back
   Collections.reverse(comments)
   for (comment in comments) {
-    echo "Found PR comment ${comment.body}, checking if it matches ${match}"
+    echo "Found PR comment ${comment.body}"
     def text = comment.body.trim()
     if (text.equalsIgnoreCase(match)){
       return true
@@ -558,6 +610,25 @@ def getOpenShiftBuildName(){
     }
   }
   return null
+}
+
+def isKubernetesPluginVersion013(){
+    def isNewVersion = false
+
+    try{
+      def object = new org.csanchez.jenkins.plugins.kubernetes.PodAnnotation('dummy','dummy')
+      def objPackage = object.getClass().getPackage()
+      def version = objPackage.getImplementationVersion()
+      // we could be using a custom built jar so remove any -SNAPSHOT from the version
+      def v = Double.parseDouble(version.replaceAll("-SNAPSHOT",""));
+
+      if (v >= 0.13) {
+        isNewVersion = true
+      }
+    } catch (err) {
+      echo "caught error when checking which kubernetes-plugin version we are using; defaulting to < 0.13: ${err}"
+    }
+    return isNewVersion
 }
 
 return this

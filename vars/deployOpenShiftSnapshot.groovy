@@ -60,6 +60,7 @@ def call(body) {
             export PROXIED_K8S_API_SERVER="${WS_K8S_API_SERVER}"
             export OAUTH_ISSUER="https://${WS_K8S_API_SERVER}"
             export PROXY_PASS_URL="https://${WS_K8S_API_SERVER}"
+            export K8S_API_SERVER_BASE_PATH="/"
             export OAUTH_AUTHORIZE_URI="https://${WS_K8S_API_SERVER}/oauth/authorize"
             export AUTH_LOGOUT_URI="https://${WS_K8S_API_SERVER}/connect/endsession?id_token={{id_token}}"
 
@@ -71,6 +72,7 @@ def call(body) {
 
             echo "OPENSHIFT_CONSOLE_URL=${OPENSHIFT_CONSOLE_URL}"  >> ./values.txt
             echo "WS_K8S_API_SERVER=${WS_K8S_API_SERVER}"  >> ./values.txt
+            echo "K8S_API_SERVER_BASE_PATH=${K8S_API_SERVER_BASE_PATH}"  >> ./values.txt
 
             echo "PROXIED_K8S_API_SERVER=${PROXIED_K8S_API_SERVER}"  >> ./values.txt
             echo "OAUTH_ISSUER=${OAUTH_ISSUER}"  >> ./values.txt
@@ -106,7 +108,7 @@ def call(body) {
         waitUntil {
             // wait until the pods are running has been deleted
             try {
-                sh "oc get pod -l project=${deploymentName},provider=${providerLabel} -n ${openShiftProject} | grep Running"
+                sh "oc get pod -l app=${deploymentName},provider=${providerLabel} -n ${openShiftProject} | grep Running"
                 echo "${deploymentName} pod is running"
                 return true
             } catch (err) {
