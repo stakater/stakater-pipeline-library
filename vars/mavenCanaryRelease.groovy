@@ -20,8 +20,8 @@ def call(body) {
     }
 
     sh "git checkout -b ${env.JOB_NAME}-${config.version}"
-    sh "mvn org.codehaus.mojo:versions-maven-plugin:2.2:set -U -DnewVersion=${config.version}"
-    sh "mvn clean -B -e -U deploy -Dmaven.test.skip=${skipTests} ${profile}"
+    sh "./mvnw org.codehaus.mojo:versions-maven-plugin:2.2:set -U -DnewVersion=${config.version}"
+    sh "./mvnw clean -B -e -U deploy -Dmaven.test.skip=${skipTests} ${profile}"
 
     junitResults(body)
 
@@ -47,10 +47,6 @@ def call(body) {
 
     sonarQubeScanner(body)
 
-
-    sonarQubeScanner(body);
-
-
     def s2iMode = utils.supportsOpenShiftS2I()
     echo "s2i mode: ${s2iMode}"
 
@@ -67,7 +63,7 @@ def call(body) {
 
         } else {
             retry(5) {
-                sh "mvn fabric8:push -Ddocker.push.registry=${registry}"
+                sh "./mvnw fabric8:push -Ddocker.push.registry=${registry}"
             }
         }
     }
