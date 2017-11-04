@@ -4,9 +4,9 @@ def call(body) {
     def config = [:]
     body.delegate = config
     body()
+
     def serviceName = config.serviceName ?: "content-repository";
     def useContentRepository = config.useContentRepository ?: "true"
-
 
     if (useContentRepository) {
         def flow = new io.fabric8.Fabric8Commands()
