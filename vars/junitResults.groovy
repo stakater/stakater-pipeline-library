@@ -12,7 +12,6 @@ def call(body) {
                 step([$class: 'JUnitResultArchiver', testResults: '**/surefire-reports/*.xml', healthScaleFactor: 1.0])
             }
 
-
             def failsafe = findFiles(glob: '**/failsafe-reports/*.xml')
             if (failsafe) {
                 step([$class: 'JUnitResultArchiver', testResults: '**/failsafe-reports/*.xml', healthScaleFactor: 1.0])
