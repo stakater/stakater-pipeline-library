@@ -654,6 +654,10 @@ def addMergeCommentToPullRequest(String pr, String project) {
 
 def getGitHubProject(){
     def url = getScmPushUrl()
+    return extractOrganizationAndProjectFromGitHubUrl(url)
+}
+
+def extractOrganizationAndProjectFromGitHubUrl(url) {
     if (!url.contains('github.com')){
         error "${url} is not a GitHub URL"
     }
@@ -666,7 +670,7 @@ def getGitHubProject(){
     }
 
     if (url.contains(".git")){
-        url = url.replaceAll(".git", '')
+        url = url.replaceAll("\\.git", '')
     }
     return url.trim()
 }
