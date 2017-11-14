@@ -79,6 +79,31 @@ def isArtifactAvailableInRepo(String repo, String groupId, String artifactId, St
     }
 }
 
+def isFileAvailableInRepo(String repo, String path, String version, String artifact) {
+    repo = removeTrailingSlash(repo)
+    path = removeTrailingSlash(path)
+    version = removeTrailingSlash(version)
+
+    def url = new URL("${repo}/${path}/${version}/${artifact}")
+
+    HttpURLConnection connection = url.openConnection()
+
+    connection.setRequestMethod("GET")
+    connection.setDoInput(true)
+
+    try {
+        connection.connect()
+        new InputStreamReader(connection.getInputStream(), "UTF-8")
+        echo "File is available at: ${url.toString()}"
+        return true
+    } catch (FileNotFoundException e1) {
+        echo "File not yet available: ${url.toString()}"
+        return false
+    } finally {
+        connection.disconnect()
+    }
+}
+
 def removeTrailingSlash(String myString) {
     if (myString.endsWith("/")) {
         return myString.substring(0, myString.length() - 1)
@@ -130,6 +155,14 @@ def searchAndReplaceMavenSnapshotProfileVersionProperty(String property, String 
 def setupWorkspaceForRelease(String project, Boolean useGitTagForNextVersion, String mvnExtraArgs = "", String currentVersion = "") {
     sh "git config user.email fabric8-admin@googlegroups.com"
     sh "git config user.name fabric8-release"
+
+    sh 'chmod 600 /root/.ssh-git/ssh-key'
+    sh 'chmod 600 /root/.ssh-git/ssh-key.pub'
+    sh 'chmod 700 /root/.ssh-git'
+    sh 'chmod 600 /home/jenkins/.gnupg/pubring.gpg'
+    sh 'chmod 600 /home/jenkins/.gnupg/secring.gpg'
+    sh 'chmod 600 /home/jenkins/.gnupg/trustdb.gpg'
+    sh 'chmod 700 /home/jenkins/.gnupg'
 
     sh "git tag -d \$(git tag)"
     sh "git fetch --tags"
@@ -242,7 +275,7 @@ def stageSonartypeRepo() {
         //step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
 
     } catch (err) {
-        hubot room: 'release', message: "Release failed when building and deploying to Nexus ${err}"
+        hubotSend room: 'release', message: "Release failed when building and deploying to Nexus ${err}", failOnError: false
         currentBuild.result = 'FAILURE'
         error "ERROR Release failed when building and deploying to Nexus ${err}"
     }
@@ -675,14 +708,19 @@ def extractOrganizationAndProjectFromGitHubUrl(url) {
     return url.trim()
 }
 
-def isAuthorCollaborator(githubToken) {
+def isAuthorCollaborator(githubToken, project) {
+
     if (!githubToken){
+
         githubToken = getGitHubToken()
+
         if (!githubToken){
             echo "No GitHub api key found so trying annonynous GitHub api call"
         }
     }
-    def project = getGitHubProject()
+    if (!project){
+        project = getGitHubProject()
+    }
 
     def changeAuthor = env.CHANGE_AUTHOR
     if (!changeAuthor){
@@ -905,7 +943,6 @@ def getCloudConfig() {
  * Should be called after checkout scm
  */
 @NonCPS
-
 def getScmPushUrl() {
     def url = sh(returnStdout: true, script: 'git config --get remote.origin.url').trim()
 

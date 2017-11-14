@@ -1,11 +1,10 @@
 #!/usr/bin/groovy
-
 def call(Map parameters = [:], body) {
 
-    def defaultLabel = buildId('maven')
+    def defaultLabel = buildId('test')
     def label = parameters.get('label', defaultLabel)
 
-    mavenTemplate(parameters) {
+    fabric8EETestTemplate(parameters) {
         node(label) {
             body()
         }

@@ -11,7 +11,7 @@ def call(body) {
     def proceedMessage = """Would you like to promote version ${config.version} to the next environment?
 """
 
-    hubotApprove message: proceedMessage, room: config.room
+    hubotApprove message: proceedMessage, failOnError: false
     def id = approveRequestedEvent(app: "${env.JOB_NAME}", environment: config.environment)
 
     try {

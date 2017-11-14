@@ -182,7 +182,7 @@ String getDockerRegistry() {
     def registryHost = env.FABRIC8_DOCKER_REGISTRY_SERVICE_HOST
     def registryPort = env.FABRIC8_DOCKER_REGISTRY_SERVICE_PORT
     if (!registryHost || !registryPort){
-       error "No external-docker-registry found in Jenkins configmap or no FABRIC8_DOCKER_REGISTRY_SERVICE_HOST FABRIC8_DOCKER_REGISTRY_SERVICE_PORT environment variables"
+       error "No external-docker-registry-url found in Jenkins configmap or no FABRIC8_DOCKER_REGISTRY_SERVICE_HOST FABRIC8_DOCKER_REGISTRY_SERVICE_PORT environment variables"
     }
     return registryHost + ':' + registryPort
 }
@@ -198,10 +198,8 @@ String getUsersPipelineConfig(k) {
       error "no fabric8-pipelines configmap found in namespace ${ns}"
     }
     def d = r.getData()
+    echo "looking for key ${k} in ${ns}/fabric8-pipelines configmap"
     def v = d[k]
-    if (!v){
-      error "no value for key ${k} found in ${ns}/fabric8-pipelines configmap"
-    }
     return v
 }
 
@@ -322,50 +320,35 @@ def getUsersNamespace(){
     return usersNamespace
 }
 
+def getBranch(){
+  def branch = env.BRANCH_NAME
+  if (!branch){
+    try {
+      branch = sh(script: 'git symbolic-ref --short HEAD', returnStdout: true).toString().trim()
+    } catch (err){
+      echo('Unable to get git branch and in a detached HEAD. You may need to select Pipeline additional behaviour and \'Check out to specific local branch\'')
+      return null
+    }
+  }
+  echo "Using branch ${branch}" 
+  return branch
+}
 
 def isCI(){
-
-  // if we are running a branch plugin generated job check the env var
-  if (env.BRANCH_NAME){
-    if (env.BRANCH_NAME.startsWith('PR-')) {
-      // disabled till we know build is there
-      //addPipelineAnnotationToBuild('ci')
-      return true
-    }
-    return false
+  def branch = getBranch()
+  if(branch && branch.startsWith('PR-')){
+    return true
   }
-
-  // otherwise if we aren't running on master then this is a CI build
-  def branch = sh(script: 'git symbolic-ref --short HEAD', returnStdout: true).toString().trim()
-
-  if (branch.equals('master')) {
-    return false
-  }
-  // disabled till we know build is there
-  //addPipelineAnnotationToBuild('ci')
-  return true
+  // if we can't get the branch assume we're not in a CI pipeline as that would be a PR branch
+  return false
 }
 
 def isCD(){
-
-  // if we are running a branch plugin generated job check the env var
-  if (env.BRANCH_NAME){
-    if (env.BRANCH_NAME.equals('master')) {
-      // disabled till we know build is there
-      //addPipelineAnnotationToBuild('cd')
-      return true
-    }
-    return false
-  }
-
-  // otherwise if we are running on master then this is a CD build
-  def branch = sh(script: 'git symbolic-ref --short HEAD', returnStdout: true).toString().trim()
-
-  if (branch.equals('master')) {
-    // disabled till we know build is there
-    //addPipelineAnnotationToBuild('cd')
+  def branch = getBranch()
+  if(!branch || branch.equals('master')){
     return true
   }
+  // if we can't get the branch assume we're not in a CI pipeline as that would be a PR branch
   return false
 }
 
@@ -385,14 +368,6 @@ def getLatestVersionFromTag(){
     error 'no release tag found'
   }
   return version.startsWith("v") ? version.substring(1) : version
-}
-
-def getBranch(){
-  if (env.BRANCH_NAME){
-    return env.BRANCH_NAME
-  } else {
-    return sh(script: 'git symbolic-ref --short HEAD', returnStdout: true).toString().trim()
-  }
 }
 
 @NonCPS
