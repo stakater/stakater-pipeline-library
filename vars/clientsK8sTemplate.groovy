@@ -12,6 +12,7 @@ def call(Map parameters = [:], body) {
 
     def cloud = flow.getCloudConfig()
 
+    echo 'Using clientsImage : ' + clientsImage
     echo 'Mounting docker socket to build docker images'
     podTemplate(cloud: cloud, label: label, serviceAccount: 'jenkins', inheritFrom: "${inheritFrom}",
             containers: [
