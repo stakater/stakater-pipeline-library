@@ -13,7 +13,6 @@ def call(body) {
             newVersion = getNewVersion {}
         }
         env.setProperty('VERSION', newVersion)
-        echo sh(returnStdout: true, script: 'env')
         dockerBuild(newVersion)
         return newVersion
     }
