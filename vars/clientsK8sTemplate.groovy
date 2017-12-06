@@ -19,6 +19,7 @@ def call(Map parameters = [:], body) {
     podTemplate(cloud: cloud, label: label, serviceAccount: 'jenkins', inheritFrom: "${inheritFrom}",
             containers: [
                     containerTemplate(
+                            // why can't I change this name? its registered somewhere?
                             name: 'clients',
                             image: "${clientsImage}",
                             command: '/bin/sh -c',
