@@ -4,9 +4,11 @@ import io.fabric8.Fabric8Commands
 def call(Map parameters = [:], body) {
     def flow = new Fabric8Commands()
 
-    def defaultLabel = buildId('clientsK8s')
+    def defaultLabel = buildId('clients')
     def label = parameters.get('label', defaultLabel)
 
+    // NOTE: this build-clients contains docker binaries which were giving auth credentials issue as they are from
+    // RedHat! So, we pass on the clientsImage e.g. stakater/docker-with-git:17.1 which has latest docker binaries
     def clientsImage = parameters.get('clientsImage', 'fabric8/builder-clients:v703b6d9')
     def inheritFrom = parameters.get('inheritFrom', 'base')
 
@@ -17,7 +19,7 @@ def call(Map parameters = [:], body) {
     podTemplate(cloud: cloud, label: label, serviceAccount: 'jenkins', inheritFrom: "${inheritFrom}",
             containers: [
                     containerTemplate(
-                            name: 'clientsK8s',
+                            name: 'clients',
                             image: "${clientsImage}",
                             command: '/bin/sh -c',
                             args: 'cat',
