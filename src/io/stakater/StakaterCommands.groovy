@@ -1,17 +1,6 @@
 #!/usr/bin/groovy
 package io.stakater
 
-import com.cloudbees.groovy.cps.NonCPS
-import groovy.json.JsonSlurper
-import io.fabric8.kubernetes.api.KubernetesHelper
-import io.fabric8.kubernetes.client.DefaultKubernetesClient
-import io.fabric8.kubernetes.client.KubernetesClient
-import io.fabric8.openshift.client.DefaultOpenShiftClient
-import io.fabric8.openshift.client.OpenShiftClient
-import jenkins.model.Jenkins
-
-import java.util.regex.Pattern
-
 def setupWorkspaceForRelease(String project, String useGitTagOrBranchForNextVersion = "", String mvnExtraArgs = "", String currentVersion = "") {
     def flow = new io.fabric8.Fabric8Commands()
 
