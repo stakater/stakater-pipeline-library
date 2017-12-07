@@ -4,7 +4,7 @@ Here is a sample Jenkinsfile to deploy nodejs app
 
 ```
 #!/usr/bin/groovy
-@Library('github.com/stakater/fabric8-pipeline-library@deploy-nodejs')
+@Library('github.com/stakater/fabric8-pipeline-library@master')
 
 def dummy = ""
 
@@ -26,8 +26,6 @@ podTemplate(envVars: [envVar(key: 'FABRIC8_DOCKER_REGISTRY_SERVICE_HOST', value:
             }
 
             newVersion = performCanaryReleaseK8s {}
-
-            // sh "sleep 200s"
 
             rc = getDeploymentResourcesK8s {
                 port = 8080
