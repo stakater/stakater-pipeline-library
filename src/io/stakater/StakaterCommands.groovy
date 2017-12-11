@@ -12,7 +12,7 @@ import jenkins.model.Jenkins
 
 import java.util.regex.Pattern
 
-def setupWorkspaceForRelease(String project, String useGitTagOrBranchForNextVersion = "", String mvnExtraArgs = "", String currentVersion = "") {
+def setupWorkspaceForRelease2(String project, String useGitTagOrBranchForNextVersion = "", String mvnExtraArgs = "", String currentVersion = "") {
     def flow = new io.fabric8.Fabric8Commands()
 
     sh "git config user.email admin@stakater.com"

@@ -27,7 +27,7 @@ def call(body) {
 
     def currentVersion = flow.getProjectVersion()
 
-    flow.setupWorkspaceForRelease(config.project, config.useGitTagForNextVersion, extraSetVersionArgs, currentVersion)
+    flow.setupWorkspaceForRelease2(config.project, config.useGitTagForNextVersion, extraSetVersionArgs, currentVersion)
 
     repoId = flow.stageSonartypeRepo()
     releaseVersion = flow.getProjectVersion()
