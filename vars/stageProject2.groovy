@@ -1,4 +1,6 @@
 #!/usr/bin/groovy
+import io.stakater.StakaterCommands
+
 def call(body) {
   // evaluate the body block, and collect configuration into the object
   def config = [:]
@@ -6,7 +8,7 @@ def call(body) {
   body.delegate = config
   body()
 
-  def flow = new io.stakater.StakaterCommands()
+  def flow = new StakaterCommands()
   def repoId
   def releaseVersion
   def extraStageImages = config.extraImagesToStage ?: []
