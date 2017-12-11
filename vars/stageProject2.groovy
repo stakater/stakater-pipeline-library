@@ -9,8 +9,8 @@ def call(body) {
   body.delegate = config
   body()
 
-  def flow = new StakaterCommands()
-  def sFlow = new Fabric8Commands()
+  def sflow = new StakaterCommands()
+  def flow = new Fabric8Commands()
   def repoId
   def releaseVersion
   def extraStageImages = config.extraImagesToStage ?: []
@@ -29,18 +29,18 @@ def call(body) {
 
     sh "git remote set-url origin git@github.com:${config.project}.git"
 
-    def currentVersion = flow.getProjectVersion()
+    def currentVersion = sflow.getProjectVersion()
 
-    sFlow.setupWorkspaceForRelease(config.project, config.useGitTagForNextVersion, extraSetVersionArgs, currentVersion)
+    flow.setupWorkspaceForRelease(config.project, config.useGitTagForNextVersion, extraSetVersionArgs, currentVersion)
 
-    repoId = flow.stageSonartypeRepo()
-    releaseVersion = flow.getProjectVersion()
+    repoId = sflow.stageSonartypeRepo()
+    releaseVersion = sflow.getProjectVersion()
 
     // lets avoide the stash / unstash for now as we're not using helm ATM
     //stash excludes: '*/src/', includes: '**', name: "staged-${config.project}-${releaseVersion}".hashCode().toString()
 
     if (!config.useGitTagForNextVersion){
-      flow.updateGithub ()
+      sflow.updateGithub ()
     }
   }
 
