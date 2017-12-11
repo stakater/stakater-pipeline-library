@@ -1,4 +1,5 @@
 #!/usr/bin/groovy
+import io.fabric8.Fabric8Commands
 import io.stakater.StakaterCommands
 
 def call(body) {
@@ -9,6 +10,7 @@ def call(body) {
   body()
 
   def flow = new StakaterCommands()
+  def sFlow = new Fabric8Commands()
   def repoId
   def releaseVersion
   def extraStageImages = config.extraImagesToStage ?: []
@@ -29,7 +31,7 @@ def call(body) {
 
     def currentVersion = flow.getProjectVersion()
 
-    flow.setupWorkspaceForRelease2(config.project, config.useGitTagForNextVersion, extraSetVersionArgs, currentVersion)
+    sFlow.setupWorkspaceForRelease(config.project, config.useGitTagForNextVersion, extraSetVersionArgs, currentVersion)
 
     repoId = flow.stageSonartypeRepo()
     releaseVersion = flow.getProjectVersion()
