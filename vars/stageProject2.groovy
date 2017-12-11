@@ -27,6 +27,8 @@ def call(body) {
     sh 'chmod 600 /home/jenkins/.gnupg/trustdb.gpg'
     sh 'chmod 700 /home/jenkins/.gnupg'
 
+    sh "git config user.email stakater@aurorasolutions.io"
+    sh "git config user.name Stakater"
     sh "git remote set-url origin git@github.com:${config.project}.git"
 
     def currentVersion = sflow.getProjectVersion()
