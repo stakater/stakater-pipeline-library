@@ -72,4 +72,15 @@ def releaseSonartypeRepo(String repoId) {
     }
 }
 
+def getProjectVersion() {
+    def file = readFile('pom.xml')
+    def project = new XmlSlurper().parseText(file)
+    return project.version.text()
+}
+
+def updateGithub() {
+    def releaseVersion = getProjectVersion()
+    sh "git push origin release-v${releaseVersion}"
+}
+
 return this
