@@ -164,10 +164,8 @@ def setupWorkspaceForRelease(String project, Boolean useGitTagForNextVersion, St
     sh 'chmod 600 /home/jenkins/.gnupg/trustdb.gpg'
     sh 'chmod 700 /home/jenkins/.gnupg'
 
-    sh 'git config user.email'
-    sh 'git config user.name'
-
     sh "git tag -d \$(git tag)"
+    sh "cat /root/.ssh-git/ssh-key"
     sh 'eval "$(ssh-agent -s)" && ssh-add /root/.ssh-git/ssh-key && git fetch --tags'
 
     if (useGitTagForNextVersion) {
