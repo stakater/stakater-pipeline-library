@@ -153,8 +153,8 @@ def searchAndReplaceMavenSnapshotProfileVersionProperty(String property, String 
 }
 
 def setupWorkspaceForRelease(String project, Boolean useGitTagForNextVersion, String mvnExtraArgs = "", String currentVersion = "") {
-    sh "git config user.email admin@stakater.com"
-    sh "git config user.name stakater-release"
+    sh "git config user.email asimawan.42@gmail.com"
+    sh "git config user.name asim42"
 
     sh 'chmod 600 /root/.ssh-git/ssh-key'
     sh 'chmod 600 /root/.ssh-git/ssh-key.pub'
