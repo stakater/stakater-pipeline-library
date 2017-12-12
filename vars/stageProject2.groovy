@@ -32,7 +32,7 @@ def call(body) {
 
     def currentVersion = sflow.getProjectVersion()
 
-    flow.setupWorkspaceForRelease(config.project, config.useGitTagForNextVersion, extraSetVersionArgs, currentVersion)
+    flow.setupWorkspaceForRelease2(config.project, config.useGitTagForNextVersion, extraSetVersionArgs, currentVersion)
 
     repoId = sflow.stageSonartypeRepo()
     releaseVersion = sflow.getProjectVersion()
