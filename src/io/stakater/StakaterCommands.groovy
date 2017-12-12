@@ -40,6 +40,38 @@ def releaseSonartypeRepo(String repoId) {
     }
 }
 
+def setupWorkspaceForRelease2(String project, String useGitTagOrBranchForNextVersion = "", String mvnExtraArgs = "", String currentVersion = "") {
+    def flow = new io.fabric8.Fabric8Commands()
+
+    sh "git config user.email admin@stakater.com"
+    sh "git config user.name stakater-release"
+
+    sh "git tag -d \$(git tag)"
+    sh 'eval "$(ssh-agent -s)" && ssh-add /root/.ssh-git/ssh-key && git fetch --tags'
+
+    if (!useGitTagOrBranchForNextVersion.equalsIgnoreCase("branch")) {
+        def newVersion = flow.getNewVersionFromTag(currentVersion)
+        echo "New release version ${newVersion}"
+        sh "./mvnw -U versions:set -DnewVersion=${newVersion} " + mvnExtraArgs
+        sh "git commit -a -m 'release ${newVersion}'"
+        flow.pushTag(newVersion)
+    } else {
+        sh './mvnw build-helper:parse-version versions:set -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} ' + mvnExtraArgs
+    }
+
+    if (!useGitTagOrBranchForNextVersion.equalsIgnoreCase("tag")) {
+        def releaseVersion = flow.getProjectVersion()
+
+        // delete any previous branches of this release
+        try {
+            sh "git checkout -b release-v${releaseVersion}"
+        } catch (err) {
+            sh "git branch -D release-v${releaseVersion}"
+            sh "git checkout -b release-v${releaseVersion}"
+        }
+    }
+}
+
 def getProjectVersion() {
     def file = readFile('pom.xml')
     def project = new XmlSlurper().parseText(file)
