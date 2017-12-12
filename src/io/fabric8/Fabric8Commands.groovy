@@ -159,7 +159,7 @@ def setupWorkspaceForRelease2(String project, String useGitTagOrBranchForNextVer
     sh "git config user.name stakater-release"
 
     sh "git tag -d \$(git tag)"
-    sh "git fetch --tags"
+    sh 'eval "$(ssh-agent -s)" && ssh-add /root/.ssh-git/ssh-key && git fetch --tags'
 
     if (!useGitTagOrBranchForNextVersion.equalsIgnoreCase("branch")) {
         def newVersion = flow.getNewVersionFromTag(currentVersion)
