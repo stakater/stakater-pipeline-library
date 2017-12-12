@@ -153,8 +153,8 @@ def searchAndReplaceMavenSnapshotProfileVersionProperty(String property, String 
 }
 
 def setupWorkspaceForRelease(String project, Boolean useGitTagForNextVersion, String mvnExtraArgs = "", String currentVersion = "") {
-    sh "git config user.email stakater@aurorasolutions.io"
-    sh "git config user.name Stakater"
+    sh "git config user.email admin@stakater.com"
+    sh "git config user.name stakater-release"
 
     sh 'chmod 600 /root/.ssh-git/ssh-key'
     sh 'chmod 600 /root/.ssh-git/ssh-key.pub'
@@ -165,7 +165,7 @@ def setupWorkspaceForRelease(String project, Boolean useGitTagForNextVersion, St
     sh 'chmod 700 /home/jenkins/.gnupg'
 
     sh "git tag -d \$(git tag)"
-    sh "git fetch --tags"
+    sh 'eval "$(ssh-agent -s)" && ssh-add /root/.ssh-git/ssh-key && git fetch --tags'
 
     if (useGitTagForNextVersion) {
         def newVersion = getNewVersionFromTag(currentVersion)
