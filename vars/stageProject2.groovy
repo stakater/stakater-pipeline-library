@@ -27,7 +27,7 @@ def call(body) {
     sh 'chmod 600 /home/jenkins/.gnupg/trustdb.gpg'
     sh 'chmod 700 /home/jenkins/.gnupg'
     sh 'eval "$(ssh-agent -s)"'
-    sh 'exec ssh-agent bash'
+    sh 'exec ssh-agent /bin/sh'
     sh 'ssh-add /root/.ssh-git/ssh-key'
 
     sh "git remote set-url origin git@github.com:${config.project}.git"
