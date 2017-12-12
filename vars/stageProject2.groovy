@@ -28,7 +28,7 @@ def call(body) {
     sh 'chmod 700 /home/jenkins/.gnupg'
     sh 'eval "$(ssh-agent -s)" && ssh-add /root/.ssh-git/ssh-key'
 
-    sh "git remote set-url origin git@github.com:${config.project}.git"
+    sh "git remote set-url origin https://github.com/${config.project}.git"
 
     def currentVersion = sflow.getProjectVersion()
 
