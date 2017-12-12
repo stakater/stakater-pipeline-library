@@ -166,7 +166,7 @@ def setupWorkspaceForRelease(String project, Boolean useGitTagForNextVersion, St
 
     sh "git tag -d \$(git tag)"
     sh "cat /root/.ssh-git/ssh-key"
-    sh 'eval "$(ssh-agent -s)" && ssh-add /root/.ssh-git/ssh-key && git fetch --tags'
+    sh 'ssh-add /root/.ssh-git/ssh-key && git fetch --tags'
 
     if (useGitTagForNextVersion) {
         def newVersion = getNewVersionFromTag(currentVersion)
