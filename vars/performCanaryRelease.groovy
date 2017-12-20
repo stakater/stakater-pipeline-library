@@ -18,11 +18,7 @@ def call(body) {
         env.setProperty('VERSION', newVersion)
 
         def flow = new Fabric8Commands()
-        if (flow.isOpenShift()) {
-            s2iBuild(newVersion)
-        } else {
-            dockerBuild(newVersion)
-        }
+        dockerBuild(newVersion)
 
         return newVersion
     }

@@ -20,9 +20,6 @@ def call(body) {
     def yaml
 
     def isSha = ''
-    if (flow.isOpenShift()){
-        isSha = utils.getImageStreamSha(env.JOB_NAME)
-    }
 
     def fabric8Registry = ''
     if (env.FABRIC8_DOCKER_REGISTRY_SERVICE_HOST){
@@ -210,11 +207,7 @@ def deploymentConfig = """
       name: ${config.version}
 """
 
-  if (flow.isOpenShift()){
-    yaml = list + service + is + deploymentConfig
-  } else {
-    yaml = list + service + deployment
-  }
+  yaml = list + service + deployment
 
   echo 'using resources:\n' + yaml
   return yaml
