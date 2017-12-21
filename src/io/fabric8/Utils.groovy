@@ -4,8 +4,6 @@ package io.fabric8
 import com.cloudbees.groovy.cps.NonCPS
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.KubernetesClient
-import io.fabric8.openshift.client.DefaultOpenShiftClient
-import io.fabric8.openshift.client.OpenShiftClient
 import jenkins.model.Jenkins
 import org.jenkinsci.plugins.workflow.job.WorkflowJob
 
@@ -119,55 +117,6 @@ boolean isDisabledITests() {
   return answer;
 }
 
-/**
- * Returns true if we should use S2I to build docker images
- */
-@NonCPS
-def isUseOpenShiftS2IForBuilds() {
-    return !isUseDockerSocket()
-}
-
-/**
- * Returns true if the current cluster can support S2I
- */
-@NonCPS
-def supportsOpenShiftS2I() {
-    DefaultOpenShiftClient client = new DefaultOpenShiftClient();
-    if (client.isAdaptable(OpenShiftClient.class)) {
-        try {
-            if (client.supportsOpenShiftAPIGroup("image.openshift.io")) {
-                return true
-            }
-        } catch (e) {
-          echo "WARNING: Failed to use the OpenShiftClient.supportsOpenShiftAPIGroup() API: ${e}"
-          e.printStackTrace()
-          return true
-        }
-    }
-    return false
-}
-
-/**
- * Returns true if we should mount the docker socket for docker builds
- */
-@NonCPS
-boolean isUseDockerSocket() {
-  boolean answer = false
-  try {
-    def config = pipelineConfiguration()
-    echo "Loaded PipelineConfiguration ${config}"
-    def flag = config.getUseDockerSocketFlag()
-    if (flag != null) {
-      echo "Loaded the useDockerSocket flag ${flag}"
-      return flag ? true : false
-    }
-  } catch (e) {
-    echo "WARNING: Failed to find the getUseDockerSocketFlag() flag on the PipelineConfiguration object - probably due to the jenkins plugin `kubernetes-pipeline-plugin` version: ${e}"
-    e.printStackTrace()
-  }
-  return supportsOpenShiftS2I() ? false : true;
-}
-
 @NonCPS
 String getDockerRegistry() {
 
@@ -239,77 +188,6 @@ String getNamespace() {
   return client.getNamespace()
 }
 
-@NonCPS
-def getImageStreamSha(imageStreamName) {
-  OpenShiftClient oc = new DefaultOpenShiftClient()
-  return findTagSha(oc, imageStreamName, getNamespace())
-}
-
-// returns the tag sha from an imagestream
-// original code came from the fabric8-maven-plugin
-@NonCPS
-def findTagSha(OpenShiftClient client, String imageStreamName, String namespace) {
-  def currentImageStream = null
-  for (int i = 0; i < 15; i++) {
-    if (i > 0) {
-      echo("Retrying to find tag on ImageStream ${imageStreamName}")
-      try {
-        Thread.sleep(1000)
-      } catch (InterruptedException e) {
-        echo("interrupted ${e}")
-      }
-    }
-    currentImageStream = client.imageStreams().withName(imageStreamName).get()
-    if (currentImageStream == null) {
-      continue
-    }
-    def status = currentImageStream.getStatus()
-    if (status == null) {
-      continue
-    }
-    def tags = status.getTags()
-    if (tags == null || tags.isEmpty()) {
-      continue
-    }
-    // latest tag is the first
-    TAG_EVENT_LIST:
-    for (def list : tags) {
-      def items = list.getItems()
-      if (items == null) {
-        continue TAG_EVENT_LIST
-      }
-      // latest item is the first
-      for (def item : items) {
-        def image = item.getImage()
-        if (image != null && image != '') {
-          echo("Found tag on ImageStream " + imageStreamName + " tag: " + image)
-          return image
-        }
-      }
-    }
-  }
-  // No image found, even after several retries:
-  if (currentImageStream == null) {
-    error ("Could not find a current ImageStream with name " + imageStreamName + " in namespace " + namespace)
-  } else {
-    error ("Could not find a tag in the ImageStream " + imageStreamName)
-  }
-}
-
-@NonCPS
-def addAnnotationToBuild(annotation, value) {
-  def flow = new Fabric8Commands()
-  if (flow.isOpenShift()) {
-    def buildName = getValidOpenShiftBuildName()
-    echo "Adding annotation '${annotation}: ${value}' to Build ${buildName}"
-    OpenShiftClient oClient = new DefaultOpenShiftClient()
-    def usersNamespace = getUsersNamespace()
-    echo "looking for ${buildName} in namespace ${usersNamespace}"
-    oClient.builds().inNamespace(usersNamespace).withName(buildName).edit().editMetadata().addToAnnotations(annotation, value).endMetadata().done()
-  } else {
-    echo "Not running on openshift so skip adding annotation ${annotation}: value"
-  }
-}
 
 @NonCPS
 def getUsersNamespace(){
@@ -330,7 +208,7 @@ def getBranch(){
       return null
     }
   }
-  echo "Using branch ${branch}" 
+  echo "Using branch ${branch}"
   return branch
 }
 
@@ -368,34 +246,6 @@ def getLatestVersionFromTag(){
     error 'no release tag found'
   }
   return version.startsWith("v") ? version.substring(1) : version
-}
-
-@NonCPS
-def isValidBuildName(buildName){
-  def flow = new Fabric8Commands()
-  if (flow.isOpenShift()) {
-    echo "Looking for matching Build ${buildName}"
-    OpenShiftClient oClient = new DefaultOpenShiftClient()
-    def usersNamespace = getUsersNamespace()
-    def build = oClient.builds().inNamespace(usersNamespace).withName(buildName).get()
-    if (build){
-      return true
-    }
-    return false
-  } else {
-    error "Not running on openshift so cannot lookup build names"
-  }
-}
-
-@NonCPS
-def getValidOpenShiftBuildName(){
-
-  def buildName = getOpenShiftBuildName()
-  if (isValidBuildName(buildName)){
-    return buildName
-  } else {
-    error "No matching openshift build with name ${buildName} found"
-  }
 }
 
 def replacePackageVersion(packageLocation, pair){
@@ -571,22 +421,6 @@ def getRepoName(){
   }
   // normal job name
   return jobName
-}
-
-@NonCPS
-def getOpenShiftBuildName(){
-  def activeInstance = Jenkins.getActiveInstance()
-  def  job = (WorkflowJob) activeInstance.getItemByFullName(env.JOB_NAME)
-  def run = job.getBuildByNumber(Integer.parseInt(env.BUILD_NUMBER))
-  def flow = new Fabric8Commands()
-  if (flow.isOpenShift()){
-    def clazz = Thread.currentThread().getContextClassLoader().loadClass("io.fabric8.jenkins.openshiftsync.BuildCause")
-    def cause = run.getCause(clazz)
-    if (cause != null) {
-      return cause.name
-    }
-  }
-  return null
 }
 
 def isKubernetesPluginVersion013(){

@@ -8,7 +8,7 @@ def setupWorkspaceForRelease(String project, String useGitTagOrBranchForNextVers
     sh "git config user.name stakater-release"
 
     sh "git tag -d \$(git tag)"
-    sh "git fetch --tags"
+    sh 'eval "$(ssh-agent -s)" && ssh-add /root/.ssh-git/ssh-key && git fetch --tags'
 
     if (!useGitTagOrBranchForNextVersion.equalsIgnoreCase("branch")) {
         def newVersion = flow.getNewVersionFromTag(currentVersion)
@@ -59,6 +59,17 @@ def releaseSonartypeRepo(String repoId) {
         currentBuild.result = 'FAILURE'
         error "ERROR releasing sonartype repo ${repoId}: ${err}"
     }
+}
+
+def getProjectVersion() {
+    def file = readFile('pom.xml')
+    def project = new XmlSlurper().parseText(file)
+    return project.version.text()
+}
+
+def updateGithub() {
+    def releaseVersion = getProjectVersion()
+    sh "git push origin release-v${releaseVersion}"
 }
 
 return this

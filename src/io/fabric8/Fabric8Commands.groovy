@@ -6,8 +6,6 @@ import groovy.json.JsonSlurper
 import io.fabric8.kubernetes.api.KubernetesHelper
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.KubernetesClient
-import io.fabric8.openshift.client.DefaultOpenShiftClient
-import io.fabric8.openshift.client.OpenShiftClient
 import jenkins.model.Jenkins
 
 import java.util.regex.Pattern
@@ -153,8 +151,8 @@ def searchAndReplaceMavenSnapshotProfileVersionProperty(String property, String 
 }
 
 def setupWorkspaceForRelease(String project, Boolean useGitTagForNextVersion, String mvnExtraArgs = "", String currentVersion = "") {
-    sh "git config user.email fabric8-admin@googlegroups.com"
-    sh "git config user.name fabric8-release"
+    sh "git config --global user.email asimawan.42@gmail.com"
+    sh "git config --global user.name asim42"
 
     sh 'chmod 600 /root/.ssh-git/ssh-key'
     sh 'chmod 600 /root/.ssh-git/ssh-key.pub'
@@ -165,12 +163,13 @@ def setupWorkspaceForRelease(String project, Boolean useGitTagForNextVersion, St
     sh 'chmod 700 /home/jenkins/.gnupg'
 
     sh "git tag -d \$(git tag)"
-    sh "git fetch --tags"
+    sh "cat /root/.ssh-git/ssh-key"
+    sh 'ssh-add /root/.ssh-git/ssh-key && git fetch --tags'
 
     if (useGitTagForNextVersion) {
         def newVersion = getNewVersionFromTag(currentVersion)
         echo "New release version ${newVersion}"
-        sh "mvn -B -U versions:set -DnewVersion=${newVersion} " + mvnExtraArgs
+        sh "./mvnw -B -U -s /root/.m2/settings.xml versions:set -DnewVersion=${newVersion} " + mvnExtraArgs
         sh "git commit -a -m 'release ${newVersion}'"
         pushTag(newVersion)
     } else {
@@ -269,7 +268,7 @@ def getNewVersionFromTag(pomVersion = null) {
 def stageSonartypeRepo() {
     try {
         sh "mvn clean -B"
-        sh "mvn -V -B -e -U install org.sonatype.plugins:nexus-staging-maven-plugin:1.6.7:deploy -P release -P openshift -DnexusUrl=https://oss.sonatype.org -DserverId=oss-sonatype-staging -Ddocker.push.registry=${env.FABRIC8_DOCKER_REGISTRY_SERVICE_HOST}:${env.FABRIC8_DOCKER_REGISTRY_SERVICE_PORT}"
+        sh "mvn -V -B -e -U install org.sonatype.plugins:nexus-staging-maven-plugin:1.6.7:deploy -P release -DnexusUrl=https://oss.sonatype.org -DserverId=oss-sonatype-staging -Ddocker.push.registry=${env.FABRIC8_DOCKER_REGISTRY_SERVICE_HOST}:${env.FABRIC8_DOCKER_REGISTRY_SERVICE_PORT}"
 
         // lets not archive artifacts until we if we just use nexus or a content repo
         //step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
@@ -929,11 +928,6 @@ def deleteNamespace(String name) {
 }
 
 @NonCPS
-def isOpenShift() {
-    return new DefaultOpenShiftClient().isAdaptable(OpenShiftClient.class)
-}
-
-@NonCPS
 def getCloudConfig() {
     def openshiftCloudConfig = Jenkins.getInstance().getCloud('openshift')
     return (openshiftCloudConfig) ? 'openshift' : 'kubernetes'
@@ -950,46 +944,6 @@ def getScmPushUrl() {
         error "no URL found for git config --get remote.origin.url "
     }
     return url
-}
-
-@NonCPS
-def openShiftImageStreamExists(String name){
-    if (isOpenShift()) {
-        try {
-            def result = sh(returnStdout: true, script: 'oc describe is ${name} --namespace openshift')
-            if (result && result.contains(name)){
-                echo "ImageStream  ${name} is already installed globally"
-                return true;
-            }else {
-                //see if its already in our namespace
-                def namespace = kubernetes.getNamespace();
-                result = sh(returnStdout: true, script: 'oc describe is ${name} --namespace ${namespace}')
-                if (result && result.contains(name)){
-                    echo "ImageStream  ${name} is already installed in project ${namespace}"
-                    return true;
-                }
-            }
-        }catch (e){
-            echo "Warning: ${e} "
-        }
-    }
-    return false;
-}
-
-@NonCPS
-def openShiftImageStreamInstall(String name, String location){
-    if (openShiftImageStreamExists(name)) {
-        echo "ImageStream ${name} does not exist - installing ..."
-        try {
-            def result = sh(returnStdout: true, script: 'oc create -f  ${location}')
-            def namespace = kubernetes.getNamespace();
-            echo "ImageStream ${name} now installed in project ${namespace}"
-            return true;
-        }catch (e){
-            echo "Warning: ${e} "
-        }
-    }
-    return false;
 }
 
 return this
