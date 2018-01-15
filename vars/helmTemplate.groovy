@@ -33,11 +33,11 @@ def call(Map parameters = [:], body) {
                                 alwaysPullImage: false,
                                 workingDir: '/home/helm/',
                                 envVars: [
-                                        envVar(key: 'DOCKER_CONFIG', value: '/home/helm/.docker/')])],
+                                        envVar(key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/')])],
                 volumes: [
-                        secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/helm/.docker'),
-                        secretVolume(secretName: 'jenkins-release-gpg', mountPath: '/home/helm/.gnupg'),
-                        secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/helm/.apitoken'),
+                        secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/jenkins/.docker'),
+                        secretVolume(secretName: 'jenkins-release-gpg', mountPath: '/home/jenkins/.gnupg'),
+                        secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
                         secretVolume(secretName: 'jenkins-ssh-config', mountPath: '/root/.ssh'),
                         secretVolume(secretName: 'jenkins-git-ssh', mountPath: '/root/.ssh-git'),
                         hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')])
