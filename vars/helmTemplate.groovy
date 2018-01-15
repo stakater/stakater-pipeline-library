@@ -51,11 +51,10 @@ def call(Map parameters = [:], body) {
         podTemplate(cloud: cloud, label: label, inheritFrom: "${inheritFrom}",
                 containers: [
                         //[name: 'jnlp', image: "${jnlpImage}", args: '${computer.jnlpmac} ${computer.name}'],
-                        [name: 'maven', image: "${mavenImage}", command: '/bin/sh -c', args: 'cat', ttyEnabled: true,
+                        [name: 'helm', image: "${helmImage}", command: '/bin/sh -c', args: 'cat', ttyEnabled: true,
                           envVars: [
                                   [key: 'MAVEN_OPTS', value: '-Duser.home=/root/ -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn']]]],
-                volumes: [secretVolume(secretName: 'jenkins-maven-settings', mountPath: '/root/.m2'),
-                          persistentVolumeClaim(claimName: 'jenkins-mvn-local-repo', mountPath: '/root/.mvnrepository'),
+                volumes: [persistentVolumeClaim(claimName: 'jenkins-mvn-local-repo', mountPath: '/root/.mvnrepository'),
                           secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/jenkins/.docker'),
                           secretVolume(secretName: 'jenkins-release-gpg', mountPath: '/home/jenkins/.gnupg'),
                           secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
