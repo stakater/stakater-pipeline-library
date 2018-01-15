@@ -33,11 +33,10 @@ def call(Map parameters = [:], body) {
                                 alwaysPullImage: false,
                                 workingDir: '/home/helm/',
                                 envVars: [
-                                        envVar(key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/')])],
+                                        envVar(key: 'DOCKER_CONFIG', value: '/home/helm/.docker/')])],
                 volumes: [
-                        secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/jenkins/.docker'),
-                        secretVolume(secretName: 'jenkins-release-gpg', mountPath: '/home/jenkins/.gnupg'),
-                        secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
+                        secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/helm/.docker'),
+                        secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/helm/.apitoken'),
                         secretVolume(secretName: 'jenkins-ssh-config', mountPath: '/root/.ssh'),
                         secretVolume(secretName: 'jenkins-git-ssh', mountPath: '/root/.ssh-git'),
                         hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')])
@@ -55,13 +54,12 @@ def call(Map parameters = [:], body) {
                           envVars: [
                                   [key: 'MAVEN_OPTS', value: '-Duser.home=/root/ -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn']]]],
                 volumes: [persistentVolumeClaim(claimName: 'jenkins-mvn-local-repo', mountPath: '/root/.mvnrepository'),
-                          secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/jenkins/.docker'),
-                          secretVolume(secretName: 'jenkins-release-gpg', mountPath: '/home/jenkins/.gnupg'),
-                          secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
+                          secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/helm/.docker'),
+                          secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/helm/.apitoken'),
                           secretVolume(secretName: 'jenkins-ssh-config', mountPath: '/root/.ssh'),
                           secretVolume(secretName: 'jenkins-git-ssh', mountPath: '/root/.ssh-git'),
                           hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')],
-                envVars: [[key: 'DOCKER_HOST', value: 'unix:/var/run/docker.sock'], [key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/']]
+                envVars: [[key: 'DOCKER_HOST', value: 'unix:/var/run/docker.sock'], [key: 'DOCKER_CONFIG', value: '/home/helm/.docker/']]
             ) {
                 body()
             }
