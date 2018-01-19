@@ -120,12 +120,10 @@ boolean isDisabledITests() {
 @NonCPS
 String getDockerRegistry() {
 
-    /** Poorly written code! The fallback will never work if configmap is missing or value is missing for this key!
     def externalDockerRegistryURL = getUsersPipelineConfig('external-docker-registry-url')
     if (externalDockerRegistryURL){
       return externalDockerRegistryURL
     }
-     */
 
     // fall back to the old < 4.x when the registry was in the same namespace
     def registryHost = env.FABRIC8_DOCKER_REGISTRY_SERVICE_HOST
