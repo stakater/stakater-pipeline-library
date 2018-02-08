@@ -35,7 +35,7 @@ def lint() {
 }
 
 def package() {
-    result = Common.shOutput steps, """
+    String result = Common.shOutput steps, """
                 cd ${this.workspace}/${this.chartName}
                 helm package .
             """
