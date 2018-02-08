@@ -38,14 +38,4 @@ class Helm {
             helm lint
         """
     }
-
-    def package() {
-        result = io.stakater.Common.shOutput """
-                    cd ${this.workspace}/${this.chartName}
-                    helm package .
-                """
-
-        return result.substring(result.lastIndexOf('/') + 1, result.length())
-    }
-
 }
