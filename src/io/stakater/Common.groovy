@@ -1,15 +1,9 @@
 #!/usr/bin/groovy
 package io.stakater
 
-//Set the static reference in the script
-Script.environment  = this
 
-public class Script {
-    public static environment
-}
-
-static def shOutput(String command) {
-    return Script.environment.sh(
+static def shOutput(def steps, String command) {
+    return steps.sh(
         script: """
             ${command}
         """,
