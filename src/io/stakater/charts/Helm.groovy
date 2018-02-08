@@ -1,6 +1,8 @@
 #!/usr/bin/groovy
 package io.stakater.charts
 
+import io.stakater.Common
+
 String workspace
 String chartName
 def steps
@@ -33,7 +35,7 @@ def lint() {
 }
 
 def package() {
-    result = io.stakater.Common.shOutput """
+    result = Common.shOutput steps, """
                 cd ${this.workspace}/${this.chartName}
                 helm package .
             """
