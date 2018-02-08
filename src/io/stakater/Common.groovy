@@ -1,12 +1,19 @@
 #!/usr/bin/groovy
-package io.stakater  
+package io.stakater
 
-static def shOutput(String command) {
-    return sh(
-        script: """
-            ${command}
-        """,
-        returnStdout: true).toString().trim()
+//Set the static reference in the script
+Script.environment  = this
+
+public class Script {
+    public static environment
 }
 
-return this
+public class Common {
+    static def shOutput(String command) {
+        return Script.environment.sh(
+            script: """
+                ${command}
+            """,
+            returnStdout: true).toString().trim()
+    }
+}

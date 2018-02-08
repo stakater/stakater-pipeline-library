@@ -1,6 +1,13 @@
 #!/usr/bin/groovy
 package io.stakater.charts
 
+//Set the static reference in the script
+Script.environment  = this
+
+public class Script {
+    public static environment
+}
+
 class Helm {
 
     String workspace
@@ -11,8 +18,22 @@ class Helm {
         this.chartName = chartName
     }
 
+    static def init() {
+        init(false)
+    }
+
+    static def init(boolean clientOnly) {
+        String initCmd = "helm init"
+        if(clientOnly) {
+            initCmd += " --client-only"
+        }
+        Script.environment.sh """
+            ${initCmd}
+        """
+    }
+
     def lint() {
-        sh """
+        Script.environment.sh """
             cd ${this.workspace}/${this.chartName}
             helm lint
         """
@@ -20,7 +41,7 @@ class Helm {
 
     def package() {
         result = io.stakater.Common.shOutput """
-                    cd ${workspace}/${chartName}
+                    cd ${this.workspace}/${this.chartName}
                     helm package .
                 """
 
