@@ -8,12 +8,12 @@ public class Script {
     public static environment
 }
 
-public class Common {
-    static def shOutput(String command) {
-        return Script.environment.sh(
-            script: """
-                ${command}
-            """,
-            returnStdout: true).toString().trim()
+static def shOutput(String command) {
+    return Script.environment.sh(
+        script: """
+            ${command}
+        """,
+        returnStdout: true).toString().trim()
     }
-}
+
+return this
