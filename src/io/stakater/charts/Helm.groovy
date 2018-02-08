@@ -7,10 +7,10 @@ String workspace
 String chartName
 def steps
 
-Helm(def steps, String workspace, String chartName) {
-    this.steps = steps
-    this.workspace = workspace
-    this.chartName = chartName
+Helm(def _steps, String _workspace, String _chartName) {
+    this.steps = _steps
+    this.workspace = _workspace
+    this.chartName = _chartName
 }
 
 static def init(def steps) {
