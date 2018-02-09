@@ -2,8 +2,8 @@
 package io.stakater
 
 
-static def shOutput(def steps, String command) {
-    return steps.sh(
+def shOutput(String command) {
+    return sh(
         script: """
             ${command}
         """,

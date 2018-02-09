@@ -1,37 +1,35 @@
 #!/usr/bin/groovy
 package io.stakater.charts
 
-import io.stakater.Common
 
-String workspace
-String chartName
-def steps
-
-Helm(def _steps, String _workspace, String _chartName) {
-    this.steps = _steps
-    this.workspace = _workspace
-    this.chartName = _chartName
+def init() {
+    init(false)
 }
 
-static def init(def steps) {
-    init(steps, false)
-}
-
-static def init(def steps, boolean clientOnly) {
+def init(boolean clientOnly) {
     String initCmd = "helm init"
     if(clientOnly) {
         initCmd += " --client-only"
     }
-    steps.sh """
+    sh """
         ${initCmd}
     """
 }
 
-def lint() {
-    steps.sh """
-        cd ${this.workspace}/${this.chartName}
+def lint(String location, String chartName) {
+    sh """
+        cd ${location}/${chartName}
         helm lint
     """
+}
+
+def package(String location, String chartName) {
+    result = new io.stakater.Common().shOutput """
+                cd ${location}/${chartName}
+                helm package .
+            """
+
+    return result.substring(result.lastIndexOf('/') + 1, result.length())
 }
 
 return this
