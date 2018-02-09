@@ -23,7 +23,7 @@ def lint(String location, String chartName) {
     """
 }
 
-def package(String location, String chartName) {
+def @package(String location, String chartName) {
     result = new io.stakater.Common().shOutput """
                 cd ${location}/${chartName}
                 helm package .
