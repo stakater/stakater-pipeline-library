@@ -29,8 +29,8 @@ def call(Map parameters = [:], body) {
                                 envVars: [
                                         envVar(key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/'),
                                         envVar(key: 'DOCKER_API_VERSION', value: '1.23'),
-                                        envVar(key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/')],
-                                        envVar(key: 'CONFIG_FILE_PATH', value: '/etc/ingress-monitor-controller/config.yaml')
+                                        envVar(key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/'),
+                                        envVar(key: 'CONFIG_FILE_PATH', value: '/etc/ingress-monitor-controller/config.yaml')]
                         )],
                 volumes: [
                         secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/jenkins/.docker'),
