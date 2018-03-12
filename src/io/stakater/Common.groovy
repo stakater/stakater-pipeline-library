@@ -8,6 +8,10 @@ def shOutput(String command) {
             ${command}
         """,
         returnStdout: true).toString().trim()
-    }
+}
+
+def getEnvValue(String key) {
+    return shOutput("echo \$${key}")
+}
 
 return this
