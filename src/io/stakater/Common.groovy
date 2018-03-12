@@ -8,6 +8,11 @@ def shOutput(String command) {
             ${command}
         """,
         returnStdout: true).toString().trim()
-    }
+}
+
+def getEnvValue(String key) {
+    sh "echo \$${key} > ${key}"
+    return readFile(key).trim()
+}
 
 return this
