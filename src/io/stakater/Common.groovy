@@ -11,7 +11,8 @@ def shOutput(String command) {
 }
 
 def getEnvValue(String key) {
-    return shOutput("echo \$${key}")
+    sh "echo \$${key} > ${key}"
+    return readFile(key).trim()
 }
 
 return this
