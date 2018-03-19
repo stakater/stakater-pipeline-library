@@ -6,6 +6,7 @@ def upload(String location, String chartName, String fileName, String cmUrl) {
     sh """
         cd ${location}/${chartName}
         curl -L --data-binary \"@${fileName}\" ${cmUrl}
+        exit $?
     """
 }
 
@@ -17,6 +18,7 @@ def upload(String location, String chartName, String fileName, String cmUrl, Str
     sh """
         cd ${location}/${chartName}
         curl --user ${cmUsername}:${cmPassword} -L --data-binary \"@${fileName}\" ${cmUrl}
+        exit $?
     """
 }
 
