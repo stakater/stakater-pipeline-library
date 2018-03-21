@@ -19,19 +19,35 @@ def sendNotification(String webhookURL, String text, String channel, attachments
 
 def createField(String title, String value, boolean isShort) {
     return [
-        title: title,
-        value: value,
+        title: "${title}",
+        value: "${value}",
         short: isShort
     ]
 }
 
+def createBranchField(String branchName) {
+    return createField("Branch", branchName, true)
+}
+
+def createLastCommitField(String lastCommit) {
+    return createField("Last Commit", lastCommit, false)
+}
+
+def createErrorField(String error) {
+    return createField("Error", error, false)
+}
+
+def createTestResultsField(String testSummary) {
+    return createField("Test Results", testSummary, true)
+}
+
 def createAttachment(String title, String titleLink, String color, String authorName, String text, fields) {
     return [
-        title: title,
-        title_link: titleLink,
-        color: color,
-        author_name: authorName,
-        text: text,
+        title: "${title}",
+        title_link: "${titleLink}",
+        color: "${color}",
+        author_name: "${authorName}",
+        text: "${text}",
         fields: fields
     ]
 }
