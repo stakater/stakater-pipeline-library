@@ -1,6 +1,8 @@
 #!/usr/bin/groovy
 package io.stakater.notifications
 
+import groovy.json.JsonOutput
+
 def sendNotification(String webhookURL, String text, String channel, def attachments) {
     def slackURL = webhookURL
     def jenkinsIcon = 'https://wiki.jenkins-ci.org/download/attachments/2916393/logo.png'
