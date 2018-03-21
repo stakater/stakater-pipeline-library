@@ -3,7 +3,7 @@ package io.stakater.notifications
 
 import groovy.json.JsonOutput
 
-def sendNotification(String webhookURL, String text, String channel, def attachments) {
+def sendNotification(String webhookURL, String text, String channel, attachments) {
     def slackURL = webhookURL
     def jenkinsIcon = 'https://wiki.jenkins-ci.org/download/attachments/2916393/logo.png'
 
@@ -25,7 +25,7 @@ def createField(String title, String value, boolean isShort) {
     ]
 }
 
-def createAttachment(String title, String titleLink, String color, String authorName, String text, def fields) {
+def createAttachment(String title, String titleLink, String color, String authorName, String text, fields) {
     return [
         title: title,
         title_link: titleLink,
@@ -36,7 +36,7 @@ def createAttachment(String title, String titleLink, String color, String author
     ]
 }
 
-def combineFields(def... fields) {
+def combineFields(... fields) {
     return fields
 }
 
