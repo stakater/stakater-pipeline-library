@@ -188,4 +188,18 @@ def addCommentToPullRequest(comment, pr, project) {
     }
 }
 
+// If branch other then master, append branch name to version
+// in order to avoid conflicts in artifact releases
+def getBranchedVersion(String version) {
+    def utils = new io.fabric8.Utils()
+
+    def branchName = utils.getBranch()
+
+    if (!branchName.equalsIgnoreCase("master")){
+        version = branchName + "-" + version
+    }
+
+    return version
+}
+
 return this
