@@ -17,6 +17,10 @@ def call(Map parameters = [:], body) {
     echo 'Using toolsImage : ' + toolsImage
     echo 'Mounting docker socket to build docker images'
     podTemplate(cloud: cloud, label: label, serviceAccount: 'jenkins', inheritFrom: "${inheritFrom}",
+            envVars: [
+                secretEnvVar(key: 'CHARTMUSEUM_USERNAME', secretName: 'chartmuseum-auth', secretKey: 'username'),
+                secretEnvVar(key: 'CHARTMUSEUM_PASSWORD', secretName: 'chartmuseum-auth', secretKey: 'password')
+            ],
             containers: [
                     containerTemplate(
                             // why can't I change this name? its registered somewhere?
@@ -32,8 +36,6 @@ def call(Map parameters = [:], body) {
                                     envVar(key: 'DOCKER_API_VERSION', value: '1.23'),
                                     envVar(key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/'),
                                     envVar(key: 'CONFIG_FILE_PATH', value: '/etc/ingress-monitor-controller/config.yaml'),
-                                    secretEnvVar(key: 'CHARTMUSEUM_USERNAME', secretName: 'chartmuseum-auth', secretKey: 'username'),
-                                    secretEnvVar(key: 'CHARTMUSEUM_PASSWORD', secretName: 'chartmuseum-auth', secretKey: 'password'),
                                     envVar(key: 'KUBERNETES_MASTER', value: 'https://kubernetes.default:443')]
                     )],
             volumes: [
