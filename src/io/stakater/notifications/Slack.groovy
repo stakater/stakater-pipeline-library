@@ -67,11 +67,21 @@ def createDockerImageField(String image) {
     return createField("Docker Image", image, false)
 }
 
-def createAttachment(String title, String titleLink, String color, String authorName, String text, fields) {
+def createAttachmentWithColor(String title, String titleLink, String color, String authorName, String text, fields) {
     return [
         title: "${title}",
         title_link: "${titleLink}",
         color: "${color}",
+        author_name: "${authorName}",
+        text: "${text}",
+        fields: fields
+    ]
+}
+
+def createAttachment(String title, String titleLink, String authorName, String text, fields) {
+    return [
+        title: "${title}",
+        title_link: "${titleLink}",
         author_name: "${authorName}",
         text: "${text}",
         fields: fields
