@@ -17,6 +17,24 @@ def sendNotification(String webhookURL, String text, String channel, attachments
     sh "curl -X POST --data-urlencode \'payload=${payload}\' ${slackURL}"
 }
 
+def sendSuccessNotification(String webhookURL, String text, String channel, attachments) {
+    for (def attachment : attachments) {
+        attachment["color"] = "good"
+        attachment.fields << createStatusField("Success")
+    }
+
+    sendNotification(webhookURL, text, channel, attachments)
+}
+
+def sendFailureNotification(String webhookURL, String text, String channel, attachments) {
+    for (def attachment : attachments) {
+        attachment["color"] = "danger"
+        attachment.fields << createStatusField("Failure")
+    }
+
+    sendNotification(webhookURL, text, channel, attachments)
+}
+
 def createField(String title, String value, boolean isShort) {
     return [
         title: "${title}",
