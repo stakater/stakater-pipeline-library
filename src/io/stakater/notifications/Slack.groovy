@@ -41,6 +41,14 @@ def createTestResultsField(String testSummary) {
     return createField("Test Results", testSummary, true)
 }
 
+def createStatusField(String status) {
+    return createField("Status", status, false)
+}
+
+def createDockerImageField(String image) {
+    return createField("Docker Image", image, false)
+}
+
 def createAttachment(String title, String titleLink, String color, String authorName, String text, fields) {
     return [
         title: "${title}",
