@@ -52,8 +52,4 @@ def createAttachment(String title, String titleLink, String color, String author
     ]
 }
 
-def combineFields(... fields) {
-    return fields
-}
-
 return this

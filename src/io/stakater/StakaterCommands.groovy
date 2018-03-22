@@ -72,4 +72,92 @@ def updateGithub() {
     sh "git push origin release-v${releaseVersion}"
 }
 
+def getGitHubToken() {
+    def tokenPath = '/home/jenkins/.apitoken/hub'
+    def githubToken = readFile tokenPath
+    if (!githubToken?.trim()) {
+        error "No GitHub token found in ${tokenPath}"
+    }
+    return githubToken.trim()
+}
+
+def isAuthorCollaborator(githubToken, project) {
+
+    if (!githubToken){
+
+        githubToken = getGitHubToken()
+
+        if (!githubToken){
+            echo "No GitHub api key found so trying annonynous GitHub api call"
+        }
+    }
+    if (!project){
+        project = getGitHubProject()
+    }
+
+    def changeAuthor = env.CHANGE_AUTHOR
+    if (!changeAuthor){
+        error "No commit author found.  Is this a pull request pipeline?"
+    }
+    echo "Checking if user ${changeAuthor} is a collaborator on ${project}"
+
+    def apiUrl = new URL("https://api.github.com/repos/${project}/collaborators/${changeAuthor}")
+
+    def HttpURLConnection connection = apiUrl.openConnection()
+    if (githubToken != null && githubToken.length() > 0) {
+        connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
+    }
+    connection.setRequestMethod("GET")
+    connection.setDoOutput(true)
+
+    try {
+        connection.connect()
+        new InputStreamReader(connection.getInputStream(), "UTF-8")
+        return true
+    } catch (FileNotFoundException e1) {
+        return false
+    } finally {
+        connection.disconnect()
+    }
+
+    error "Error checking if user ${changeAuthor} is a collaborator on ${project}."
+
+}
+
+def getGitHubProject(){
+    def url = getScmPushUrl()
+    return extractOrganizationAndProjectFromGitHubUrl(url)
+}
+
+/**
+ * Should be called after checkout scm
+ */
+@NonCPS
+def getScmPushUrl() {
+    def url = sh(returnStdout: true, script: 'git config --get remote.origin.url').trim()
+
+    if (!url){
+        error "no URL found for git config --get remote.origin.url "
+    }
+    return url
+}
+
+def extractOrganizationAndProjectFromGitHubUrl(url) {
+    if (!url.contains('github.com')){
+        error "${url} is not a GitHub URL"
+    }
+
+    if (url.contains("https://github.com/")){
+        url = url.replaceAll("https://github.com/", '')
+
+    } else if (url.contains("git@github.com:")){
+        url = url.replaceAll("git@github.com:", '')
+    }
+
+    if (url.contains(".git")){
+        url = url.replaceAll("\\.git", '')
+    }
+    return url.trim()
+}
+
 return this

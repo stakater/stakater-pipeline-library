@@ -1,5 +1,8 @@
 #!/usr/bin/groovy
 package io.stakater.vc
+import io.stakater.StakaterCommands
+
+def flow = new StakaterCommands()
 
 def setUserInfo(String gitUserName, String gitUserEmail) {
     sh """
@@ -45,6 +48,13 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
         rm -rf ${dir}
         git clone -b ${branch} ${repoUrl} ${dir}
     """
+}
+
+def addCommentToPullRequest() {
+    // We pass in empty token as well as empty project as it finds them automatically
+    if (!flow.isAuthorCollaborator("", "")){
+        error 'Change author is not a collaborator on the project, failing build until we support the [test] comment'
+    }
 }
 
 return this
