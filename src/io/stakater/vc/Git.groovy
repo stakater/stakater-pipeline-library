@@ -2,8 +2,6 @@
 package io.stakater.vc
 import io.stakater.StakaterCommands
 
-def flow = new StakaterCommands()
-
 def setUserInfo(String gitUserName, String gitUserEmail) {
     sh """
         git config --global user.name "${gitUserName}"
@@ -51,6 +49,8 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
 }
 
 def addCommentToPullRequest() {
+    def flow = new StakaterCommands()
+
     // We pass in empty token as well as empty project as it finds them automatically
     if (!flow.isAuthorCollaborator("", "")){
         error 'Change author is not a collaborator on the project, failing build until we support the [test] comment'
