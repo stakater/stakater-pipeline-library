@@ -36,9 +36,12 @@ def call(Map parameters = [:], body) {
                                     envVar(key: 'DOCKER_API_VERSION', value: '1.23'),
                                     envVar(key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/'),
                                     envVar(key: 'CONFIG_FILE_PATH', value: '/etc/ingress-monitor-controller/config.yaml'),
+                                    envVar(key: 'MAVEN_OPTS', value: '-Duser.home=/root/ -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'),
                                     envVar(key: 'KUBERNETES_MASTER', value: 'https://kubernetes.default:443')]
                     )],
             volumes: [
+                    secretVolume(secretName: 'jenkins-maven-settings', mountPath: '/root/.m2'),
+                    persistentVolumeClaim(claimName: 'jenkins-mvn-local-repo', mountPath: '/root/.mvnrepository'),
                     secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/jenkins/.docker'),
                     secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
                     secretVolume(secretName: 'jenkins-ssh-config', mountPath: '/root/.ssh'),
