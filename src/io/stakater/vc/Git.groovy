@@ -51,7 +51,7 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
 def addCommentToPullRequest(String message) {
     def flow = new StakaterCommands()
 
-    def githubProject = flow.getGithubProject()
+    def githubProject = flow.getGitHubProject()
 
     def splitted = githubProject.split('/')
 
