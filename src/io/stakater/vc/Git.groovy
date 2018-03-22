@@ -48,12 +48,11 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
     """
 }
 
-def addCommentToPullRequest() {
-    checkout scm
+def addCommentToPullRequest(String githubProject) {
     def flow = new StakaterCommands()
 
-    // We pass in empty token as well as empty project as it finds them automatically
-    if (!flow.isAuthorCollaborator("", "")){
+    // We pass in empty token as it finds it at /home/jenkins/.apitoken/hub
+    if (!flow.isAuthorCollaborator("", githubProject)){
         error 'Change author is not a collaborator on the project, failing build until we support the [test] comment'
     }
 }
