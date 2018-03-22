@@ -134,7 +134,7 @@ def getGitHubProject(){
  */
 @NonCPS
 def getScmPushUrl() {
-    def url = sh(returnStdout: true, script: 'cd ${WORKSPACE} && git config --get remote.origin.url').trim()
+    def url = sh(returnStdout: true, script: 'git config --get remote.origin.url').trim()
 
     if (!url){
         error "no URL found for git config --get remote.origin.url "

@@ -49,6 +49,7 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
 }
 
 def addCommentToPullRequest() {
+    checkout scm
     def flow = new StakaterCommands()
 
     // We pass in empty token as well as empty project as it finds them automatically
