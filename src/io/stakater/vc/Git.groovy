@@ -78,4 +78,9 @@ def addCommentToPullRequest(String message) {
     flow.addCommentToPullRequest(message, pr, githubProject)
 }
 
+def getGitAuthor() {
+    def commit = sh(returnStdout: true, script: 'git rev-parse HEAD')
+    return sh(returnStdout: true, script: "git --no-pager show -s --format='%an' ${commit}").trim()
+}
+
 return this
