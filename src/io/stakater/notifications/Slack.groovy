@@ -35,7 +35,7 @@ def sendFailureNotification(String webhookURL, String text, String channel, atta
     sendNotification(webhookURL, text, channel, attachments)
 }
 
-def createField(String title, String value, boolean isShort) {
+def createField(String title, value, boolean isShort) {
     return [
         title: "${title}",
         value: "${value}",
@@ -51,7 +51,7 @@ def createLastCommitField(String lastCommit) {
     return createField("Last Commit", lastCommit, false)
 }
 
-def createErrorField(String error) {
+def createErrorField(error) {
     return createField("Error", error, false)
 }
 
