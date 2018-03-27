@@ -1,6 +1,8 @@
 #!/usr/bin/groovy
 package io.stakater.test
 
+import hudson.tasks.test.AbstractTestResultAction
+
 @NonCPS
 def getTestSummary() {
     def testResultAction = currentBuild.rawBuild.getAction(AbstractTestResultAction.class)
