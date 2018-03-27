@@ -26,6 +26,32 @@ def sendSuccessNotification(String webhookURL, String text, String channel, atta
     sendNotification(webhookURL, text, channel, attachments)
 }
 
+def createDefaultAttachment(fields) {
+    def git = new io.stakater.vc.Git()
+    // Add Branch field
+    fields << createBranchField(env.BRANCH_NAME)
+
+    def attachment = createAttachment(
+        "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
+        env.BUILD_URL,
+        git.getGitAuthor(),
+        "",
+        fields
+    )
+
+    return attachment
+}
+
+def sendDefaultFailureNotification(String webhookURL, String channel, fields) {
+    def attachment = createDefaultAttachment(fields)
+    sendFailureNotification(webhookURL, "", channel, [attachment])
+}
+
+def sendDefaultSuccessNotification(String webhookURL, String channel, fields) {
+    def attachment = createDefaultAttachment(fields)
+    sendSuccessNotification(webhookURL, "", channel, [attachment])
+}
+
 def sendFailureNotification(String webhookURL, String text, String channel, attachments) {
     for (def attachment : attachments) {
         attachment["color"] = "danger"
