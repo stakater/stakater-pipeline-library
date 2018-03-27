@@ -1,5 +1,6 @@
 #!/usr/bin/groovy
 package io.stakater.vc
+import io.stakater.StakaterCommands
 
 def setUserInfo(String gitUserName, String gitUserEmail) {
     sh """
@@ -45,6 +46,45 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
         rm -rf ${dir}
         git clone -b ${branch} ${repoUrl} ${dir}
     """
+}
+
+def addCommentToPullRequest(String message) {
+    def flow = new StakaterCommands()
+
+    def githubProject = flow.getGitHubProject()
+
+    def splitted = githubProject.split('/')
+
+    def gOrganization = splitted[0], gRepo = splitted[1]
+
+    // We pass in empty token as it finds it at /home/jenkins/.apitoken/hub
+    if (!flow.isAuthorCollaborator("", githubProject)){
+        echo 'Change author is not a collaborator on the project, failing build until we support the [test] comment'
+        return
+    }
+
+    def changeAuthor = env.CHANGE_AUTHOR
+    if (!changeAuthor){
+        echo "no commit author found so cannot comment on PR"
+        return
+    }
+    def pr = env.CHANGE_ID
+    if (!pr){
+        echo "no pull request number found so cannot comment on PR"
+        return
+    }
+
+    message = "@${changeAuthor} " + message
+    flow.postPRCommentToGithub(message, pr, githubProject)
+}
+
+def getGitAuthor() {
+    def commit = sh(returnStdout: true, script: 'git rev-parse HEAD')
+    return sh(returnStdout: true, script: "git --no-pager show -s --format='%an' ${commit}").trim()
+}
+
+def getLastCommitMessage() {
+    return sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
 }
 
 return this
