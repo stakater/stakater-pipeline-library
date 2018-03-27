@@ -160,7 +160,7 @@ def extractOrganizationAndProjectFromGitHubUrl(url) {
     return url.trim()
 }
 
-def addCommentToPullRequest(comment, pr, project) {
+def postPRCommentToGithub(comment, pr, project) {
     def githubToken = getGitHubToken()
     def apiUrl = new URL("https://api.github.com/repos/${project}/issues/${pr}/comments")
     echo "adding ${comment} to ${apiUrl}"

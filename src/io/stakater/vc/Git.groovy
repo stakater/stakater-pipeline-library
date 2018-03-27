@@ -75,7 +75,7 @@ def addCommentToPullRequest(String message) {
     }
 
     message = "@${changeAuthor} " + message
-    flow.addCommentToPullRequest(message, pr, githubProject)
+    flow.postPRCommentToGithub(message, pr, githubProject)
 }
 
 def getGitAuthor() {
