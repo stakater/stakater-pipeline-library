@@ -6,10 +6,6 @@ import hudson.tasks.test.AbstractTestResultAction
 @NonCPS
 def getTestSummary() {
     def testResultAction = currentBuild.rawBuild.getAction(AbstractTestResultAction.class)
-    def actions = currentBuild.rawBuild.getActions()
-    for (def action : actions) {
-        print "Action: ${action}"
-    }
     def summary = ""
 
     if (testResultAction != null) {
