@@ -18,6 +18,7 @@ def getTestSummary() {
         summary = summary + (", Skipped: " + skipped)
     } else {
         summary = "No tests found"
+        print summary + " in current build"
     }
     return summary
 }
