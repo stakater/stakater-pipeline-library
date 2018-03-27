@@ -7,7 +7,7 @@ import hudson.tasks.test.AbstractTestResultAction
 def getTestSummary() {
     def testResultAction = currentBuild.rawBuild.getAction(AbstractTestResultAction.class)
     def actions = currentBuild.rawBuild.getActions()
-    for (action : actions) {
+    for (def action : actions) {
         print "Action: ${action}"
     }
     def summary = ""
