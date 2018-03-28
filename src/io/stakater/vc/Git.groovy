@@ -57,20 +57,21 @@ def addCommentToPullRequest(String message) {
 
     def gOrganization = splitted[0], gRepo = splitted[1]
 
-    // We pass in empty token as it finds it at /home/jenkins/.apitoken/hub
-    if (!flow.isAuthorCollaborator("", githubProject)){
-        echo 'Change author is not a collaborator on the project, failing build until we support the [test] comment'
-        return
-    }
-
     def changeAuthor = env.CHANGE_AUTHOR
     if (!changeAuthor){
         echo "no commit author found so cannot comment on PR"
         return
     }
+    
     def pr = env.CHANGE_ID
     if (!pr){
         echo "no pull request number found so cannot comment on PR"
+        return
+    }
+
+    // We pass in empty token as it finds it at /home/jenkins/.apitoken/hub
+    if (!flow.isAuthorCollaborator("", githubProject)){
+        echo 'Change author is not a collaborator on the project, failing build until we support the [test] comment'
         return
     }
 
