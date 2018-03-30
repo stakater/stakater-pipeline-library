@@ -18,7 +18,7 @@ def call(Map parameters = [:], body) {
         git.checkoutRepo(repoUrl, repoBranch, workspaceDir)
 
         ws(workspaceDir) {
-            body()
+            body(repoUrl, repoName, repoBranch)
         }
     }
 }
