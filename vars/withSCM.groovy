@@ -2,7 +2,9 @@ def call(body) {
     def scmConfig = scm.getUserRemoteConfigs()[0]
     
     def repoUrl = scmConfig.getUrl()
-    def repoName = repoUrl.tokenize('/').last().tokenize('.').first()    
+    def tokenizedUrl = repoUrl.tokenize('/')
+    def repoName = tokenizedUrl.last().tokenize('.').first()
+    def repoOwner = tokenizedUrl.get(tokenizedUrl.size() - 2)
 
     if(!repoUrl.startsWith("git@")) {
         // Lets make it ssh url link
@@ -15,5 +17,5 @@ def call(body) {
 
     def repoBranch = scmConfig.getRefspec().tokenize('/').last()
 
-    body(repoUrl, repoName, repoBranch)
+    body(repoUrl, repoName, repoOwner, repoBranch)
 }
