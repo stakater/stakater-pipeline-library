@@ -11,15 +11,14 @@ def call(Map parameters = [:], body) {
 
         sh "mkdir -p ${workspaceDir}"
 
-        dir(workspaceDir) {
-            ws(workspaceDir) {
-                def git = new io.stakater.vc.Git()
+        def git = new io.stakater.vc.Git()
                 
-                git.setUserInfo(gitUsername, gitEmail)
-                git.addHostsToKnownHosts()
-                git.checkoutRepo(repoUrl, repoBranch, workspaceDir)
-                body()
-            }
+        git.setUserInfo(gitUsername, gitEmail)
+        git.addHostsToKnownHosts()
+        git.checkoutRepo(repoUrl, repoBranch, workspaceDir)
+
+        ws(workspaceDir) {
+            body()
         }
     }
 }
