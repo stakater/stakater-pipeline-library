@@ -3,6 +3,7 @@ def call(Map parameters = [:], body) {
         print "Repo URL ${repoUrl}"
         print "Repo Name ${repoName}"
         print "Repo Branch ${repoBranch}"
+        print "Repo Owner ${repoOwner}"
 
         def gitUsername = parameters.get('gitUsername', 'stakater-user')
         def gitEmail = parameters.get('gitEmail', 'stakater@gmail.com')
@@ -18,7 +19,7 @@ def call(Map parameters = [:], body) {
         git.checkoutRepo(repoUrl, repoBranch, workspaceDir)
 
         ws(workspaceDir) {
-            body(repoUrl, repoName, repoBranch)
+            body(repoUrl, repoName, repoOwner, repoBranch)
         }
     }
 }
