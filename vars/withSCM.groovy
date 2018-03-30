@@ -6,7 +6,6 @@ def call(body) {
 
     if(!repoUrl.startsWith("git@")) {
         // Lets make it ssh url link
-        //https://github.com/Stakater/IngressMonitorController.git
         def url = new java.net.URL(repoUrl)
         print "Host: ${url.getHost()}"
         print " Path: ${url.getPath()}"
