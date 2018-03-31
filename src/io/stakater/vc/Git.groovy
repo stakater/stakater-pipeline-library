@@ -88,4 +88,16 @@ def getLastCommitMessage() {
     return sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
 }
 
+def createTagAndPush(def repoDir, String version) {
+    sh """
+        chmod 600 /root/.ssh-git/ssh-key
+        eval `ssh-agent -s`
+        ssh-add /root/.ssh-git/ssh-key
+
+        cd ${repoDir}
+        git tag ${version}
+        git push --tags
+    """
+}
+
 return this
