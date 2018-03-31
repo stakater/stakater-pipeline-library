@@ -11,7 +11,7 @@ def call(body) {
         // Lets make it ssh url link
         def url = new java.net.URL(repoUrl)
 
-        repoUrl = "git@${url.getHost()}:${url.getPath()}" 
+        repoUrl = "git@${url.getHost()}:${url.getPath().substring(1)}" 
     }
 
     def repoBranch = ""
