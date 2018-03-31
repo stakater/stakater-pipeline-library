@@ -16,6 +16,7 @@ def call(body) {
     }
 
     def repoBranch = scmConfig.getRefspec().tokenize('/').last()
+    print "Branch is: ${scm.branches[0].name}"
 
     body(repoUrl, repoName, repoOwner, repoBranch)
 }
