@@ -1,4 +1,5 @@
 def call(body) {
+    def utils = new io.fabric8.Utils()
     def scmConfig = scm.getUserRemoteConfigs()[0]
     
     def repoUrl = scmConfig.getUrl()
@@ -9,14 +10,19 @@ def call(body) {
     if(!repoUrl.startsWith("git@")) {
         // Lets make it ssh url link
         def url = new java.net.URL(repoUrl)
-        print "Host: ${url.getHost()}"
-        print " Path: ${url.getPath()}"
 
         repoUrl = "git@${url.getHost()}:${url.getPath()}" 
     }
 
-    def repoBranch = scmConfig.getRefspec().tokenize('/').last()
-    print "Branch is: ${scm.branches[0].name}"
+    def repoBranch = ""
 
+    if(utils.getBranch().startsWith("PR-")) {
+        // Fetch branch from CHANGE_AUTHOR
+        repoBranch = "${env.CHANGE_BRANCH}"
+    }
+    else {
+        repoBranch = scmConfig.getRefspec().tokenize('/').last()
+    }
+    
     body(repoUrl, repoName, repoOwner, repoBranch)
 }
