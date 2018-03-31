@@ -19,6 +19,4 @@ def pushTag(def imageName, def tag) {
     """
 }
 
-def pushTag(def )
-
 return this
