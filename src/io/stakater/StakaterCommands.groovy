@@ -202,4 +202,39 @@ def getBranchedVersion(String version) {
     return version
 }
 
+def createGitHubRelease(def version) {
+    def githubToken = getGitHubToken()
+    def githubProject = getGitHubProject()
+
+    def apiUrl = new URL("https://api.github.com/repos/${githubProject}/releases")
+    echo "creating release ${version} on ${apiUrl}"
+
+    try {
+        def HttpURLConnection connection = apiUrl.openConnection()
+        if(githubToken.length() > 0) {
+            connection.setRequestProperty("Authorization", "Bearer ${githubToken}")
+        }
+        connection.setRequestMethod("POST")
+        connection.setDoOutput(true)
+        connection.connect()
+
+        def body = """
+            {
+            "tag_name": "${version}",
+            "name": "${version}"
+            }
+        """
+        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
+        writer.write(body)
+        writer.flush()
+
+        // execute the POST request
+        new InputStreamReader(connection.getInputStream())
+
+        connection.disconnect()
+    } catch (err) {
+        error "ERROR  ${err}"
+    }
+}
+
 return this

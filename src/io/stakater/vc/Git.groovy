@@ -100,4 +100,9 @@ def createTagAndPush(def repoDir, String version) {
     """
 }
 
+def createRelease(def version) {
+    def flow = new io.stakater.StakaterCommands()
+    flow.createGitHubRelease(version)
+}
+
 return this
