@@ -203,8 +203,8 @@ def getBranchedVersion(String version) {
 }
 
 def createGitHubRelease(def version) {
-    def githubToken = flow.getGitHubToken()
-    def githubProject = flow.getGitHubProject()
+    def githubToken = getGitHubToken()
+    def githubProject = getGitHubProject()
 
     def apiUrl = new URL("https://api.github.com/repos/${project}/releases")
     echo "creating release ${version} on ${apiUrl}"
