@@ -206,7 +206,7 @@ def createGitHubRelease(def version) {
     def githubToken = getGitHubToken()
     def githubProject = getGitHubProject()
 
-    def apiUrl = new URL("https://api.github.com/repos/${project}/releases")
+    def apiUrl = new URL("https://api.github.com/repos/${githubProject}/releases")
     echo "creating release ${version} on ${apiUrl}"
 
     try {
