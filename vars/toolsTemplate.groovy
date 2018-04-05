@@ -7,9 +7,7 @@ def call(Map parameters = [:], body) {
     def defaultLabel = buildId('tools')
     def label = parameters.get('label', defaultLabel)
 
-    // NOTE: this build-clients contains docker binaries which were giving auth credentials issue as they are from
-    // RedHat! So, we pass on the clientsImage e.g. stakater/docker-with-git:17.1 which has latest docker binaries
-    def toolsImage = parameters.get('toolsImage', 'stakater/pipeline-tools:1.2.0')
+    def toolsImage = parameters.get('toolsImage', 'stakater/pipeline-tools:1.5.1')
     def inheritFrom = parameters.get('inheritFrom', 'base')
 
     def cloud = flow.getCloudConfig()
@@ -26,7 +24,6 @@ def call(Map parameters = [:], body) {
             ],
             containers: [
                     containerTemplate(
-                            // why can't I change this name? its registered somewhere?
                             name: 'tools',
                             image: "${toolsImage}",
                             command: '/bin/sh -c',
@@ -49,7 +46,6 @@ def call(Map parameters = [:], body) {
                     secretVolume(secretName: 'jenkins-git-ssh', mountPath: '/root/.ssh-git'),
                     secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
                     secretVolume(secretName: 'ingress-monitor-controller-test-config', mountPath: '/etc/ingress-monitor-controller'),
-                    secretVolume(secretName: "k8s-apps-cluster-kubeconfig", mountPath: '/home/jenkins/.kube'),
                     hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')]) {
         body()
     }
