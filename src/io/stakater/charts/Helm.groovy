@@ -32,4 +32,13 @@ def 'package'(String location, String chartName) {
     return result.substring(result.lastIndexOf('/') + 1, result.length())
 }
 
+def addRepo(String name, String url) {
+    sh "helm repo add ${name} ${url}"
+    updateRepos()
+}
+
+def updateRepos() {
+    sh "helm repo update"
+}
+
 return this
