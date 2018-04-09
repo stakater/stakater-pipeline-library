@@ -12,8 +12,14 @@ def setUserInfo(String gitUserName, String gitUserEmail) {
 def addHostsToKnownHosts() {
     sh """
         mkdir -p /root/.ssh/
-        echo -e "Host github.com\\n\\tStrictHostKeyChecking no\\n" > /root/.ssh/config
-        echo -e "Host gitlab.com\\n\\tStrictHostKeyChecking no\\n" >> /root/.ssh/config
+        tee /root/.ssh/config <<EOF
+Host github.com
+    StrictHostKeyChecking no
+
+Host gitlab.com
+    StrictHostKeyChecking no
+EOF
+
         ssh-keyscan github.com > /root/.ssh/known_hosts
         echo "\n" >> /root/.ssh/known_hosts
         ssh-keyscan gitlab.com >> /root/.ssh/known_hosts
