@@ -13,10 +13,11 @@ def call(Map parameters = [:], body) {
     def cloud = flow.getCloudConfig()
     
     podTemplate(name: 'sa-secret',
-        volumes: [secretVolume(secretName: "k8s-current-cluster-kubeconfig", mountPath: '/home/jenkins/.kube')]) {
-
-        toolsNode(toolsImage: toolsImage) {
-            body()
-        }
+        volumes: [secretVolume(secretName: "k8s-current-cluster-kubeconfig", mountPath: '/home/jenkins/.kube')],
+        annotations: [podAnnotation(key: "scheduler.alpha.kubernetes.io/critical-pod", value: "true")]) {
+            
+            toolsNode(toolsImage: toolsImage) {
+                body()
+            }
     }
 }
