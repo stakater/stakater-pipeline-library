@@ -53,7 +53,7 @@ def call(body) {
     stage("Notify") {
         def message
         if (utils.isCD()) {
-            def chartVersion = packageName.subSequence(packageName.indexOf("-") + 1, packageName.indexOf(".tgz"))
+            def chartVersion = packageName.subSequence(packageName.lastIndexOf("-") + 1, packageName.lastIndexOf(".tgz"))
             message = "${chartName}:${chartVersion}";
         }
         else {
