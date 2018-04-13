@@ -1,11 +1,17 @@
-def call(Map parameters = [:], body) {
+def call(body) {
+
+    // evaluate the body block, and collect configuration into the object
+    def config = [:]
+    body.resolveStrategy = Closure.DELEGATE_FIRST
+    body.delegate = config
+    body()
 
     def helm = new io.stakater.charts.Helm()
     def common = new io.stakater.Common()
     def chartManager = new io.stakater.charts.ChartManager()
     def utils = new io.fabric8.Utils()
 
-    def chartName = parameters.get('chartName', '')
+    def chartName = config.chartName
 
     if(chartName == '') {
         error "Parameter `chartName` is required"
@@ -29,6 +35,4 @@ def call(Map parameters = [:], body) {
             chartManager.uploadToChartMuseum(WORKSPACE, chartName, packageName, cmUsername, cmPassword)
         }
     }
-
-    body()
 }
