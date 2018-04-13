@@ -28,11 +28,11 @@ def call(body) {
         packageName = helm.package(WORKSPACE, chartName)
     }
 
-    if(utils.isCD()) {
+    // if(utils.isCD()) {
         stage("Upload Chart: ${chartName}") {
             String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
             String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
             chartManager.uploadToChartMuseum(WORKSPACE, chartName, packageName, cmUsername, cmPassword)
         }
-    }
+    // }
 }
