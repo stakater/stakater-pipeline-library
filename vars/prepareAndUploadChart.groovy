@@ -57,7 +57,7 @@ def call(body) {
             message = "${chartName}:${chartVersion}";
         }
         else {
-            message = "Chart Dry Run successful"
+            message = "Chart: ${chartName} Dry Run successful"
         }
 
         slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createField("ChartMuseum", message, false)])
