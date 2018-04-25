@@ -30,7 +30,7 @@ def call(Map parameters = [:], body) {
         git.addHostsToKnownHosts()
         git.checkoutRepo(repoUrl, repoBranch, workspaceDir)
 
-        ws(workspaceDir) {
+        dir(workspaceDir) {
             body(repoUrl, repoName, repoOwner, repoBranch)
         }
     }
