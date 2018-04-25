@@ -10,7 +10,7 @@ def call(Map parameters = [:], body) {
         
         def type = parameters.get('type', '')
         def workspaceDir = ""
-        println("type: ${type}")
+        
         switch(type.toLowerCase()) {
             // Set workspaceDir in gopath if go project
             case "go":
