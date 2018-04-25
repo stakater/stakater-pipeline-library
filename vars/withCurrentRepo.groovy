@@ -8,7 +8,7 @@ def call(Map parameters = [:], body) {
         def gitUsername = parameters.get('gitUsername', 'stakater-user')
         def gitEmail = parameters.get('gitEmail', 'stakater@gmail.com')
 
-        def workspaceDir = "/home/jenkins/" + repoName
+        def workspaceDir = parameters.get('workspaceDir', "/home/jenkins/") + repoName
 
         sh "mkdir -p ${workspaceDir}"
 
