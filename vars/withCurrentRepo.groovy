@@ -7,9 +7,21 @@ def call(Map parameters = [:], body) {
 
         def gitUsername = parameters.get('gitUsername', 'stakater-user')
         def gitEmail = parameters.get('gitEmail', 'stakater@gmail.com')
+        
+        def type = parameters.get('type', '')
+        def workspaceDir = ""
 
-        def workspaceDir = parameters.get('workspaceDir', "/home/jenkins/") + repoName
+        switch(type.toLowerCase()) {
+            // Set workspaceDir in gopath if go project
+            case "go":
+                def host = repoUrl.substring(repoUrl.indexOf("@") + 1, repoUrl.indexOf(":"))
+                workspaceDir = "/go/src/${host}/${repoOwner}/${repoName}"
+            break
+            default: 
+                workspaceDir = "/home/jenkins/" + repoName
 
+        }
+        
         sh "mkdir -p ${workspaceDir}"
 
         def git = new io.stakater.vc.Git()
