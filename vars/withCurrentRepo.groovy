@@ -14,7 +14,7 @@ def call(Map parameters = [:], body) {
         def type = parameters.get('type', '')
 
         switch(type.toLowerCase()) {
-            // Set workspaceDir in gopath if go project
+            // Symlink workspaceDir in gopath if go project
             case "go":
                 def host = repoUrl.substring(repoUrl.indexOf("@") + 1, repoUrl.indexOf(":"))
                 def symlinkDir = "/go/src/${host}/${repoOwner}"
