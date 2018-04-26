@@ -12,15 +12,18 @@ def call(Map parameters = [:], body) {
         sh "mkdir -p ${workspaceDir}"
 
         def type = parameters.get('type', '')
-        def symlinkLoc = ""
 
         switch(type.toLowerCase()) {
             // Set workspaceDir in gopath if go project
             case "go":
                 def host = repoUrl.substring(repoUrl.indexOf("@") + 1, repoUrl.indexOf(":"))
-                symlinkLoc = "/go/src/${host}/${repoOwner}/${repoName}"
-                println("Creating symlink of ${workspaceDir} at ${symlinkLoc} for go build")
-                sh "ln -s ${workspaceDir} ${symlinkLoc}"
+                def symlinkDir = "/go/src/${host}/${repoOwner}"
+                def symlink = "${symlinkDir}/${repoName}"
+                println("Creating symlink of ${workspaceDir} at ${symlink} for go build")
+                sh """
+                    mkdir -p ${symlinkDir}
+                    ln -s ${workspaceDir} ${symlink}
+                """
             break
         }
 
