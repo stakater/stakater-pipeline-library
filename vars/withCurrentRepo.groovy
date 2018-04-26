@@ -10,7 +10,7 @@ def call(Map parameters = [:], body) {
         
         def workspaceDir = "/home/jenkins/" + repoName
         sh "mkdir -p ${workspaceDir}"
-        
+
         def type = parameters.get('type', '')
         def symlinkLoc = ""
 
@@ -19,10 +19,9 @@ def call(Map parameters = [:], body) {
             case "go":
                 def host = repoUrl.substring(repoUrl.indexOf("@") + 1, repoUrl.indexOf(":"))
                 symlinkLoc = "/go/src/${host}/${repoOwner}/${repoName}"
+                println("Creating symlink of ${workspaceDir} at ${symlinkLoc} for go build")
                 sh "ln -s ${workspaceDir} ${symlinkLoc}"
             break
-            default: 
-
         }
 
         def git = new io.stakater.vc.Git()
