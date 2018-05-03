@@ -1,3 +1,5 @@
+#!/usr/bin/groovy
+package io.stakater.charts
 
 def renderChart(String chartTemplatesDir, String chartDir, String chartName, String version, String dockerImage){
     sh """
