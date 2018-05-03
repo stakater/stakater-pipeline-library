@@ -1,6 +1,8 @@
 
-def renderChart(String chartTemplatesDir, String chartPath){
+def renderChart(String chartTemplatesDir, String chartPath, String version, String dockerImage){
     sh """
+        export VERSION=${version}
+        export DOCKER_IMAGE=${dockerImage}
         for template in ${chartTemplatesDir}/*.yaml.tmpl; do 
             # Remove .tmpl suffix
             file=\${template%.tmpl}
