@@ -1,5 +1,5 @@
 
-def renderChart(String chartTemplatesDir, String chartPath, String version, String dockerImage){
+def renderChart(String chartTemplatesDir, String chartDir, String chartName, String version, String dockerImage){
     sh """
         export VERSION=${version}
         export DOCKER_IMAGE=${dockerImage}
@@ -9,21 +9,21 @@ def renderChart(String chartTemplatesDir, String chartPath, String version, Stri
             # Remove full path
             file=\${file##*/}
             # Append new path
-            file="${chartPath}/\${file}"
+            file="${chartDir}/${chartName}/\${file}"
             # Render template
             gotplenv \${template} > \${file}
         done
     """
 }
 
-def generateManifests(String chartPath, String manifestsDir){
+def generateManifests(String chartDir, String chartName, String manifestsDir){
     sh """
         mkdir -p ${manifestsDir}
         templatesDir="templates"
-        for templateName in ${chartPath}/\${templatesDir}/*.yaml; do
+        for templateName in ${chartDir}/${chartName}/\${templatesDir}/*.yaml; do
             # Remove full path
             templateName=\${templateName##*/}
-            helm template ${chartPath} -x \${templatesDir}/\${templateName} > ${manifestsDir}/\${templateName}
+            helm template ${chartDir}/${chartName} -x \${templatesDir}/\${templateName} > ${manifestsDir}/\${templateName}
         done
     """
 }
