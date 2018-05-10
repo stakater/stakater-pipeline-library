@@ -16,7 +16,11 @@ def call(body) {
                 def common = new io.stakater.Common()
                 def git = new io.stakater.vc.Git()
                 def utils = new io.fabric8.Utils()
+                def slack = new io.stakater.notifications.Slack()
 
+                // Slack variables
+                def slackChannel = "${env.SLACK_CHANNEL}"
+                def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
                 def chartVersion = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file=.version")
 
@@ -30,17 +34,27 @@ def call(body) {
                     }
                 }
 
-                // Only commit and release if in CD
-                if(utils.isCD()) {
-                    sh """
-                        echo -n "${chartVersion}" > .version
-                    """
+                try {
+                    // Only commit and release if in CD
+                    if(utils.isCD()) {
+                        sh """
+                            echo -n "${chartVersion}" > .version
+                        """
 
-                    def commitMessage = "Bump Version to ${chartVersion}"
-                    git.commitChanges(WORKSPACE, commitMessage)
-                    print "Pushing Tag ${chartVersion} to Git"
-                    git.createTagAndPush(WORKSPACE, chartVersion, commitMessage)
-                    git.createRelease(chartVersion)
+                        def commitMessage = "Bump Version to ${chartVersion}"
+                        git.commitChanges(WORKSPACE, commitMessage)
+                        print "Pushing Tag ${chartVersion} to Git"
+                        git.createTagAndPush(WORKSPACE, chartVersion, commitMessage)
+                        git.createRelease(chartVersion)
+                    }
+                }
+                catch(e) {
+                    slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
+            
+                    def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
+                    git.addCommentToPullRequest(commentMessage)
+
+                    throw e
                 }
             }
         }
