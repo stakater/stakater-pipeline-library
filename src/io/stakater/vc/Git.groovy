@@ -105,8 +105,8 @@ def createTagAndPush(def repoDir, String version, String message) {
         ssh-add /root/.ssh-git/ssh-key
 
         cd ${repoDir}
-        git tag -am ${message} v${version}
-        git push origin v${version}
+        git tag -am "${message}" ${version}
+        git push origin ${version}
     """
 }
 
