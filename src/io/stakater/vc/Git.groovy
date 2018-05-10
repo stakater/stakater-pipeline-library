@@ -95,14 +95,18 @@ def getLastCommitMessage() {
 }
 
 def createTagAndPush(def repoDir, String version) {
+    createTagAndPush(repoDir, version, "By ${env.JOB_NAME}")
+}
+
+def createTagAndPush(def repoDir, String version, String message) {
     sh """
         chmod 600 /root/.ssh-git/ssh-key
         eval `ssh-agent -s`
         ssh-add /root/.ssh-git/ssh-key
 
         cd ${repoDir}
-        git tag ${version}
-        git push --tags
+        git tag -am ${message} ${version}
+        git push origin ${version}
     """
 }
 
