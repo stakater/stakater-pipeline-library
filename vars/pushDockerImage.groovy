@@ -30,8 +30,8 @@ def call(body) {
                     stage('Canary Release') {
                         echo "Version: ${dockerImageVersion}"
 
-                        docker.buildImageWithTag(dockerImage, dockerImageVersion)
-                        docker.pushTag(dockerImage, dockerImageVersion)
+                        docker.buildImageWithTagCustom(dockerImage, dockerImageVersion)
+                        docker.pushTagCustom(dockerImage, dockerImageVersion)
 
                     }
                 }
