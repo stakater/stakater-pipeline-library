@@ -32,6 +32,11 @@ def call(body) {
                     prepareAndUploadChart {
                         chartName = chart
                     }
+                    echo "Removing packaged chart"
+                    sh """
+                        cd ${chart}
+                        rm -rf *.tgz
+                    """
                 }
 
                 try {
@@ -39,6 +44,8 @@ def call(body) {
                     if(utils.isCD()) {
                         sh """
                             echo -n "${chartVersion}" > .version
+                            # Remove chartmuseum credential files
+                            rm -rf CHARTMUSEUM_*
                         """
 
                         def commitMessage = "Bump Version to ${chartVersion}"
