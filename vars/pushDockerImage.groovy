@@ -24,7 +24,7 @@ def call(body) {
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${repoName.toLowerCase()}"
-                def dockerImageVersion = stakaterCommands.getBranchedVersion("${env.BUILD_NUMBER}.${versionPrefix}")
+                def dockerImageVersion = stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
 
                 try {
                     stage('Canary Release') {
