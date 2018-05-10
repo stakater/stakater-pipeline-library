@@ -12,7 +12,7 @@ def buildImageWithTag(def imageName, def tag) {
 }
 
 def buildImageWithTagCustom(def imageName, def tag) {
-    buildImageWithTagCustom(".", imageName, def tag)
+    buildImageWithTagCustom(".", imageName, tag)
 }
 
 def buildImageWithTagCustom(def buildContext, def imageName, def tag) {
