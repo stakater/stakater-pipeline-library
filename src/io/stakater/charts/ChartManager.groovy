@@ -17,7 +17,11 @@ def uploadToGithub(String location, String packagedChart) {
         cd ${location}
         helm repo index ./docs
     """
+<<<<<<< Updated upstream
     def git = new io.stakater.vs.Git()
+=======
+    def git = new io.stakater.vc.Git()
+>>>>>>> Stashed changes
 
     git.commitChanges(location, "Update charts")
 }
