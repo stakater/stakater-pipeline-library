@@ -19,8 +19,8 @@ def uploadToStakaterCharts(String packagedChart) {
     
     git.checkoutRepo(chartRepoUrl, "master", chartRepoName)
     sh """
-        mv ${packagedChart} ${location}/docs
-        cd ${location}
+        mv ${packagedChart} ${chartRepoName}/docs
+        cd ${chartRepoName}
         helm repo index docs --url https://stakater.github.io/${chartRepoName}
     """
 
