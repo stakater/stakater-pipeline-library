@@ -11,13 +11,18 @@ def uploadToChartMuseum(String location, String chartName, String fileName, Stri
     chartMuseum.upload(location, chartName, fileName, cmUsername, cmPassword)
 }
 
-def uploadToGithub(String location, String packagedChart) {
+def uploadToStakaterCharts(String packagedChart) {
+    def git = new io.stakater.vc.Git()
+
+    def chartRepoName = "stakater-charts"
+    def chartRepoUrl = "git@github.com:stakater/${chartRepoName}.git"
+    
+    git.checkoutRepo(chartRepoUrl, "master", chartRepoName)
     sh """
         mv ${packagedChart} ${location}/docs
         cd ${location}
-        helm repo index docs --url https://stakater.github.io/charts
+        helm repo index docs --url https://stakater.github.io/${chartRepoName}
     """
-    def git = new io.stakater.vc.Git()
 
     git.commitChanges(location, "Update charts")
 }
