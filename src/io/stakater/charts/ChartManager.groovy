@@ -24,7 +24,7 @@ def uploadToStakaterCharts(String packagedChart) {
         helm repo index docs --url https://stakater.github.io/${chartRepoName}
     """
 
-    git.commitChanges(location, "Update charts")
+    git.commitChanges(chartRepoName, "Update charts")
 }
 
 return this
