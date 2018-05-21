@@ -15,10 +15,10 @@ def uploadToGithub(String location, String packagedChart) {
     sh """
         mv ${packagedChart} ${location}/docs
         cd ${location}
-        helm repo index ./docs
+        helm repo index docs --url https://stakater.github.com/charts
     """
     def git = new io.stakater.vc.Git()
-    
+
     git.commitChanges(location, "Update charts")
 }
 
