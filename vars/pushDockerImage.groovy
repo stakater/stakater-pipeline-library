@@ -5,12 +5,12 @@ def call(body) {
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = config
     body()
-
+    
+    def common = new io.stakater.Common()
     def versionPrefix = config.versionPrefix ?: '1.0'
     def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
 
     toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.2') {
-        def common = new io.stakater.Common()
         def docker = new io.stakater.containers.Docker()
         def stakaterCommands = new io.stakater.StakaterCommands()
         def git = new io.stakater.vc.Git()
