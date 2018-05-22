@@ -6,20 +6,21 @@ def call(body) {
     body.delegate = config
     body()
     
-    def common = new io.stakater.Common()
     def versionPrefix = config.versionPrefix ?: '1.0'
-    def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
 
     toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.2') {
         def docker = new io.stakater.containers.Docker()
         def stakaterCommands = new io.stakater.StakaterCommands()
         def git = new io.stakater.vc.Git()
         def slack = new io.stakater.notifications.Slack()
+        def common = new io.stakater.Common()
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
-
+        
+        def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
+        
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${repoName.toLowerCase()}"
