@@ -17,7 +17,7 @@ def buildImageWithTagCustom(def imageName, def tag) {
 
 def buildImageWithTagCustom(def buildContext, def imageName, def tag) {
     sh """
-        docker build -t ${imageName}:${tag} ${buildContext}
+        docker build -t ${imageName}:${tag} ${buildContext} --network=host
     """
 }
 
