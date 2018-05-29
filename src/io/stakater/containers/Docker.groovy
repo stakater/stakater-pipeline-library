@@ -15,9 +15,7 @@ def buildImageWithTagCustom(def imageName, def tag) {
     buildImageWithTagCustom(".", imageName, tag)
 }
 
-def buildImageFromMakefile(def dockerRegistryURL,def repoOwner,def repoName){
-    // def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${repoName.toLowerCase()}"
-    
+def buildImageFromMakefile(def dockerRegistryURL,def repoOwner,def repoName){    
     sh """
         chmod 600 /root/.ssh-git/ssh-key
         eval `ssh-agent -s`

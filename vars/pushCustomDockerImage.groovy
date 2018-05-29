@@ -25,6 +25,7 @@ def call(body) {
                 try {
                     stage('Canary Release') {                        
                         docker.buildImageFromMakefile(dockerRegistryURL,repoOwner,repoName)
+                        def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${repoName.toLowerCase()}"
                     }
                 }
                 catch (e) {
@@ -37,9 +38,9 @@ def call(body) {
                 }
 
                 stage('Notify') {
-                    slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${dockerImageVersion}")])
+                    slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}")])
 
-                    def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${dockerImageVersion}`"
+                    def commentMessage = "Image is available for testing. `docker pull ${dockerImage}`"
                     git.addCommentToPullRequest(commentMessage)
                 }
             }
