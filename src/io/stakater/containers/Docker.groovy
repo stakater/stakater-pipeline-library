@@ -23,6 +23,7 @@ def buildImageFromMakefile(def dockerRegistryURL,def repoOwner,def repoName){
         export REGISTRY_HOST=${dockerRegistryURL}
         export USERNAME=${repoOwner.toLowerCase()}
         export NAME=${repoName.toLowerCase()}
+        git pull --tags
         make patch-release
     """
 }
