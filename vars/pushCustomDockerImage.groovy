@@ -22,10 +22,11 @@ def call(body) {
 
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->                                
+                def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${repoName.toLowerCase()}"
+                def dockerImageVersion = stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
                 try {
                     stage('Canary Release') {                        
                         docker.buildImageFromMakefile(dockerRegistryURL,repoOwner,repoName)
-                        def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${repoName.toLowerCase()}"
                     }
                 }
                 catch (e) {
@@ -38,9 +39,9 @@ def call(body) {
                 }
 
                 stage('Notify') {
-                    slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}")])
+                    slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${dockerImageVersion}")])
 
-                    def commentMessage = "Image is available for testing. `docker pull ${dockerImage}`"
+                    def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${dockerImageVersion}`"
                     git.addCommentToPullRequest(commentMessage)
                 }
             }
