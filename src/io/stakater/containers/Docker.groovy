@@ -15,6 +15,17 @@ def buildImageWithTagCustom(def imageName, def tag) {
     buildImageWithTagCustom(".", imageName, tag)
 }
 
+def buildImageFromMakefile(def dockerRegistryURL,def repoOwner,def repoName){
+    // def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${repoName.toLowerCase()}"
+    
+    sh """
+        export REGISTRY_HOST=${dockerRegistryURL}
+        export USERNAME=${repoOwner.toLowerCase()}
+        export NAME=${repoName.toLowerCase()}
+        make patch-release
+    """
+}
+
 def buildImageWithTagCustom(def buildContext, def imageName, def tag) {
     sh """
         docker build -t ${imageName}:${tag} ${buildContext} --network=host
