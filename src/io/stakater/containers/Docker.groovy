@@ -19,6 +19,9 @@ def buildImageFromMakefile(def dockerRegistryURL,def repoOwner,def repoName){
     // def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${repoName.toLowerCase()}"
     
     sh """
+        chmod 600 /root/.ssh-git/ssh-key
+        eval `ssh-agent -s`
+        ssh-add /root/.ssh-git/ssh-key
         export REGISTRY_HOST=${dockerRegistryURL}
         export USERNAME=${repoOwner.toLowerCase()}
         export NAME=${repoName.toLowerCase()}
