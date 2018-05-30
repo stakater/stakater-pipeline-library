@@ -15,6 +15,19 @@ def buildImageWithTagCustom(def imageName, def tag) {
     buildImageWithTagCustom(".", imageName, tag)
 }
 
+def buildAndPushImageFromMakefile(def dockerRegistryURL,def repoOwner,def repoName){    
+    sh """
+        chmod 600 /root/.ssh-git/ssh-key
+        eval `ssh-agent -s`
+        ssh-add /root/.ssh-git/ssh-key
+        export REGISTRY_HOST=${dockerRegistryURL}
+        export USERNAME=${repoOwner.toLowerCase()}
+        export NAME=${repoName.toLowerCase()}
+        git pull --tags
+        make patch-release
+    """
+}
+
 def buildImageWithTagCustom(def buildContext, def imageName, def tag) {
     sh """
         docker build -t ${imageName}:${tag} ${buildContext} --network=host
