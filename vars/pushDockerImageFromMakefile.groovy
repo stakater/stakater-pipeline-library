@@ -28,7 +28,7 @@ def call(body) {
                     stage('Canary Release') {                        
                         docker.buildAndPushImageFromMakefile(dockerRegistryURL,repoOwner,repoName)
                         dockerImageVersion = common.shOutput """
-                            release=$(cat .release)
+                            release=\$(cat .release)
                             pattern="release="
                             ImageVersion=\$\{release/\$pattern/\}
                             echo \$ImageVersion
