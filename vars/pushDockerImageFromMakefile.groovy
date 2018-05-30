@@ -26,7 +26,7 @@ def call(body) {
                 def dockerImageVersion = stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
                 try {
                     stage('Canary Release') {                        
-                        docker.buildImageFromMakefile(dockerRegistryURL,repoOwner,repoName)
+                        docker.buildAndPushImageFromMakefile(dockerRegistryURL,repoOwner,repoName)
                     }
                 }
                 catch (e) {
