@@ -30,7 +30,7 @@ def call(body) {
                         dockerImageVersion = common.shOutput """
                             release=$(cat .release)
                             pattern="release="
-                            ImageVersion=\${release/\$pattern/}
+                            ImageVersion=\$\{release/$pattern/\}
                             echo \$ImageVersion
                         """
                     }
