@@ -22,11 +22,17 @@ def call(body) {
 
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->                                
-                def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${repoName.toLowerCase()}"
-                def dockerImageVersion = stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
+                def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${repoName.toLowerCase()}"                
+                def dockerImageVersion
                 try {
                     stage('Canary Release') {                        
                         docker.buildAndPushImageFromMakefile(dockerRegistryURL,repoOwner,repoName)
+                        dockerImageVersion = common.shOutput """
+                            release=$(cat .release)
+                            pattern="release="
+                            ImageVersion=\${release/\$pattern/}
+                            echo \$ImageVersion
+                        """
                     }
                 }
                 catch (e) {
