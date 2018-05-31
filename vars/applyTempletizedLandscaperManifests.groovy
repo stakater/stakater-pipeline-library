@@ -79,7 +79,8 @@ def call(body) {
                         landscaper.apply(outputDir, false)
                     }
 
-                    git.tagAndRelease(repoName, repoOwner)
+                    def versionFile = ".version"
+                    git.tagAndRelease(versionFile, repoName, repoOwner)
                 }
             }
         }

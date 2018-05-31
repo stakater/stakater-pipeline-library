@@ -46,7 +46,8 @@ def call(body) {
                             landscaper.apply(manifestsDir, false)
                         }
 
-                        git.tagAndRelease(repoName, repoOwner)
+                        def versionFile = ".version"
+                        git.tagAndRelease(versionFile, repoName, repoOwner)
                     }
                 } catch(e) {
                     //TODO: Extract test result and send in notification

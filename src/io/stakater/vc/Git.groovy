@@ -115,9 +115,8 @@ def createRelease(def version) {
     flow.createGitHubRelease(version)
 }
 
-def tagAndRelease(def repoName, def repoOwner){
+def tagAndRelease(def versionFile, def repoName, def repoOwner){
   echo "Generating New Version"
-  def versionFile = ".version"
   def common = new io.stakater.Common()
   def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
   sh """
