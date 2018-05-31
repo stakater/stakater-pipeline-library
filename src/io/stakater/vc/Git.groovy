@@ -48,7 +48,7 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
         chmod 600 /root/.ssh-git/ssh-key
         eval `ssh-agent -s`
         ssh-add /root/.ssh-git/ssh-key
-        
+
         rm -rf ${dir}
         git clone -b ${branch} ${repoUrl} ${dir}
     """
@@ -68,7 +68,7 @@ def addCommentToPullRequest(String message) {
         echo "no commit author found so cannot comment on PR"
         return
     }
-    
+
     def pr = env.CHANGE_ID
     if (!pr){
         echo "no pull request number found so cannot comment on PR"
@@ -113,6 +113,21 @@ def createTagAndPush(def repoDir, String version, String message) {
 def createRelease(def version) {
     def flow = new io.stakater.StakaterCommands()
     flow.createGitHubRelease(version)
+}
+
+def tagAndRelease(def repoName, def repoOwner){
+  echo "Generating New Version"
+  def versionFile = ".version"
+  def common = new io.stakater.Common()
+  def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
+  sh """
+      echo "${version}" > ${versionFile}
+  """
+  commitChanges(WORKSPACE, "Bump Version to ${version}")
+
+  echo "Pushing Tag ${version} to Git"
+  createTagAndPush(WORKSPACE, version)
+  createRelease(version)
 }
 
 return this
