@@ -46,19 +46,8 @@ def call(body) {
                             landscaper.apply(manifestsDir, false)
                         }
 
-                        stage('Tag and Release') {
-                            print "Generating New Version"
-                            def versionFile = ".version"
-                            def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
-                            sh """
-                                echo "${version}" > ${versionFile}
-                            """
-                            git.commitChanges(WORKSPACE, "Bump Version to ${version}")
-
-                            print "Pushing Tag ${version} to Git"
-                            git.createTagAndPush(WORKSPACE, version)
-                            git.createRelease(version)
-                        }
+                        def versionFile = ".version"
+                        git.tagAndRelease(versionFile, repoName, repoOwner)
                     }
                 } catch(e) {
                     //TODO: Extract test result and send in notification
