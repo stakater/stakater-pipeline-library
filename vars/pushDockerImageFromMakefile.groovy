@@ -21,12 +21,13 @@ def call(body) {
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
         container(name: 'tools') {
-            withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->                                
-                def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${repoName.toLowerCase()}"                
+            withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->         
+                def imageName = repoName.split("dockerfile-").last().toLowerCase()                       
+                def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"                
                 def dockerImageVersion
                 try {
                     stage('Canary Release') {                        
-                        docker.buildAndPushImageFromMakefile(dockerRegistryURL,repoOwner,repoName)
+                        docker.buildAndPushImageFromMakefile(dockerRegistryURL,repoOwner,imageName)
                         dockerImageVersion = common.shOutput """
                             release=\$(cat .release)
                             pattern="release="
