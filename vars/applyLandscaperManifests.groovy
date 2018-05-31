@@ -75,7 +75,7 @@ def call(body) {
                     def versionFile = ".version"
                     def version = common.shOutput("cat ${versionFile}")
                     if (utils.isCD()) {
-                        message = "Release stakater-apps ${version}"
+                        message = "Release ${repoName} ${version}"
                     }
                     else {
                         message = "Dry Run successful"
