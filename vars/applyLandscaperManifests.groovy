@@ -16,8 +16,8 @@ def call(body) {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 String workspaceDir = WORKSPACE
                 String manifestsDir = workspaceDir + "/manifests/"
-                String preInstall = manifestsDir + "/pre-install"
-                String postInstall = manifestsDir + "/post-install"
+                String preInstall = workspaceDir + "/pre-install/"
+                String postInstall = workspaceDir + "/post-install/"
 
                 // Slack variables
                 def slackChannel = "${env.SLACK_CHANNEL}"
