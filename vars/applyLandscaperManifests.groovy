@@ -30,16 +30,16 @@ def call(body) {
                 def common = new io.stakater.Common()
 
                 try {
-                    stage(Pre install){
-                    """
-                    if [ -d "$preInstall" ]; then
-                      echo "Running Pre Install"
-                      cd "$preInstall"
-                      chmod +x pre-install.sh
-                      ./pre-install.sh
-                      echo "Successfully run Pre Install"
-                    fi
-                    """
+                    stage('Pre install'){
+                      sh """
+                        if [ -d "$preInstall" ]; then
+                          echo "Running Pre Install"
+                          cd "$preInstall"
+                          chmod +x pre-install.sh
+                          ./pre-install.sh
+                          echo "Successfully run Pre Install"
+                        fi
+                      """
                     }
 
                     stage('Init Helm') {
@@ -64,16 +64,16 @@ def call(body) {
                         git.tagAndRelease(versionFile, repoName, repoOwner)
                     }
 
-                    stage(Post install){
-                    """
-                    if [ -d "$postInstall" ]; then
-                      echo "Running Post Install"
-                      cd "$postInstall"
-                      chmod +x post-install.sh
-                      ./post-install.sh
-                      echo "Successfully run Post Install"
-                    fi
-                    """
+                    stage('Post install'){
+                      sh """
+                        if [ -d "$postInstall" ]; then
+                          echo "Running Post Install"
+                          cd "$postInstall"
+                          chmod +x post-install.sh
+                          ./post-install.sh
+                          echo "Successfully run Post Install"
+                        fi
+                      """
                     }
                 } catch(e) {
                     //TODO: Extract test result and send in notification
