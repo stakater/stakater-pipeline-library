@@ -33,9 +33,11 @@ def call(body) {
                     stage(Pre install){
                     """
                     if [ -d "$preInstall" ]; then
+                      echo "Running Pre Install"
                       cd "$preInstall"
                       chmod +x pre-install.sh
                       ./pre-install.sh
+                      echo "Successfully run Pre Install"
                     fi
                     """
                     }
@@ -61,6 +63,18 @@ def call(body) {
                         def versionFile = ".version"
                         git.tagAndRelease(versionFile, repoName, repoOwner)
                     }
+
+                    stage(Post install){
+                    """
+                    if [ -d "$postInstall" ]; then
+                      echo "Running Post Install"
+                      cd "$postInstall"
+                      chmod +x post-install.sh
+                      ./post-install.sh
+                      echo "Successfully run Post Install"
+                    fi
+                    """
+                    }
                 } catch(e) {
                     //TODO: Extract test result and send in notification
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
@@ -84,16 +98,6 @@ def call(body) {
                     slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createField("Message", message, false)])
 
                     git.addCommentToPullRequest(message)
-                }
-
-                stage(Post install){
-                """
-                if [ -d "$postInstall" ]; then
-                  cd "$postInstall"
-                  chmod +x post-install.sh
-                  ./post-install.sh
-                fi
-                """
                 }
             }
         }
