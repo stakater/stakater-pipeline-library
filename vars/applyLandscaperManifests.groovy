@@ -29,16 +29,16 @@ def call(body) {
                 def helm = new io.stakater.charts.Helm()
                 def common = new io.stakater.Common()
 
-                stage(Pre install){
-                """
-                if [ -d "$preInstall" ]; then
-                  cd "preInstall"
-                  ./pre-install.sh
-                fi
-                """
-                }
-
                 try {
+                    stage(Pre install){
+                    """
+                    if [ -d "$preInstall" ]; then
+                      cd "$preInstall"
+                      ./pre-install.sh
+                    fi
+                    """
+                    }
+
                     stage('Init Helm') {
                         // Sleep is needed for the first time because tiller pod might not be ready instantly
                         helm.init(false)
@@ -88,7 +88,7 @@ def call(body) {
                 stage(Post install){
                 """
                 if [ -d "$postInstall" ]; then
-                  cd "postInstall"
+                  cd "$postInstall"
                   ./post-install.sh
                 fi
                 """
