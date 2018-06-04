@@ -34,6 +34,7 @@ def call(body) {
                     """
                     if [ -d "$preInstall" ]; then
                       cd "$preInstall"
+                      chmod +x pre-install.sh
                       ./pre-install.sh
                     fi
                     """
@@ -89,6 +90,7 @@ def call(body) {
                 """
                 if [ -d "$postInstall" ]; then
                   cd "$postInstall"
+                  chmod +x post-install.sh
                   ./post-install.sh
                 fi
                 """
