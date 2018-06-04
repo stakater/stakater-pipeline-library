@@ -16,6 +16,8 @@ def call(body) {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 String workspaceDir = WORKSPACE
                 String manifestsDir = workspaceDir + "/manifests/"
+                String preInstall = manifestsDir + "/pre-install"
+                String postInstall = manifestsDir + "/post-install"
 
                 // Slack variables
                 def slackChannel = "${env.SLACK_CHANNEL}"
@@ -26,6 +28,15 @@ def call(body) {
                 def landscaper = new io.stakater.charts.Landscaper()
                 def helm = new io.stakater.charts.Helm()
                 def common = new io.stakater.Common()
+
+                stage(Pre install){
+                """
+                if [ -d "$preInstall" ]; then
+                  cd "preInstall"
+                  ./pre-install.sh
+                fi
+                """
+                }
 
                 try {
                     stage('Init Helm') {
@@ -72,6 +83,15 @@ def call(body) {
                     slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createField("Message", message, false)])
 
                     git.addCommentToPullRequest(message)
+                }
+
+                stage(Post install){
+                """
+                if [ -d "$postInstall" ]; then
+                  cd "postInstall"
+                  ./post-install.sh
+                fi
+                """
                 }
             }
         }
