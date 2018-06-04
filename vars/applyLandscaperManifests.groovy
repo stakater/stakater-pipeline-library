@@ -16,6 +16,8 @@ def call(body) {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 String workspaceDir = WORKSPACE
                 String manifestsDir = workspaceDir + "/manifests/"
+                String preInstall = manifestsDir + "/pre-install"
+                String postInstall = manifestsDir + "/post-install"
 
                 // Slack variables
                 def slackChannel = "${env.SLACK_CHANNEL}"
@@ -28,6 +30,18 @@ def call(body) {
                 def common = new io.stakater.Common()
 
                 try {
+                    stage('Pre install'){
+                      sh """
+                        if [ -d "$preInstall" ]; then
+                          echo "Running Pre Install"
+                          cd "$preInstall"
+                          chmod +x pre-install.sh
+                          ./pre-install.sh
+                          echo "Successfully run Pre Install"
+                        fi
+                      """
+                    }
+
                     stage('Init Helm') {
                         // Sleep is needed for the first time because tiller pod might not be ready instantly
                         helm.init(false)
@@ -48,6 +62,18 @@ def call(body) {
 
                         def versionFile = ".version"
                         git.tagAndRelease(versionFile, repoName, repoOwner)
+                    }
+
+                    stage('Post install'){
+                      sh """
+                        if [ -d "$postInstall" ]; then
+                          echo "Running Post Install"
+                          cd "$postInstall"
+                          chmod +x post-install.sh
+                          ./post-install.sh
+                          echo "Successfully run Post Install"
+                        fi
+                      """
                     }
                 } catch(e) {
                     //TODO: Extract test result and send in notification
