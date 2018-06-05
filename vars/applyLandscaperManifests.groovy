@@ -37,7 +37,21 @@ def call(body) {
                           cd ${preInstall}
                           chmod +x pre-install.sh
                           ls -l
-                          ./pre-install.sh
+
+                          # Explicitly delete default storage class
+                          # Don't fail script if command fails
+                          echo "Deleting storage-class-gp2"
+                          kubectl delete -f storage-class-gp2.yaml || true
+
+                          # Apply helm RBAC
+                          echo "Applying tiller-rbac"
+                          kubectl apply -f tiller-rbac.yaml --namespace kube-system
+
+                          # Initialize helm with service account created above ^
+                          # So that tiller is deployed with the RBAC
+                          echo "Initializing service-account tiller"
+                          helm init --service-account tiller
+
                           echo "Successfully run Pre Install"
                         fi
                       """
