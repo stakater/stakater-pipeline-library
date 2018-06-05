@@ -8,114 +8,201 @@ def call(body) {
 
     def helmRepoName = config.helmRepoName ?: 'chartmuseum '
     def helmRepoUrl = config.helmRepoUrl ?: 'http://chartmuseum'
+    def cluster = config.cluster ?: 'external'
 
     def utils = new io.fabric8.Utils()
 
-    toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.8.1') {
-        container(name: 'tools') {
-            withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
-                String workspaceDir = WORKSPACE
-                String manifestsDir = workspaceDir + "/manifests/"
-                String preInstall = workspaceDir + "/pre-install"
-                String postInstall = workspaceDir + "/post-install"
+    if(cluster.equals('external')){
+      toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.8.1') {
+          container(name: 'tools') {
+              withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+                  String workspaceDir = WORKSPACE
+                  String manifestsDir = workspaceDir + "/manifests/"
+                  String preInstall = workspaceDir + "/pre-install"
+                  String postInstall = workspaceDir + "/post-install"
 
-                // Slack variables
-                def slackChannel = "${env.SLACK_CHANNEL}"
-                def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
+                  sh "echo Running toolsWithExternalKubeNode"
 
-                def git = new io.stakater.vc.Git()
-                def slack = new io.stakater.notifications.Slack()
-                def landscaper = new io.stakater.charts.Landscaper()
-                def helm = new io.stakater.charts.Helm()
-                def common = new io.stakater.Common()
+                  // Slack variables
+                  def slackChannel = "${env.SLACK_CHANNEL}"
+                  def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
-                try {
-                    stage('Pre install'){
-                      sh """
-                        if [ -d ${preInstall} ]; then
-                          echo "Running Pre Install"
-                          cd ${preInstall}
-                          chmod +x pre-install.sh
-                          ls -l
+                  def git = new io.stakater.vc.Git()
+                  def slack = new io.stakater.notifications.Slack()
+                  def landscaper = new io.stakater.charts.Landscaper()
+                  def helm = new io.stakater.charts.Helm()
+                  def common = new io.stakater.Common()
 
-                          # Explicitly delete default storage class
-                          # Don't fail script if command fails
-                          echo "Deleting storage-class-gp2"
-                          kubectl delete -f storage-class-gp2.yaml || true
+                  try {
+                      stage('Pre install'){
+                        sh """
+                          if [ -d ${preInstall} ]; then
+                            echo "Running Pre Install"
+                            cd ${preInstall}
+                            chmod +x pre-install.sh
+                            ls -l
+                            ./pre-install.sh
+                            echo "Successfully run Pre Install"
+                          fi
+                        """
+                      }
 
-                          # Apply helm RBAC
-                          echo "Applying tiller-rbac"
-                          kubectl apply -f tiller-rbac.yaml --namespace kube-system
+                      stage('Init Helm') {
+                          // Sleep is needed for the first time because tiller pod might not be ready instantly
+                          helm.init(false)
 
-                          # Initialize helm with service account created above ^
-                          # So that tiller is deployed with the RBAC
-                          echo "Initializing service-account tiller"
-                          helm init --service-account tiller
+                          sh "sleep 30s"
 
-                          echo "Successfully run Pre Install"
-                        fi
-                      """
-                    }
+                          helm.addRepo(helmRepoName, helmRepoUrl)
+                      }
 
-                    stage('Init Helm') {
-                        // Sleep is needed for the first time because tiller pod might not be ready instantly
-                        helm.init(false)
+                      stage('Dry Run Charts') {
+                          landscaper.apply(manifestsDir, true)
+                      }
 
-                        sh "sleep 30s"
+                      if(utils.isCD()) {
+                          stage('Install Charts') {
+                              landscaper.apply(manifestsDir, false)
+                          }
 
-                        helm.addRepo(helmRepoName, helmRepoUrl)
-                    }
+                          def versionFile = ".version"
+                          git.tagAndRelease(versionFile, repoName, repoOwner)
+                      }
 
-                    stage('Dry Run Charts') {
-                        landscaper.apply(manifestsDir, true)
-                    }
+                      stage('Post install'){
+                        sh """
+                          if [ -d ${postInstall} ]; then
+                            echo "Running Post Install"
+                            cd ${postInstall}
+                            chmod +x post-install.sh
+                            ls -l
+                            ./post-install.sh
+                            echo "Successfully run Post Install"
+                          fi
+                        """
+                      }
+                  } catch(e) {
+                      //TODO: Extract test result and send in notification
+                      slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
 
-                    if(utils.isCD()) {
-                        stage('Install Charts') {
-                            landscaper.apply(manifestsDir, false)
-                        }
+                      def commentMessage = "[Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
+                      git.addCommentToPullRequest(commentMessage)
 
-                        def versionFile = ".version"
-                        git.tagAndRelease(versionFile, repoName, repoOwner)
-                    }
+                      throw e
+                  }
 
-                    stage('Post install'){
-                      sh """
-                        if [ -d ${postInstall} ]; then
-                          echo "Running Post Install"
-                          cd ${postInstall}
-                          chmod +x post-install.sh
-                          ls -l
-                          ./post-install.sh
-                          echo "Successfully run Post Install"
-                        fi
-                      """
-                    }
-                } catch(e) {
-                    //TODO: Extract test result and send in notification
-                    slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
+                  stage('Notify') {
+                      def message
+                      def versionFile = ".version"
+                      def version = common.shOutput("cat ${versionFile}")
+                      if (utils.isCD()) {
+                          message = "Release ${repoName} ${version}"
+                      }
+                      else {
+                          message = "Dry Run successful"
+                      }
+                      slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createField("Message", message, false)])
 
-                    def commentMessage = "[Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
-                    git.addCommentToPullRequest(commentMessage)
+                      git.addCommentToPullRequest(message)
+                  }
+              }
+          }
+      }
+  } else {
+      toolsWithCurrentKubeNode(toolsImage: 'stakater/pipeline-tools:1.8.1') {
+          container(name: 'tools') {
+              withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+                  String workspaceDir = WORKSPACE
+                  String manifestsDir = workspaceDir + "/manifests/"
+                  String preInstall = workspaceDir + "/pre-install"
+                  String postInstall = workspaceDir + "/post-install"
 
-                    throw e
-                }
+                  sh "echo Running toolsWithCurrentKubeNode"
 
-                stage('Notify') {
-                    def message
-                    def versionFile = ".version"
-                    def version = common.shOutput("cat ${versionFile}")
-                    if (utils.isCD()) {
-                        message = "Release ${repoName} ${version}"
-                    }
-                    else {
-                        message = "Dry Run successful"
-                    }
-                    slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createField("Message", message, false)])
+                  // Slack variables
+                  def slackChannel = "${env.SLACK_CHANNEL}"
+                  def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
-                    git.addCommentToPullRequest(message)
-                }
-            }
-        }
-    }
+                  def git = new io.stakater.vc.Git()
+                  def slack = new io.stakater.notifications.Slack()
+                  def landscaper = new io.stakater.charts.Landscaper()
+                  def helm = new io.stakater.charts.Helm()
+                  def common = new io.stakater.Common()
+
+                  try {
+                      stage('Pre install'){
+                        sh """
+                          if [ -d ${preInstall} ]; then
+                            echo "Running Pre Install"
+                            cd ${preInstall}
+                            chmod +x pre-install.sh
+                            ls -l
+                            ./pre-install.sh
+                            echo "Successfully run Pre Install"
+                          fi
+                        """
+                      }
+
+                      stage('Init Helm') {
+                          // Sleep is needed for the first time because tiller pod might not be ready instantly
+                          helm.init(false)
+
+                          sh "sleep 30s"
+
+                          helm.addRepo(helmRepoName, helmRepoUrl)
+                      }
+
+                      stage('Dry Run Charts') {
+                          landscaper.apply(manifestsDir, true)
+                      }
+
+                      if(utils.isCD()) {
+                          stage('Install Charts') {
+                              landscaper.apply(manifestsDir, false)
+                          }
+
+                          def versionFile = ".version"
+                          git.tagAndRelease(versionFile, repoName, repoOwner)
+                      }
+
+                      stage('Post install'){
+                        sh """
+                          if [ -d ${postInstall} ]; then
+                            echo "Running Post Install"
+                            cd ${postInstall}
+                            chmod +x post-install.sh
+                            ls -l
+                            ./post-install.sh
+                            echo "Successfully run Post Install"
+                          fi
+                        """
+                      }
+                  } catch(e) {
+                      //TODO: Extract test result and send in notification
+                      slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
+
+                      def commentMessage = "[Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
+                      git.addCommentToPullRequest(commentMessage)
+
+                      throw e
+                  }
+
+                  stage('Notify') {
+                      def message
+                      def versionFile = ".version"
+                      def version = common.shOutput("cat ${versionFile}")
+                      if (utils.isCD()) {
+                          message = "Release ${repoName} ${version}"
+                      }
+                      else {
+                          message = "Dry Run successful"
+                      }
+                      slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createField("Message", message, false)])
+
+                      git.addCommentToPullRequest(message)
+                  }
+              }
+          }
+      }
+  }
 }
