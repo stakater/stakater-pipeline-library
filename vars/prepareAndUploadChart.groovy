@@ -30,15 +30,20 @@ def call(body) {
         }
 
         stage("Prepare Chart: ${chartName}") {
-            helm.lint(WORKSPACE, chartName)
-            packageName = helm.package(WORKSPACE, chartName)
+            helm.lint(WORKSPACE, chartName.toLowerCase())
+            packageName = helm.package(WORKSPACE, chartName.toLowerCase())
         }
 
         if(utils.isCD()) {
             stage("Upload Chart: ${chartName}") {
                 String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                 String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
-                chartManager.uploadToChartMuseum(WORKSPACE, chartName, packageName, cmUsername, cmPassword)
+                chartManager.uploadToChartMuseum(WORKSPACE, chartName.toLowerCase(), packageName, cmUsername, cmPassword)
+                def isPublic = config.isPublic ?: false
+                if(isPublic){
+                    def packagedChartLocation = WORKSPACE + "/" + chartName.toLowerCase() + "/" + packageName;
+                    chartManager.uploadToStakaterCharts(packagedChartLocation)
+                }
             }
         }
     } catch(e) {
