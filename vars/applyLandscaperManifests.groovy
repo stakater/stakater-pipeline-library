@@ -8,7 +8,7 @@ def call(body) {
 
     def helmRepoName = config.helmRepoName ?: 'chartmuseum '
     def helmRepoUrl = config.helmRepoUrl ?: 'http://chartmuseum'
-    def cluster = config.cluster ?: 'current'
+    def cluster = config.cluster ?: 'external'
 
     def utils = new io.fabric8.Utils()
 
