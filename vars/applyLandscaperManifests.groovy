@@ -8,11 +8,11 @@ def call(body) {
 
     def helmRepoName = config.helmRepoName ?: 'chartmuseum '
     def helmRepoUrl = config.helmRepoUrl ?: 'http://chartmuseum'
-    boolean externalKubeNode = config.externalKubeNode ?: true
+    def cluster = config.cluster ?: 'current'
 
     def utils = new io.fabric8.Utils()
 
-    if(externalKubeNode){
+    if(cluster.equals('external')){
       toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.8.1') {
           container(name: 'tools') {
               withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
@@ -20,6 +20,8 @@ def call(body) {
                   String manifestsDir = workspaceDir + "/manifests/"
                   String preInstall = workspaceDir + "/pre-install"
                   String postInstall = workspaceDir + "/post-install"
+
+                  sh "echo Running toolsWithExternalKubeNode"
 
                   // Slack variables
                   def slackChannel = "${env.SLACK_CHANNEL}"
@@ -114,6 +116,8 @@ def call(body) {
                   String manifestsDir = workspaceDir + "/manifests/"
                   String preInstall = workspaceDir + "/pre-install"
                   String postInstall = workspaceDir + "/post-install"
+
+                  sh "echo Running toolsWithCurrentKubeNode"
 
                   // Slack variables
                   def slackChannel = "${env.SLACK_CHANNEL}"
