@@ -16,8 +16,8 @@ def call(body) {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 String workspaceDir = WORKSPACE
                 String manifestsDir = workspaceDir + "/manifests/"
-                String preInstall = workspaceDir + "/pre-install/"
-                String postInstall = workspaceDir + "/post-install/"
+                String preInstall = workspaceDir + "/pre-install"
+                String postInstall = workspaceDir + "/post-install"
 
                 // Slack variables
                 def slackChannel = "${env.SLACK_CHANNEL}"
@@ -32,10 +32,11 @@ def call(body) {
                 try {
                     stage('Pre install'){
                       sh """
-                        if [ -d "$preInstall" ]; then
+                        if [ -d ${preInstall} ]; then
                           echo "Running Pre Install"
-                          cd "$preInstall"
+                          cd ${preInstall}
                           chmod +x pre-install.sh
+                          ls -l
                           ./pre-install.sh
                           echo "Successfully run Pre Install"
                         fi
@@ -66,10 +67,11 @@ def call(body) {
 
                     stage('Post install'){
                       sh """
-                        if [ -d "$postInstall" ]; then
+                        if [ -d ${postInstall} ]; then
                           echo "Running Post Install"
-                          cd "$postInstall"
+                          cd ${postInstall}
                           chmod +x post-install.sh
+                          ls -l
                           ./post-install.sh
                           echo "Successfully run Post Install"
                         fi
