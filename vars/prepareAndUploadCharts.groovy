@@ -12,6 +12,7 @@ def call(body) {
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def charts = config.charts.toArray()
+                def isPublic = config.isPublic ?: false
                 def templates = new io.stakater.charts.Templates()
                 def common = new io.stakater.Common()
                 def git = new io.stakater.vc.Git()
@@ -31,6 +32,7 @@ def call(body) {
 
                     prepareAndUploadChart {
                         chartName = chart
+                        isPublic = isPublic
                     }
                     echo "Removing packaged chart"
                     sh """
