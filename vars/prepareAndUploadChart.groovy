@@ -1,3 +1,4 @@
+#!/usr/bin/groovy
 def call(body) {
 
     // evaluate the body block, and collect configuration into the object
@@ -18,6 +19,7 @@ def call(body) {
     def slack = new io.stakater.notifications.Slack()
 
     def chartName = config.chartName
+    def isPublic = config.isPublic ?: false
     def packageName
 
     if(chartName == '') {
@@ -38,8 +40,7 @@ def call(body) {
             stage("Upload Chart: ${chartName}") {
                 String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                 String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
-                chartManager.uploadToChartMuseum(WORKSPACE, chartName.toLowerCase(), packageName, cmUsername, cmPassword)
-                def isPublic = config.isPublic ?: false
+                chartManager.uploadToChartMuseum(WORKSPACE, chartName.toLowerCase(), packageName, cmUsername, cmPassword)                
                 if(isPublic){
                     def packagedChartLocation = WORKSPACE + "/" + chartName.toLowerCase() + "/" + packageName;
                     chartManager.uploadToStakaterCharts(packagedChartLocation)
