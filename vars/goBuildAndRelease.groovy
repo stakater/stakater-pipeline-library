@@ -71,9 +71,9 @@ def call(body) {
                             sh """
                               export DOCKER_TAG=${dockerImageVersion}
                               export BUILDER=${builder}
+                              make builder-image
+                              make push
                             """
-                            make builder-image
-                            make push
                         }
 
                         stage('Notify') {
@@ -114,9 +114,9 @@ def call(body) {
                             print "Pushing Tag ${version} to DockerHub"
                             sh """
                               export DOCKER_TAG=${version}
+                              make binary-image
+                              make push
                             """
-                            make binary-image
-                            make push
                         }
 
                         stage('Chart: Init Helm') {
