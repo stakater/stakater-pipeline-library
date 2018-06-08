@@ -20,6 +20,8 @@ def call(body) {
                 def dockerContextDir = WORKSPACE + "/build/package"
                 def dockerImage = repoOwner.toLowerCase() + "/" + repoName.toLowerCase()
                 def dockerImageVersion = ""
+                def binary = "./build/package/" + ${repoName.toLowerCase()}
+                def builder = "docker.io/" + ${imageName} + ":" + ${tag}
 
                 // Slack variables
                 def slackChannel = "${env.SLACK_CHANNEL}"
@@ -35,6 +37,12 @@ def call(body) {
                 def stakaterCommands = new io.stakater.StakaterCommands()
                 def slack = new io.stakater.notifications.Slack()
                 try {
+                    stage('Export dockerImage') {
+                        sh """
+                          export DOCKER_IMAGE=${dockerImage}
+                        """
+                    }
+
                     stage('Download Dependencies') {
                         sh """
                             cd ${srcDir}
@@ -51,16 +59,21 @@ def call(body) {
 
                     stage('Build Binary') {
                         sh """
+                            export BINARY=${binary}
                             cd ${srcDir}
-                            go build -o ./build/package/${repoName.toLowerCase()}
+                            make build
                         """
                     }
 
                     if (utils.isCI()) {
                         stage('CI: Publish Dev Image') {
                             dockerImageVersion = stakaterCommands.getBranchedVersion("${env.BUILD_NUMBER}")
-                            docker.buildImageWithTag(dockerContextDir, dockerImage, dockerImageVersion)
-                            docker.pushTag(dockerImage, dockerImageVersion)
+                            sh """
+                              export DOCKER_TAG=${dockerImageVersion}
+                              export BUILDER=${builder}
+                            """
+                            make builder-image
+                            make push
                         }
 
                         stage('Notify') {
@@ -99,10 +112,11 @@ def call(body) {
                             git.createRelease(version)
 
                             print "Pushing Tag ${version} to DockerHub"
-                            docker.buildImageWithTag(dockerContextDir, dockerImage, "latest")
-                            docker.tagImage(dockerImage, "latest", version)
-                            docker.pushTag(dockerImage, version)
-                            docker.pushTag(dockerImage, "latest")
+                            sh """
+                              export DOCKER_TAG=${version}
+                            """
+                            make binary-image
+                            make push
                         }
 
                         stage('Chart: Init Helm') {
