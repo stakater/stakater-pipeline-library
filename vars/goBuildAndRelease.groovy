@@ -21,7 +21,6 @@ def call(body) {
                 def dockerImage = repoOwner.toLowerCase() + "/" + repoName.toLowerCase()
                 def dockerImageVersion = ""
                 def binary = "./build/package/" + repoName.toLowerCase()
-                def builder = "docker.io/" + ${imageName} + ":" + ${tag}
 
                 // Slack variables
                 def slackChannel = "${env.SLACK_CHANNEL}"
@@ -68,6 +67,7 @@ def call(body) {
                     if (utils.isCI()) {
                         stage('CI: Publish Dev Image') {
                             dockerImageVersion = stakaterCommands.getBranchedVersion("${env.BUILD_NUMBER}")
+                            def builder = "docker.io/" + "${dockerImage}:${dockerImageVersion}"
                             sh """
                               export DOCKER_TAG=${dockerImageVersion}
                               export BUILDER=${builder}
