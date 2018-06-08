@@ -20,7 +20,7 @@ def call(body) {
                 def dockerContextDir = WORKSPACE + "/build/package"
                 def dockerImage = repoOwner.toLowerCase() + "/" + repoName.toLowerCase()
                 def dockerImageVersion = ""
-                def binary = "./build/package/" + ${repoName.toLowerCase()}
+                def binary = "./build/package/" + repoName.toLowerCase()
                 def builder = "docker.io/" + ${imageName} + ":" + ${tag}
 
                 // Slack variables
