@@ -71,7 +71,7 @@ def call(body) {
                             sh """
                               export DOCKER_TAG=${dockerImageVersion}
                               export BUILDER=${builder}
-                              make builder-image
+                              make binary-image
                               make push
                             """
                         }
