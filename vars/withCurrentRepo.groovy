@@ -7,7 +7,7 @@ def call(Map parameters = [:], body) {
 
         def gitUsername = parameters.get('gitUsername', 'stakater-user')
         def gitEmail = parameters.get('gitEmail', 'stakater@gmail.com')
-        
+
         def workspaceDir = "/home/jenkins/" + repoName
         sh "mkdir -p ${workspaceDir}"
 
@@ -28,12 +28,12 @@ def call(Map parameters = [:], body) {
         }
 
         def git = new io.stakater.vc.Git()
-                
+
         git.setUserInfo(gitUsername, gitEmail)
         git.addHostsToKnownHosts()
         git.checkoutRepo(repoUrl, repoBranch, workspaceDir)
 
-        ws(workspaceDir) {
+        ws(symlinkDir) {
             body(repoUrl, repoName, repoOwner, repoBranch)
         }
     }
