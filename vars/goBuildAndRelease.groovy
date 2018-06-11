@@ -36,15 +36,10 @@ def call(body) {
                 def stakaterCommands = new io.stakater.StakaterCommands()
                 def slack = new io.stakater.notifications.Slack()
                 try {
-                    stage('Export dockerImage') {
-                        sh """
-                          export DOCKER_IMAGE=${dockerImage}
-                        """
-                    }
-
                     stage('Download Dependencies') {
                         sh """
                             cd ${srcDir}
+                            export DOCKER_IMAGE=${dockerImage}
                             make install
                         """
                     }
