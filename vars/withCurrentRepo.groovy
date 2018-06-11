@@ -7,9 +7,8 @@ def call(Map parameters = [:], body) {
 
         def gitUsername = parameters.get('gitUsername', 'stakater-user')
         def gitEmail = parameters.get('gitEmail', 'stakater@gmail.com')
-
         def workspaceDir = "/home/jenkins/" + repoName
-        def symlinkDir = "/go/src/${host}/${repoOwner}"
+        def symlinkDir = ""
         sh "mkdir -p ${workspaceDir}"
 
         def type = parameters.get('type', '')
@@ -18,6 +17,7 @@ def call(Map parameters = [:], body) {
             // Symlink workspaceDir in gopath if go project
             case "go":
                 def host = repoUrl.substring(repoUrl.indexOf("@") + 1, repoUrl.indexOf(":"))
+                symlinkDir = "/go/src/${host}/${repoOwner}"
                 def symlink = "${symlinkDir}/${repoName}"
                 println("Creating symlink of ${workspaceDir} at ${symlink} for go build")
                 sh """
