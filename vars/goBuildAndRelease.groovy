@@ -11,6 +11,8 @@ def call(body) {
             withCurrentRepo(type: 'go') { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 String chartPackageName = ""
                 String srcDir = WORKSPACE
+                def host = repoUrl.substring(repoUrl.indexOf("@") + 1, repoUrl.indexOf(":"))
+                def goProjectDir = "/go/src/${host}/${repoOwner}/${repoName}"
                 def kubernetesDir = WORKSPACE + "/deployments/kubernetes"
 
                 def chartTemplatesDir = kubernetesDir + "/templates/chart"
@@ -38,7 +40,7 @@ def call(body) {
                 try {
                     stage('Download Dependencies') {
                         sh """
-                            cd ${srcDir}
+                            cd ${goProjectDir}
                             export DOCKER_IMAGE=${dockerImage}
                             make install
                         """
@@ -46,7 +48,7 @@ def call(body) {
 
                     stage('Run Tests') {
                         sh """
-                            cd ${srcDir}
+                            cd ${goProjectDir}
                             make test
                         """
                     }
@@ -54,7 +56,7 @@ def call(body) {
                     stage('Build Binary') {
                         sh """
                             export BINARY=${binary}
-                            cd ${srcDir}
+                            cd ${goProjectDir}
                             make build
                         """
                     }
@@ -64,6 +66,7 @@ def call(body) {
                             dockerImageVersion = stakaterCommands.getBranchedVersion("${env.BUILD_NUMBER}")
                             def builder = "docker.io/" + "${dockerImage}:${dockerImageVersion}"
                             sh """
+                              cd ${goProjectDir}
                               export DOCKER_TAG=${dockerImageVersion}
                               export BUILDER=${builder}
                               make binary-image
@@ -108,6 +111,7 @@ def call(body) {
 
                             print "Pushing Tag ${version} to DockerHub"
                             sh """
+                              cd ${goProjectDir}
                               export DOCKER_TAG=${version}
                               make binary-image
                               make push
