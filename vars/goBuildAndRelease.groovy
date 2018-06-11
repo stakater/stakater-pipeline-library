@@ -90,8 +90,15 @@ def call(body) {
                             def versionFile = ".version"
                             def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
                             dockerImageVersion = version
+
+                            print "Pushing Tag ${version} to DockerHub"
+
                             sh """
                                 echo "${version}" > ${versionFile}
+                                cd ${goProjectDir}
+                                export DOCKER_TAG=${version}
+                                make binary-image
+                                make push
                             """
 
                             sh """
@@ -108,14 +115,6 @@ def call(body) {
                             print "Pushing Tag ${version} to Git"
                             git.createTagAndPush(WORKSPACE, version)
                             git.createRelease(version)
-
-                            print "Pushing Tag ${version} to DockerHub"
-                            sh """
-                              cd ${goProjectDir}
-                              export DOCKER_TAG=${version}
-                              make binary-image
-                              make push
-                            """
                         }
 
                         stage('Chart: Init Helm') {
