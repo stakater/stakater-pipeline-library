@@ -28,7 +28,7 @@ def call(Map parameters = [:], body) {
         }
 
         def git = new io.stakater.vc.Git()
-                
+
         git.setUserInfo(gitUsername, gitEmail)
         git.addHostsToKnownHosts()
         git.checkoutRepo(repoUrl, repoBranch, workspaceDir)
