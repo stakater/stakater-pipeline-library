@@ -50,6 +50,7 @@ def call(Map parameters = [:], body) {
                     secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
                     secretVolume(secretName: 'ingress-monitor-controller-test-config', mountPath: '/etc/ingress-monitor-controller'),
                     secretVolume(secretName: 'stk-config', mountPath: '/home/jenkins/.stk'),
+                    secretVolume(secretName: 'helm-pgp-key', mountPath: '/usr/local/bin/pgp-configuration/'),
                     hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')]) {
         body()
     }
