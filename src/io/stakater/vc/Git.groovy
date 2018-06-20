@@ -59,9 +59,6 @@ def addCommentToPullRequest(String message) {
 
     def githubProject = flow.getGitHubProject()
 
-    def splitted = githubProject.split('/')
-
-    def gOrganization = splitted[0], gRepo = splitted[1]
 
     def changeAuthor = env.CHANGE_AUTHOR
     if (!changeAuthor){
@@ -75,14 +72,8 @@ def addCommentToPullRequest(String message) {
         return
     }
 
-    // We pass in empty token as it finds it at /home/jenkins/.apitoken/hub
-    if (!flow.isAuthorCollaborator("", githubProject)){
-        echo 'Change author is not a collaborator on the project, failing build until we support the [test] comment'
-        return
-    }
-
     message = "@${changeAuthor} " + message
-    flow.postPRCommentToGithub(message, pr, githubProject)
+    flow.postPRCommentToGithub(message, pr, "${env.REPO_OWNER}/${env.REPO_NAME}")
 }
 
 def getGitAuthor() {
