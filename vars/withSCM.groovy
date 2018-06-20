@@ -13,6 +13,11 @@ def call(body) {
 
         repoUrl = "git@${url.getHost()}:${url.getPath().substring(1)}" 
     }
+    
+    if (env.CHANGE_FORK) {
+        repoUrl = repoUrl.replaceFirst(repoOwner, env.CHANGE_FORK)
+        repoOwner = env.CHANGE_FORK
+    }
 
     def repoBranch = ""
 
