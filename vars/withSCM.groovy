@@ -27,10 +27,10 @@ def call(body) {
     else {
         repoBranch = scmConfig.getRefspec().tokenize('/').last()
     }
-    withEnv(['REPO_URL=${repoUrl}',
-             'REPO_NAME=${repoName}',
-             'REPO_OWNER=${repoOwner}',
-             'REPO_BRANCH=${repoBranch}']) {
+    withEnv(["REPO_URL=${repoUrl}",
+             "REPO_NAME=${repoName}",
+             "REPO_OWNER=${repoOwner}",
+             "REPO_BRANCH=${repoBranch}"]) {
         body(repoUrl, repoName, repoOwner, repoBranch)
     }
 }
