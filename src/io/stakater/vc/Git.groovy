@@ -125,7 +125,7 @@ def createBinary(def versionFile, def repoName, def repoOwner, String githubToke
   def common = new io.stakater.Common()
   def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
   sh """
-      echo "${version}" > ${versionFile}
+      echo -n "${version}" > ${versionFile}
   """
   commitChanges(WORKSPACE, "Bump Version to ${version}")
   echo "Pushing Tag ${version} to Git"
