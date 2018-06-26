@@ -120,4 +120,25 @@ def tagAndRelease(def versionFile, def repoName, def repoOwner){
   createRelease(version)
 }
 
+def createBinary(def versionFile, def repoName, def repoOwner, String githubToken){
+  echo "Generating New Version"
+  def common = new io.stakater.Common()
+  def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
+  sh """
+      echo "${version}" > ${versionFile}
+  """
+  commitChanges(WORKSPACE, "Bump Version to ${version}")
+  echo "Pushing Tag ${version} to Git"
+  createTagAndPush(WORKSPACE, version)
+  runGoReleaser(WORKSPACE, githubToken)
+}
+
+def runGoReleaser(String repoDir, String githubToken){
+  sh """
+    cd ${repoDir}
+    export GITHUB_TOKEN=${githubToken}
+    goreleaser
+  """
+}
+
 return this
