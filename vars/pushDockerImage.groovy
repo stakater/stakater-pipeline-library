@@ -5,7 +5,7 @@ def call(body) {
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = config
     body()
-    
+
     def versionPrefix = config.versionPrefix ?: '1.0'
 
     toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.2') {
@@ -18,9 +18,9 @@ def call(body) {
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
-        
+
         def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
-        
+
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${repoName.toLowerCase()}"
@@ -29,7 +29,9 @@ def call(body) {
                 try {
                     stage('Canary Release') {
                         echo "Version: ${dockerImageVersion}"
-
+                        sh """
+                            cp /home/jenkins/.apitoken/hub \$(pwd)
+                        """
                         docker.buildImageWithTagCustom(dockerImage, dockerImageVersion)
                         docker.pushTagCustom(dockerImage, dockerImageVersion)
 
@@ -37,7 +39,7 @@ def call(body) {
                 }
                 catch (e) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
-                
+
                     def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
                     git.addCommentToPullRequest(commentMessage)
 
