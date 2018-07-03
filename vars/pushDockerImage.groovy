@@ -29,6 +29,7 @@ def call(body) {
                 try {
                     stage('Canary Release') {
                         echo "Version: ${dockerImageVersion}"
+                        // This is copied to add hub token in the docker build context
                         sh """
                             cp /home/jenkins/.apitoken/hub \$(pwd)
                         """
