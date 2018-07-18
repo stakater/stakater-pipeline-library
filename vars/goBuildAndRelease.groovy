@@ -22,7 +22,6 @@ def call(body) {
                 def dockerContextDir = WORKSPACE + "/build/package"
                 def dockerImage = repoOwner.toLowerCase() + "/" + repoName.toLowerCase()
                 def dockerImageVersion = ""
-                def binary = "./build/package/" + repoName.toLowerCase()
 
                 // Slack variables
                 def slackChannel = "${env.SLACK_CHANNEL}"
@@ -50,14 +49,6 @@ def call(body) {
                         sh """
                             cd ${goProjectDir}
                             make test
-                        """
-                    }
-
-                    stage('Build Binary') {
-                        sh """
-                            export BINARY=${binary}
-                            cd ${goProjectDir}
-                            make build
                         """
                     }
 
