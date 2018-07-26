@@ -100,6 +100,12 @@ def call(body) {
                             templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, dockerImage)
                             // Generate manifests from chart
                             templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
+                            
+                            // Generate combined manifest
+                            sh """
+                                cd ${manifestsDir}
+                                find . -type f -name '*.yaml' -exec cat {} + > ${kubernetesDir}/${repoName.toLowerCase()}.yaml
+                            """
 
                             git.commitChanges(WORKSPACE, "Bump Version to ${version}")
 
