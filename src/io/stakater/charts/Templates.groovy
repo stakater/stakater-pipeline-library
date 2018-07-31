@@ -41,7 +41,7 @@ def generateManifests(String chartDir, String chartName, String manifestsDir){
         for templateName in ${chartDir}/${chartName}/\${templatesDir}/*.yaml; do
             # Remove full path
             templateName=\${templateName##*/}
-            helm template ${chartDir}/${chartName} -x \${templatesDir}/\${templateName} > ${manifestsDir}/\${templateName}
+            helm template --namespace default ${chartDir}/${chartName} -x \${templatesDir}/\${templateName} > ${manifestsDir}/\${templateName}
         done
     """
 }
