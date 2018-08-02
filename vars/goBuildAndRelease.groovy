@@ -6,7 +6,9 @@ def call(body) {
     body.delegate = config
     body()
 
-    toolsNode(toolsImage: 'stakater/pipeline-tools:1.6.0') {
+    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.6.0'
+
+    toolsNode(toolsImage: toolsImage) {
         container(name: 'tools') {
             withCurrentRepo(type: 'go') { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 String chartPackageName = ""
