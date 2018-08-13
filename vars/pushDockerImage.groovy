@@ -23,16 +23,13 @@ def call(body) {
 
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
-                def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${repoName.toLowerCase()}"
-                def dockerImageVersion = stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
+                def imageName = repoName.split("dockerfile-").last().toLowerCase()    
+                def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
+                def dockerImageVersion = config.imageVersion ?: stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
 
                 try {
                     stage('Canary Release') {
-                        echo "Version: ${dockerImageVersion}"
-                        // This is copied to add hub token in the docker build context
-                        sh """
-                            cp /home/jenkins/.apitoken/hub \$(pwd)
-                        """
+                        echo "Version: ${dockerImageVersion}"                        
                         docker.buildImageWithTagCustom(dockerImage, dockerImageVersion)
                         docker.pushTagCustom(dockerImage, dockerImageVersion)
 
