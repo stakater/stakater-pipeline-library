@@ -39,6 +39,8 @@ def call(body) {
                 terraform plan
                 terraform apply -auto-approve
               """
+
+              git.commitChanges(WORKSPACE, "Update terraform state")
             }
           }
 
