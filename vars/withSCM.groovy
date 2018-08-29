@@ -4,7 +4,7 @@ def call(body) {
     
     def repoUrl = scmConfig.getUrl()
     def tokenizedUrl = repoUrl.tokenize('/')
-    def repoName = tokenizedUrl.last()​.split("\\.git")​​​​​​​​​​.first()​
+    def repoName = tokenizedUrl.last()​.split('\\.git')​​​​​​​​​​.first()​
     def repoOwner = tokenizedUrl.get(tokenizedUrl.size() - 2)
 
     if(!repoUrl.startsWith("git@")) {
