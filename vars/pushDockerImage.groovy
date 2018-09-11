@@ -27,8 +27,8 @@ def call(body) {
                 def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
                 def dockerImageVersion = config.imageVersion ?: stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
                 println "Hello Semi"
-                println ${versionPrefix}
-                println ${env.BUILD_NUMBER}
+                println "${versionPrefix}"
+                println "${env.BUILD_NUMBER}"
 
                 try {
                     stage('Canary Release') {
