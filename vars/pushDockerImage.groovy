@@ -25,8 +25,8 @@ def call(body) {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def imageName = repoName.split("dockerfile-").last().toLowerCase()    
                 def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
-                def dockerImageVersion = config.imageVersion ?: stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
-                config.imageVersion ? dockerImageVersion + '-SNAPSHOT-' + "${env.BRANCH_NAME}" + "${env.BUILD_NUMBER}" : dockerImageVersion
+                def dockerImageVersion = config.imageVersion ? config.imageVersion + '-SNAPSHOT-' + "${env.BRANCH_NAME}" + "${env.BUILD_NUMBER}"
+                        : stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
 
                 println "Hello Semi"
                 println "${versionPrefix}"
