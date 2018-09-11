@@ -29,6 +29,7 @@ def call(body) {
                 println "Hello Semi"
                 println "${versionPrefix}"
                 println "${env.BUILD_NUMBER}"
+                println "${env.BRANCH_NAME}"
 
                 try {
                     stage('Canary Release') {
