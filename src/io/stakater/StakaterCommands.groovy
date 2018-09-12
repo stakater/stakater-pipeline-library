@@ -209,7 +209,7 @@ def getBranchedVersion(String version) {
  * @param buildNumber - Used only in case of CI
  * @return
  */
-def createVersionAccordingToBranch(String imagePrefix, String prNumber, String buildNumber) {
+def createImageVersionForCiAndCd(String imagePrefix, String prNumber, String buildNumber) {
     def utils = new io.fabric8.Utils()
     def branchName = utils.getBranch()
     def git = new io.stakater.vc.Git()

@@ -25,7 +25,7 @@ def call(body) {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def imageName = repoName.split("dockerfile-").last().toLowerCase()    
                 def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
-                def dockerImageVersion = config.imagePrefix ? stakaterCommands.createVersionAccordingToBranch(config.imagePrefix,
+                def dockerImageVersion = config.imagePrefix ? stakaterCommands.createImageVersionForCiAndCd(config.imagePrefix,
                                                                         "${env.BRANCH_NAME}",
                                                                         "${env.BUILD_NUMBER}") :
                         stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
