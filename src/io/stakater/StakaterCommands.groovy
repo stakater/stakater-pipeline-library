@@ -201,6 +201,30 @@ def getBranchedVersion(String version) {
 
     return version
 }
+/**
+ * Returns the complete tagged string for CI (PRs) or CD(Master-Branch)
+ *
+ * @param imagePrefix
+ * @param prNumber
+ * @param buildNumber
+ * @return
+ */
+def createVersionAccordingToBranch(String imagePrefix, String prNumber, String buildNumber){
+    def utils = new io.fabric8.Utils()
+    def branchName = utils.getBranch()
+    def imageVersion = ''
+
+    // For CD
+    if (branchName.equalsIgnoreCase("master")){
+        imageVersion = imagePrefix + 'v'
+    }
+    // For CI
+    else{
+        imageVersion = imagePrefix + 'SNAPSHOT-' + prNumber + '-' + buildNumber
+    }
+
+    return imageVersion
+}
 
 def createGitHubRelease(def version) {
     def githubToken = getGitHubToken()

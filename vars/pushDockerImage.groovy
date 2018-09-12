@@ -7,7 +7,7 @@ def call(body) {
     body()
 
     def versionPrefix = config.versionPrefix ?: '1.0'
-  
+
     toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.2') {
         def docker = new io.stakater.containers.Docker()
         def stakaterCommands = new io.stakater.StakaterCommands()
@@ -25,13 +25,19 @@ def call(body) {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def imageName = repoName.split("dockerfile-").last().toLowerCase()    
                 def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
-                def dockerImageVersion = config.imageVersion ? config.imageVersion + 'SNAPSHOT-' + "${env.BRANCH_NAME}" + '-' + "${env.BUILD_NUMBER}"
-                        : stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
+                def dockerImageVersion = config.imagePrefix ? stakaterCommands.createVersionAccordingToBranch(config.imagePrefix,
+                                                                        "${env.BRANCH_NAME}",
+                                                                        "${env.BUILD_NUMBER}") :
+                        stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
 
                 println "Hello Semi"
                 println "${versionPrefix}"
                 println "${env.BUILD_NUMBER}"
                 println "${env.BRANCH_NAME}"
+
+                def version = sh 'stk generate version'
+                echo 'Version'
+                echo version
 
                 try {
                     stage('Canary Release') {
