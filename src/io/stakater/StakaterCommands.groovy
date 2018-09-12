@@ -219,7 +219,7 @@ def createVersionAccordingToBranch(String imagePrefix, String prNumber, String b
     // For CD
     if (branchName.equalsIgnoreCase("master")){
         imagePrefix = imagePrefix + '-v'
-        sh "stk generate version --prefix" + "${imagePrefix}" + "> commandResult"
+        sh "stk generate version --prefix " + "${imagePrefix}" + "> commandResult"
         def version = readFile('commandResult').trim()
         git.createTagAndPush(WORKSPACE, version)
         git.createRelease(version)
