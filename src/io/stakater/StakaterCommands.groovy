@@ -202,14 +202,14 @@ def getBranchedVersion(String version) {
     return version
 }
 /**
- * Returns the complete tagged string for CI (PRs) or CD(Master-Branch)
+ * Returns the complete tagged string for CI (PRs) or CD(Master-Branch). In case of CD, it creates and push a release & a tag
  *
- * @param imagePrefix
- * @param prNumber
- * @param buildNumber
+ * @param imagePrefix - passed from Jenkins file
+ * @param prNumber - Used only in case of CI
+ * @param buildNumber - Used only in case of CI
  * @return
  */
-def createVersionAccordingToBranch(String imagePrefix, String prNumber, String buildNumber){
+def createVersionAccordingToBranch(String imagePrefix, String prNumber, String buildNumber) {
     def utils = new io.fabric8.Utils()
     def branchName = utils.getBranch()
     def git = new io.stakater.vc.Git()
@@ -217,16 +217,17 @@ def createVersionAccordingToBranch(String imagePrefix, String prNumber, String b
     def imageVersion = ''
 
     // For CD
-    if (branchName.equalsIgnoreCase("master")){
-        imagePrefix = imagePrefix + '-v'
-        sh "stk generate version --prefix " + "${imagePrefix}" + "> commandResult"
+    if (branchName.equalsIgnoreCase("master")) {
+        sh "stk generate version > commandResult"
         def version = readFile('commandResult').trim()
+
         git.createTagAndPush(WORKSPACE, version)
         git.createRelease(version)
-        imageVersion = version
+
+        imageVersion = imagePrefix + '-v' + version
     }
     // For CI
-    else{
+    else {
         imageVersion = imagePrefix + '-SNAPSHOT-' + prNumber + '-' + buildNumber
     }
 
