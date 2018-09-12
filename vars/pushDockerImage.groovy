@@ -8,7 +8,7 @@ def call(body) {
 
     def versionPrefix = config.versionPrefix ?: '1.0'
 
-    toolsNode(toolsImage: 'stakater/pipeline-tools:1.6.0') {
+    toolsNode(toolsImage: 'stakater/pipeline-tools:1.13.2') {
         def docker = new io.stakater.containers.Docker()
         def stakaterCommands = new io.stakater.StakaterCommands()
         def git = new io.stakater.vc.Git()
