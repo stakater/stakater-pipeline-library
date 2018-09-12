@@ -212,13 +212,17 @@ def getBranchedVersion(String version) {
 def createVersionAccordingToBranch(String imagePrefix, String prNumber, String buildNumber){
     def utils = new io.fabric8.Utils()
     def branchName = utils.getBranch()
+    def git = new io.stakater.vc.Git()
+
     def imageVersion = ''
 
     // For CD
     if (branchName.equalsIgnoreCase("master")){
         sh "stk generate version > commandResult"
         def version = readFile('commandResult').trim()
-        
+        git.createTagAndPush(WORKSPACE, version)
+        git.createRelease(version)
+
         imageVersion = imagePrefix + '-v' + version
     }
     // For CI
