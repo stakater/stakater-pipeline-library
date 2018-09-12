@@ -35,9 +35,8 @@ def call(body) {
                 println "${env.BUILD_NUMBER}"
                 println "${env.BRANCH_NAME}"
 
-                sh """
-                    stk notify
-                """
+                sh "sleep 40m"
+                
                 println 'Version'
                 println version
 
