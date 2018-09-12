@@ -35,9 +35,11 @@ def call(body) {
                 println "${env.BUILD_NUMBER}"
                 println "${env.BRANCH_NAME}"
 
-                def version = sh 'stk generate version'
-                echo 'Version'
-                echo version
+                def version = sh """
+                                    stk generate version
+                                 """
+                println 'Version'
+                println version
 
                 try {
                     stage('Canary Release') {
