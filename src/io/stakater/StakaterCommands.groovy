@@ -213,7 +213,6 @@ def createImageVersionForCiAndCd(String imagePrefix, String prNumber, String bui
     def utils = new io.fabric8.Utils()
     def branchName = utils.getBranch()
     def git = new io.stakater.vc.Git()
-
     def imageVersion = ''
 
     // For CD
