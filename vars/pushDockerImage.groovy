@@ -35,8 +35,9 @@ def call(body) {
                 println "${env.BUILD_NUMBER}"
                 println "${env.BRANCH_NAME}"
 
-                def version = sh "stk generate version"
-
+                sh "stk generate version > commandResult"
+                def version = readFile('commandResult').trim()
+                
                 println 'Version'
                 println version
 
