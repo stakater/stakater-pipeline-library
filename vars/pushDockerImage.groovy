@@ -28,6 +28,10 @@ def call(body) {
                 // If image Prefix is passed, use it, else pass empty string to create versions
                 def imagePrefix = config.imagePrefix ?: ''
 
+                echo "Image Prefix: ${imagePrefix}"
+                echo "Branch Name: ${env.BRANCH_NAME}"
+                echo "Build Number" ${env.BUILD_NUMBER}
+
                 def dockerImageVersion = stakaterCommands.createImageVersionForCiAndCd(imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
 
                 try {

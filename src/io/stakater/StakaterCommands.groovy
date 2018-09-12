@@ -210,6 +210,9 @@ def getBranchedVersion(String version) {
  * @return
  */
 def createImageVersionForCiAndCd(String imagePrefix, String prNumber, String buildNumber) {
+    echo "Pr Number ${prNumber}"
+    echo "Build Number ${buildNumber}"
+
     def utils = new io.fabric8.Utils()
     def branchName = utils.getBranch()
     def git = new io.stakater.vc.Git()
@@ -228,6 +231,8 @@ def createImageVersionForCiAndCd(String imagePrefix, String prNumber, String bui
     }
     // For CI
     else {
+        echo "Pr Number ${prNumber}"
+        echo "Build Number ${buildNumber}"
         imageVersion = imagePrefix + '-SNAPSHOT-' + prNumber + '-' + buildNumber
     }
 
