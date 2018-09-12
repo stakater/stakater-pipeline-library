@@ -30,7 +30,7 @@ def call(body) {
 
                 echo "Image Prefix: ${imagePrefix}"
                 echo "Branch Name: ${env.BRANCH_NAME}"
-                echo "Build Number" ${env.BUILD_NUMBER}
+                echo "Build Number ${env.BUILD_NUMBER}"
 
                 def dockerImageVersion = stakaterCommands.createImageVersionForCiAndCd(imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
 
