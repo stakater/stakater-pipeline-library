@@ -227,13 +227,15 @@ def createImageVersionForCiAndCd(String imagePrefix, String prNumber, String bui
         git.createTagAndPush(WORKSPACE, version)
         git.createRelease(version)
 
-        imageVersion = imagePrefix + '-v' + version
+        imageVersion = imagePrefix + 'v' + version
     }
     // For CI
     else {
         echo "Pr Number ${prNumber}"
         echo "Build Number ${buildNumber}"
-        imageVersion = imagePrefix + '-SNAPSHOT-' + prNumber + '-' + buildNumber
+
+
+        imageVersion = imagePrefix + 'SNAPSHOT-' + prNumber + '-' + buildNumber
     }
 
     return imageVersion

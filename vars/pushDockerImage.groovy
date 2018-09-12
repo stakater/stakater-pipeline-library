@@ -26,7 +26,7 @@ def call(body) {
                 def imageName = repoName.split("dockerfile-").last().toLowerCase()    
                 def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
                 // If image Prefix is passed, use it, else pass empty string to create versions
-                def imagePrefix = config.imagePrefix ?: ''
+                def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
 
                 echo "Image Prefix: ${imagePrefix}"
                 echo "Branch Name: ${env.BRANCH_NAME}"
