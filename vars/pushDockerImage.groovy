@@ -25,10 +25,10 @@ def call(body) {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def imageName = repoName.split("dockerfile-").last().toLowerCase()    
                 def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
-                def dockerImageVersion = config.imagePrefix ? stakaterCommands.createImageVersionForCiAndCd(config.imagePrefix,
-                                                                        "${env.BRANCH_NAME}",
-                                                                        "${env.BUILD_NUMBER}") :
-                        stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
+                // If image Prefix is passed, use it, else pass empty string to create versions
+                def imagePrefix = config.imagePrefix ?: ''
+
+                def dockerImageVersion = stakaterCommands.createImageVersionForCiAndCd(imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
 
                 try {
                     stage('Canary Release') {
