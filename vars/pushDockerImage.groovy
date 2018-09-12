@@ -35,7 +35,9 @@ def call(body) {
                 println "${env.BUILD_NUMBER}"
                 println "${env.BRANCH_NAME}"
 
-                def version = new io.stakater.Common().shOutput("./stk generate version")
+                sh """
+                    stk notify
+                """
                 println 'Version'
                 println version
 
