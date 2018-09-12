@@ -30,17 +30,6 @@ def call(body) {
                                                                         "${env.BUILD_NUMBER}") :
                         stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
 
-                println "Hello Semi"
-                println "${versionPrefix}"
-                println "${env.BUILD_NUMBER}"
-                println "${env.BRANCH_NAME}"
-
-                sh "stk generate version > commandResult"
-                def version = readFile('commandResult').trim()
-                
-                println 'Version'
-                println version
-
                 try {
                     stage('Canary Release') {
                         echo "Version: ${dockerImageVersion}"                        

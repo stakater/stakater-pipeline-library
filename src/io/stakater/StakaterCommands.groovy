@@ -216,11 +216,14 @@ def createVersionAccordingToBranch(String imagePrefix, String prNumber, String b
 
     // For CD
     if (branchName.equalsIgnoreCase("master")){
-        imageVersion = imagePrefix + 'v'
+        sh "stk generate version > commandResult"
+        def version = readFile('commandResult').trim()
+        
+        imageVersion = imagePrefix + '-v' + version
     }
     // For CI
     else{
-        imageVersion = imagePrefix + 'SNAPSHOT-' + prNumber + '-' + buildNumber
+        imageVersion = imagePrefix + '-SNAPSHOT-' + prNumber + '-' + buildNumber
     }
 
     return imageVersion
