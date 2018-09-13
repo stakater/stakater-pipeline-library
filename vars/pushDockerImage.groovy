@@ -8,7 +8,7 @@ def call(body) {
 
     def versionPrefix = config.versionPrefix ?: '1.0'
 
-    toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.2') {
+    toolsNode(toolsImage: 'stakater/pipeline-tools:1.14.1') {
         def docker = new io.stakater.containers.Docker()
         def stakaterCommands = new io.stakater.StakaterCommands()
         def git = new io.stakater.vc.Git()
@@ -25,7 +25,9 @@ def call(body) {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def imageName = repoName.split("dockerfile-").last().toLowerCase()    
                 def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
-                def dockerImageVersion = config.imageVersion ?: stakaterCommands.getBranchedVersion("${versionPrefix}.${env.BUILD_NUMBER}")
+                // If image Prefix is passed, use it, else pass empty string to create versions
+                def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
+                def dockerImageVersion = stakaterCommands.createImageVersionForCiAndCd(imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
 
                 try {
                     stage('Canary Release') {
