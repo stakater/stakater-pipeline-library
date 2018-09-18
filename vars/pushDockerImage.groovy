@@ -23,7 +23,13 @@ def call(body) {
 
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
-                def imageName = repoName.split("dockerfile-").last().toLowerCase()    
+                def imageName = repoName.split("dockerfile-").last().toLowerCase()
+                echo "Repo Owner: ${repoOwner}"
+                if (repoOwner == 'stakater-docker'){
+                    repoOwner = 'stakater'
+                }
+                echo"Repo Owner after check: ${repoOwner}"
+
                 def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
                 // If image Prefix is passed, use it, else pass empty string to create versions
                 def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
