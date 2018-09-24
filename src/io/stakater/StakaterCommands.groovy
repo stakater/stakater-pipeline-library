@@ -219,11 +219,11 @@ def createImageVersionForCiAndCd(String imagePrefix, String prNumber, String bui
     if (branchName.equalsIgnoreCase("master")) {
         sh "stk generate version > commandResult"
         def version = readFile('commandResult').trim()
-
+        version = 'v' + version
         git.createTagAndPush(WORKSPACE, version)
         git.createRelease(version)
 
-        imageVersion = imagePrefix + 'v' + version
+        imageVersion = imagePrefix + version
     }
     // For CI
     else {
