@@ -24,7 +24,7 @@ def call(body) {
                 def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
                 def versionInFile = readFile('.version').trim()
 
-                def chartVersion = common.shOutput("stk generate version --version-file .version --version ${versionInFile} --file Chart.yaml")
+                def chartVersion = common.shOutput("stk generate version --version-file .version --version ${versionInFile}")
 
                 for(int i = 0; i < charts.size(); i++) {
                     String chart = charts[i]
