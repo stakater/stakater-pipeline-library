@@ -8,7 +8,7 @@ def call(body) {
     body.delegate = config
     body()
 
-    toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.2') {
+    toolsNode(toolsImage: 'stakater/pipeline-tools:1.14.1') {
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def charts = config.charts.toArray()
