@@ -31,7 +31,7 @@ def call(body) {
                 }
                 else{
                     def versionInFile = stakaterCommands.ReadVersionFromFile('.version')
-                    chartVersion = common.shOutput("stk generate version --version ${versionInFile}")
+                    chartVersion = common.shOutput("stk generate version --version-file .version --version ${versionInFile}")
                 }
                 println "Version generated from stk version:  ${chartVersion}"
 
