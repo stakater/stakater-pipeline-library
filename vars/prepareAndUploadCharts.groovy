@@ -13,6 +13,7 @@ def call(body) {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def charts = config.charts.toArray()
                 def makePublic = config.isPublic ?: false
+                def usePrefix = config.usePrefix ?: false
                 def templates = new io.stakater.charts.Templates()
                 def common = new io.stakater.Common()
                 def git = new io.stakater.vc.Git()
@@ -23,9 +24,15 @@ def call(body) {
                 // Slack variables
                 def slackChannel = "${env.SLACK_CHANNEL}"
                 def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
-                def versionInFile = stakaterCommands.ReadVersionFromFile('.version')
-
-                def chartVersion = common.shOutput("stk generate version --version-file .version --version ${versionInFile}")
+                
+                def chartVersion = ''
+                if(usePrefix){
+                    chartVersion = common.shOutput("stk generate version --version-file .version")
+                }
+                else{
+                    def versionInFile = stakaterCommands.ReadVersionFromFile('.version')
+                    chartVersion = common.shOutput("stk generate version --version ${versionInFile}")
+                }
                 println "Version generated from stk version:  ${chartVersion}"
 
                 for(int i = 0; i < charts.size(); i++) {
