@@ -8,22 +8,32 @@ def call(body) {
     body.delegate = config
     body()
 
-    toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.2') {
+    toolsNode(toolsImage: 'stakater/pipeline-tools:1.14.1') {
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def charts = config.charts.toArray()
                 def makePublic = config.isPublic ?: false
+                def usePrefix = config.usePrefix ?: false
                 def templates = new io.stakater.charts.Templates()
                 def common = new io.stakater.Common()
                 def git = new io.stakater.vc.Git()
                 def utils = new io.fabric8.Utils()
                 def slack = new io.stakater.notifications.Slack()
+                def stakaterCommands = new io.stakater.StakaterCommands()
 
                 // Slack variables
                 def slackChannel = "${env.SLACK_CHANNEL}"
                 def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
-
-                def chartVersion = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file=.version")
+                
+                def chartVersion = ''
+                if(usePrefix){
+                    chartVersion = common.shOutput("stk generate version --version-file .version")
+                }
+                else{
+                    def versionInFile = stakaterCommands.ReadVersionFromFile('.version')
+                    chartVersion = common.shOutput("stk generate version --version ${versionInFile}")
+                }
+                println "Version generated from stk version:  ${chartVersion}"
 
                 for(int i = 0; i < charts.size(); i++) {
                     String chart = charts[i]

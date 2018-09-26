@@ -201,6 +201,23 @@ def getBranchedVersion(String version) {
 
     return version
 }
+
+/*
+Checks the file passed as parameter, if present reads the file and returns the version
+If not present, returns 1.0.0
+*/
+def ReadVersionFromFile(String file) {    
+    def versionInFile = ''
+    try {        
+        versionInFile = readFile('.version').trim()    
+    } catch (Exception e) {
+        println "File Not Present, so starting from 0.0.1"
+        versionInFile = '0.0.1'        
+    }
+    return versionInFile
+}
+
+
 /**
  * Returns the complete tagged string for CI (PRs) or CD(Master-Branch). In case of CD, it creates and push a release & a tag
  *
