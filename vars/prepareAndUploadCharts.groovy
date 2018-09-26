@@ -26,7 +26,7 @@ def call(body) {
                 def versionInFile = stakaterCommands.ReadVersionFromFile('.version')
 
                 def chartVersion = common.shOutput("stk generate version --version-file .version --version ${versionInFile}")
-                println "Version generated from stk version:  ${chartversion}"
+                println "Version generated from stk version:  ${chartVersion}"
 
                 for(int i = 0; i < charts.size(); i++) {
                     String chart = charts[i]
