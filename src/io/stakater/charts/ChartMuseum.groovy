@@ -15,7 +15,7 @@ def upload(String location, String chartName, String fileName, String cmUrl) {
 }
 
 def upload(String location, String chartName, String fileName) {
-    upload(location, chartName, fileName, "http://chartmuseum/api/charts")
+    upload(location, chartName, fileName, "http://chartmuseum.tools/api/charts")
 }
 
 def upload(String location, String chartName, String fileName, String cmUrl, String cmUsername, String cmPassword) {
