@@ -24,7 +24,7 @@ def call(body) {
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def imageName = repoName.split("dockerfile-").last().toLowerCase()
-                if (repoOwner.startsWith('stakater-docker'){
+                if (repoOwner.startsWith('stakater-docker')){
                     repoOwner = 'stakater'
                 }
                 
