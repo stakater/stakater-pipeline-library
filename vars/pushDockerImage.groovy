@@ -27,6 +27,7 @@ def call(body) {
                 if (repoName.startsWith("stakater-") {
                     repoOwner = 'stakater'
                 }                
+                echo "Repo Owner: ${repoOwner}"     
                 def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
                 // If image Prefix is passed, use it, else pass empty string to create versions
                 def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
