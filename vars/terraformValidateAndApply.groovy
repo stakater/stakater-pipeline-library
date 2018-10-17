@@ -7,6 +7,7 @@ def call(body) {
     body()
 
     toolsImage = config.toolsImage ?: "stakater/pipeline-tools:1.13.2"
+    module = config.module ?: "github" // for compatibility with old repos
 
     toolsNode(toolsImage: toolsImage) {
     container(name: "tools") {
@@ -19,12 +20,16 @@ def call(body) {
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
+
+        def exportKey
+        def exportValue
         
         try {
 
           stage('Validate') {
+            setExportForModule()
             sh """
-              export GITHUB_TOKEN=\$GITHUB_AUTH_TOKEN
+              export ${exportKey}=\$${exportValue}
               
               terraform init
               terraform validate
@@ -34,7 +39,7 @@ def call(body) {
           if(utils.isCD()) {
             stage('Plan and Apply') {
               sh """
-                export GITHUB_TOKEN=\$GITHUB_AUTH_TOKEN
+                export ${exportKey}=\$${exportValue}
                 
                 terraform plan
                 terraform apply -auto-approve
@@ -61,6 +66,16 @@ def call(body) {
               stk notify jira --comment "${commentMessage}"
           """
           throw e
+        }
+
+        def setExportForModule() {
+          if (module.equals("github")) {
+            exportKey = "GITHUB_TOKEN"
+            exportValue = "GITHUB_AUTH_TOKEN"
+          } else if (module.equals("gitlab")) {
+            exportKey = "GITLAB_TOKEN"
+            exportValue = "GITLAB_AUTH_TOKEN"
+          }
         }
       }
     }
