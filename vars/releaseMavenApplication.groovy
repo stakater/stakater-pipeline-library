@@ -6,7 +6,7 @@ def call(body) {
     body.delegate = config
     body()
 
-    toolsNode(toolsImage: 'stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.1') {
+    toolsNode(toolsImage: 'stakater/builder-maven:3.5.4-jdk1.8-apline8-SNAPSHOT-PR-2-1') {
         
         def builder = new io.stakater.builder.Build()
         def docker = new io.stakater.containers.Docker()
