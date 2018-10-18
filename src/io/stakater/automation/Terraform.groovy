@@ -21,4 +21,8 @@ def installThirdPartyProviders(providers) {
       curl -LO --show-error ${provider}
     """
   }
+  sh """
+    cd ${pluginsDir}
+    chmod -R +x .
+  """
 }
