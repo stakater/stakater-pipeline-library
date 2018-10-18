@@ -3,7 +3,7 @@ package io.stakater.builder
 
 def buildMavenApplication(){
     sh """
-        mvn clean package
+        mvn clean package -f application/pom.xml
     """
 }
 
