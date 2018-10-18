@@ -18,6 +18,7 @@ def call(body) {
         def common = new io.stakater.Common()
         def slack = new io.stakater.notifications.Slack()
         def git = new io.stakater.vc.Git()
+        def terraform = new io.stakater.automation.Terraform()
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
@@ -27,6 +28,7 @@ def call(body) {
         try {
 
           stage('Validate Modules') {
+            terraform.installDefaultThirdPartyProviders()
             sh """
               for dir in ${modulesDirectory}/*/
               do
