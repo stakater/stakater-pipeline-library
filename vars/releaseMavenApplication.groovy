@@ -20,10 +20,8 @@ def call(body) {
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
         def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
-        def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
-        // If image Prefix is passed, use it, else pass empty string to create versions
-        def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
-        def dockerImageVersion = stakaterCommands.createImageVersionForCiAndCd(imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
+        def dockerImage = ""
+        def dockerImageVersion = ""
 
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
@@ -38,7 +36,10 @@ def call(body) {
                         echo "Building Maven application"   
                         builder.buildMavenApplication()
                     }                
-                    
+                    dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
+                    // If image Prefix is passed, use it, else pass empty string to create versions
+                    def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
+                    dockerImageVersion = stakaterCommands.createImageVersionForCiAndCd(imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
                 
                     stage('Image build & push') {
                         echo "Version: ${dockerImageVersion}"                        
