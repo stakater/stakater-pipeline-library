@@ -16,6 +16,7 @@ def call(body) {
         def utils = new io.fabric8.Utils()
         def slack = new io.stakater.notifications.Slack()
         def git = new io.stakater.vc.Git()
+        def terraform = new ios.stakater.automation.Terraform()
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
@@ -27,6 +28,7 @@ def call(body) {
         try {
 
           stage('Validate') {
+            terraform.installDefaultThirdPartyProviders()
             setExportForModule()
             sh """
               export ${exportKey}=\$${exportValue}
