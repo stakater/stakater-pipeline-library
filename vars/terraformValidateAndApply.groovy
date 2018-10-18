@@ -16,7 +16,7 @@ def call(body) {
         def utils = new io.fabric8.Utils()
         def slack = new io.stakater.notifications.Slack()
         def git = new io.stakater.vc.Git()
-        def terraform = new ios.stakater.automation.Terraform()
+        def terraform = new io.stakater.automation.Terraform()
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
@@ -29,7 +29,15 @@ def call(body) {
 
           stage('Validate') {
             terraform.installDefaultThirdPartyProviders()
-            setExportForModule()
+
+            if (module.equals("github")) {
+              exportKey = "GITHUB_TOKEN"
+              exportValue = "GITHUB_AUTH_TOKEN"
+            } else if (module.equals("gitlab")) {
+              exportKey = "GITLAB_TOKEN"
+              exportValue = "GITLAB_AUTH_TOKEN"
+            }
+
             sh """
               export ${exportKey}=\$${exportValue}
               
@@ -68,16 +76,6 @@ def call(body) {
               stk notify jira --comment "${commentMessage}"
           """
           throw e
-        }
-
-        def setExportForModule() {
-          if (module.equals("github")) {
-            exportKey = "GITHUB_TOKEN"
-            exportValue = "GITHUB_AUTH_TOKEN"
-          } else if (module.equals("gitlab")) {
-            exportKey = "GITLAB_TOKEN"
-            exportValue = "GITLAB_AUTH_TOKEN"
-          }
         }
       }
     }
