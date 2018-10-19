@@ -13,6 +13,12 @@ def runSyntheticTestsForMavenApplication(){
     """
 }
 
+def runPerformanceTestsForMavenApplication(){
+    sh """
+        make run-performance-tests
+    """
+}
+
 def deployHelmChartForPR(String chartDir){
     sh """        
         make install-chart ENVIRONMENT='pr'

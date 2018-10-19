@@ -73,6 +73,10 @@ def call(body) {
                         echo "Deploying Chart for PR"   
                         builder.deployHelmChartForPR(chartDir)
                     }
+                    stage('Run Synthetic Tests') {
+                        echo "Running Performance tests for Maven application"   
+                        builder.runPerformanceTestsForMavenApplication()
+                    } 
                 }
                 catch (e) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
