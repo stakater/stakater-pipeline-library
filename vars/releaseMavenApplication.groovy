@@ -70,8 +70,8 @@ def call(body) {
                         templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
                     }
                     stage('Deploy chart'){
-                        echo "Running synthetic tests for Maven application"   
-                        builder.deployHelmChartForPR()
+                        echo "Deploying Chart for PR"   
+                        builder.deployHelmChartForPR(chartDir)
                     }
                 }
                 catch (e) {

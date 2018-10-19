@@ -13,9 +13,10 @@ def runSyntheticTestsForMavenApplication(){
     """
 }
 
-def deployHelmChartForPR(){
+def deployHelmChartForPR(String chartDir){
     sh """
-        make install-chart
+        cd ${chartDir}
+        make install-chart ENVIRONMENT='pr'
     """
 }
 
