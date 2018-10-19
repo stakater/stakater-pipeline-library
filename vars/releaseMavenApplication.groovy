@@ -26,7 +26,7 @@ def call(body) {
         def dockerImageVersion = ""
 
         container(name: 'tools') {
-            withCurrentRepo(type: 'go') { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+            withCurrentRepo() { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def kubernetesDir = WORKSPACE + "/deployments/kubernetes"
                 def chartTemplatesDir = kubernetesDir + "/templates/chart"
                 def chartDir = kubernetesDir + "/chart"
