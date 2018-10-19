@@ -7,13 +7,19 @@ def call(body) {
     body()
 
     toolsNode(toolsImage: 'stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.3') {
-        
+        String chartPackageName = ""
+        def kubernetesDir = WORKSPACE + "/deployments/kubernetes"
+        def chartTemplatesDir = kubernetesDir + "/templates/chart"
+        def chartDir = kubernetesDir + "/chart"
+        def manifestsDir = kubernetesDir + "/manifests"
+
         def builder = new io.stakater.builder.Build()
         def docker = new io.stakater.containers.Docker()
         def stakaterCommands = new io.stakater.StakaterCommands()
         def git = new io.stakater.vc.Git()
         def slack = new io.stakater.notifications.Slack()
         def common = new io.stakater.Common()
+        def utils = new io.fabric8.Utils()
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
@@ -43,14 +49,29 @@ def call(body) {
                 
                     stage('Image build & push') {
                         echo "Version: ${dockerImageVersion}"                        
+                        sh """
+                            export DOCKER_IMAGE=${dockerImage}
+                            export DOCKER_TAG=${dockerImageVersion}
+                        """
                         docker.buildImageWithTagCustom(dockerImage, dockerImageVersion)
                         docker.pushTagCustom(dockerImage, dockerImageVersion)
+                        
                     }
                     stage('Run Synthetic Tests') {
                         echo "Running synthetic tests for Maven application"   
                         builder.runSyntheticTestsForMavenApplication()
                     } 
-                    
+                    stage('Publish Charts, Manifests'){
+                        echo "Rendering Chart & generating manifests"
+                        // Render chart from templates
+                        templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), dockerImageVersion, dockerImage)
+                        // Generate manifests from chart
+                        templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
+                    }
+                    stage('Deploy chart'){
+                        echo "Running synthetic tests for Maven application"   
+                        builder.deployHelmChartForPR()
+                    }
                 }
                 catch (e) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])

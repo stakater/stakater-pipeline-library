@@ -13,4 +13,10 @@ def runSyntheticTestsForMavenApplication(){
     """
 }
 
+def deployHelmChartForPR(){
+    sh """
+        make install-chart
+    """
+}
+
 return this
