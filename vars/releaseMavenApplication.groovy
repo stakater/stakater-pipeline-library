@@ -20,6 +20,7 @@ def call(body) {
         def slack = new io.stakater.notifications.Slack()
         def common = new io.stakater.Common()
         def utils = new io.fabric8.Utils()
+        def templates = new io.stakater.charts.Templates()
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
