@@ -7,11 +7,6 @@ def call(body) {
     body()
 
     toolsNode(toolsImage: 'stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.3') {
-        String chartPackageName = ""
-        def kubernetesDir = WORKSPACE + "/deployments/kubernetes"
-        def chartTemplatesDir = kubernetesDir + "/templates/chart"
-        def chartDir = kubernetesDir + "/chart"
-        def manifestsDir = kubernetesDir + "/manifests"
 
         def builder = new io.stakater.builder.Build()
         def docker = new io.stakater.containers.Docker()
@@ -32,6 +27,11 @@ def call(body) {
 
         container(name: 'tools') {
             withCurrentRepo(type: 'go') { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+                def kubernetesDir = WORKSPACE + "/deployments/kubernetes"
+                def chartTemplatesDir = kubernetesDir + "/templates/chart"
+                def chartDir = kubernetesDir + "/chart"
+                def manifestsDir = kubernetesDir + "/manifests"
+
                 def imageName = repoName.split("dockerfile-").last().toLowerCase()
                 echo "Image NAME: ${imageName}"
                 if (repoOwner.startsWith('stakater-')){
