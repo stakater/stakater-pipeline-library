@@ -73,7 +73,7 @@ def call(body) {
                         echo "Deploying Chart for PR"   
                         builder.deployHelmChartForPR(chartDir)
                     }
-                    stage('Run Synthetic Tests') {
+                    stage('Run Performance Tests') {
                         echo "Running Performance tests for Maven application"   
                         builder.runPerformanceTestsForMavenApplication()
                     } 
