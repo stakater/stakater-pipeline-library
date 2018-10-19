@@ -31,7 +31,7 @@ def call(body) {
         def dockerImageVersion = ""
 
         container(name: 'tools') {
-            withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+            withCurrentRepo(type: 'go') { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def imageName = repoName.split("dockerfile-").last().toLowerCase()
                 echo "Image NAME: ${imageName}"
                 if (repoOwner.startsWith('stakater-')){
