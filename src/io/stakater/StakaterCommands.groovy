@@ -143,15 +143,19 @@ def getScmPushUrl() {
 }
 
 def extractOrganizationAndProjectFromGitHubUrl(url) {
-    if (!url.contains('github.com') || !url.contains('gitlab.com')){
+    if (!url.contains('github.com') && !url.contains('gitlab.com')){
         error "${url} is not a GitHub URL, neither a Gitlab URL"
     }
 
-    if (url.contains("https://github.com/") || url.contains("https://gitlab.com/")){
+    if (url.contains("https://github.com/")){
         url = url.replaceAll("https://github.com/", '')
 
-    } else if (url.contains("git@github.com:") || url.contains("git@gitlab.com")){
+    } else if (url.contains("git@github.com:")){
         url = url.replaceAll("git@github.com:", '')
+    } else if (url.contains("https://gitlab.com/")){
+        url = url.replaceAll("https://gitlab.com/", '')
+    } else if (url.contains("git@gitlab.com:")){
+        url = url.replaceAll("git@gitlab.com:", '')
     }
 
     if (url.contains(".git")){
