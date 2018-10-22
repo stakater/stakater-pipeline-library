@@ -157,6 +157,10 @@ def extractOrganizationAndProjectFromGitHubUrl(url) {
     } else if (url.contains("git@gitlab.com:")){
         url = url.replaceAll("git@gitlab.com:", '')
     }
+    
+    if (url.contains("gitlab.com")){
+        url = url.replaceAll("/", "%2F")
+    }
 
     if (url.contains(".git")){
         url = url.replaceAll("\\.git", '')
