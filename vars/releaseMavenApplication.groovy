@@ -44,32 +44,33 @@ def call(body) {
                     stage('Build Maven Application') {
                         echo "Building Maven application"   
                         builder.buildMavenApplication()
-                    }                
-                    dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
-                    // If image Prefix is passed, use it, else pass empty string to create versions
-                    def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
-                    dockerImageVersion = stakaterCommands.createImageVersionForCiAndCd(imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
-                
-                    stage('Image build & push') {
-                        echo "Version: ${dockerImageVersion}"                        
+                    }
+                    stage('Create Version & Image name'){
+                        dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
+                        // If image Prefix is passed, use it, else pass empty string to create versions
+                        def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
+                        dockerImageVersion = stakaterCommands.createImageVersionForCiAndCd(imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
+                        echo "Version: ${dockerImageVersion}"
+                    }
+                    stage('Image build & push') {                        
                         sh """
                             export DOCKER_IMAGE=${dockerImage}
                             export DOCKER_TAG=${dockerImageVersion}
                         """
                         docker.buildImageWithTagCustom(dockerImage, dockerImageVersion)
                         docker.pushTagCustom(dockerImage, dockerImageVersion)
-                        
                     }
                     stage('Run Synthetic Tests') {                    
                         echo "Running synthetic tests for Maven application"
-                        echo "${syntheticTestsJob}"
+                        echo "Synthetic Test Job: ${syntheticTestsJob}"
                         if (syntheticTestsJob.equals("")){
                             echo "Running synthetic tests from Makefile"                           
                             builder.runSyntheticTestsForMavenApplication()
                         }else{
-                            build job: "run-synthetic-tests"
+                            build job: syntheticTestsJob
                         }
                     }
+
                     stage('Publish Charts, Manifests'){
                         echo "Rendering Chart & generating manifests"
                         // Render chart from templates
@@ -87,7 +88,7 @@ def call(body) {
                             echo "Running performance tests from Makefile"                           
                             builder.runPerformanceTestsForMavenApplication()
                         }else{
-                            build job: "run-performance-tests"
+                            build job: performanceTestsJob
                         }
                     }                  
                 }

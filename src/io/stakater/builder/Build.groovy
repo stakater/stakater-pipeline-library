@@ -22,6 +22,7 @@ def runPerformanceTestsForMavenApplication(){
 def deployHelmChartForPR(String chartDir){
     sh """        
         make install-chart ENVIRONMENT='pr'
+        sleep 10s
     """
 }
 
