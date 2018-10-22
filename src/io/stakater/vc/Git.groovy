@@ -55,21 +55,21 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
 }
 
 def addCommentToPullRequest(String message) {
+    def changeAuthor = env.CHANGE_AUTHOR
+    def pr = env.CHANGE_ID
     echo "Author: ${changeAuthor}"
+    echo "PR-No: ${pr}"
+
     def flow = new StakaterCommands()
 
-    def githubProject = flow.getGitHubProject()
+//    def githubProject = flow.getGitHubProject()
 
 
-    def changeAuthor = env.CHANGE_AUTHOR
-    echo "Author: ${changeAuthor}"
     if (!changeAuthor){
         echo "no commit author found so cannot comment on PR"
         return
     }
 
-    def pr = env.CHANGE_ID
-    echo "PR-No: ${pr}"
     if (!pr){
         echo "no pull request number found so cannot comment on PR"
         return
