@@ -23,6 +23,7 @@ def call(body) {
 
         def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
         def syntheticTestsJob = config.syntheticTestJob ?: ""
+        def performanceTestsJob = config.performanceTestJob ?: ""
         def dockerImage = ""
         def dockerImageVersion = ""
 
@@ -80,9 +81,14 @@ def call(body) {
                         builder.deployHelmChartForPR(chartDir)
                     }
                     stage('Run Performance Tests') {
-                        echo "Running Performance tests for Maven application"   
-                        builder.runPerformanceTestsForMavenApplication()
-                    } 
+                        echo "Running Performance tests for Maven application"
+                        if (syntheticTestsJob == ""){
+                            echo "Running performance tests from Makefile"                           
+                            builder.runPerformanceTestsForMavenApplication()
+                        }else{
+                            build job: "run-performance-tests"
+                        }
+                    }                  
                 }
                 catch (e) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
