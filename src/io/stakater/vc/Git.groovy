@@ -55,6 +55,7 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
 }
 
 def addCommentToPullRequest(String message) {
+    echo "Author: ${changeAuthor}"
     def flow = new StakaterCommands()
 
     def githubProject = flow.getGitHubProject()
