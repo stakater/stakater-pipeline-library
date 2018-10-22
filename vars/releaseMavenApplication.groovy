@@ -58,8 +58,14 @@ def call(body) {
                         docker.pushTagCustom(dockerImage, dockerImageVersion)
                         
                     }
-                    stage('Run Synthetic Tests') {
-                        echo "Running synthetic tests for Maven application"   
+                    stage('Run Synthetic Test') {                    
+                        echo "Running synthetic tests"
+                        echo "Repo Name: ${repoName.toLowerCase()}" 
+                        build job: "run-synthetic-tests"                
+                    }
+
+                    stage('Run Synthetic Tests of Makefile') {
+                        echo "Running synthetic tests for Maven application of Makefile"                           
                         builder.runSyntheticTestsForMavenApplication()
                     } 
                     stage('Publish Charts, Manifests'){
