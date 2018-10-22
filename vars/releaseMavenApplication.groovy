@@ -62,7 +62,8 @@ def call(body) {
                     }
                     stage('Run Synthetic Tests') {                    
                         echo "Running synthetic tests for Maven application"
-                        if (syntheticTestsJob == ""){
+                        echo "${syntheticTestsJob}"
+                        if (syntheticTestsJob.equals("")){
                             echo "Running synthetic tests from Makefile"                           
                             builder.runSyntheticTestsForMavenApplication()
                         }else{
@@ -82,7 +83,7 @@ def call(body) {
                     }
                     stage('Run Performance Tests') {
                         echo "Running Performance tests for Maven application"
-                        if (syntheticTestsJob == ""){
+                        if (performanceTestsJob.equals("")){
                             echo "Running performance tests from Makefile"                           
                             builder.runPerformanceTestsForMavenApplication()
                         }else{
