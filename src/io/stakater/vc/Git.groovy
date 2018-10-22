@@ -61,12 +61,14 @@ def addCommentToPullRequest(String message) {
 
 
     def changeAuthor = env.CHANGE_AUTHOR
+    echo "${changeAuthor}"
     if (!changeAuthor){
         echo "no commit author found so cannot comment on PR"
         return
     }
 
     def pr = env.CHANGE_ID
+    echo "${pr}"
     if (!pr){
         echo "no pull request number found so cannot comment on PR"
         return
