@@ -55,6 +55,10 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
 }
 
 def addCommentToPullRequest(String message) {
+    sh 'env > env.txt'
+    readFile('env.txt').split("\r?\n").each {
+        println it
+    }
     def changeAuthor = env.CHANGE_AUTHOR
     def pr = env.CHANGE_ID
     echo "Author: ${changeAuthor}"
