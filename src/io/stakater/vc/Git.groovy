@@ -68,7 +68,7 @@ def addCommentToPullRequest(String message) {
     def url = flow.getScmPushUrl()
     echo "URL: ${url}"
 
-    def provider = getProvider(url)
+    def provider = flow.getProvider(url)
     echo "Provider: ${provider}"
 
     def githubProject = flow.getGitHubProject()
