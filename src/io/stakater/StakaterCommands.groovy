@@ -129,6 +129,13 @@ def getGitHubProject(){
     return extractOrganizationAndProjectFromGitHubUrl(url)
 }
 
+def getProject(){
+    def url = getScmPushUrl()
+    def provider = getProvider(url)
+    echo "Provider Name: ${provider}"
+    return extractOrganizationAndProjectFromUrl(url, provider)
+}
+
 /**
  * Should be called after checkout scm
  */
@@ -142,6 +149,56 @@ def getScmPushUrl() {
     return url
 }
 
+def getProvider(url) {
+    switch(url) {
+        case url.contains('github.com'):
+            return 'github'
+        case url.contains('gitlab.com'):
+            return 'gitlab'
+        default:
+         error "${url} is not a GitHub URL, neither a Gitlab URL"
+    }
+}
+
+def extractOrganizationAndProjectFromUrl(url, provider) {
+    switch(provider) {
+        case "github": 
+            return formatGithubUrl(url)
+
+        case "gitlab":
+            return formatGitlabUrl(url)
+
+        default:
+            error "${provider} is not supported"
+    }
+}
+
+def formatGithubUrl(url) {
+    if (url.contains("https://github.com/")){
+        url = url.replaceAll("https://github.com/", '')
+    } else if (url.contains("git@github.com:")){
+        url = url.replaceAll("git@github.com:", '')
+    }
+
+    if (url.contains(".git")){
+        url = url.replaceAll("\\.git", '')
+    }
+    return url.trim()
+}
+
+def formatGitlabUrl(url) {
+    if (url.contains("https://gitlab.com/")){
+        url = url.replaceAll("https://gitlab.com/", '')
+    } else if (url.contains("git@gitlab.com:")){
+        url = url.replaceAll("git@gitlab.com:", '')
+    }
+
+    if (url.contains(".git")){
+        url = url.replaceAll("\\.git", '')
+    }
+    return url.trim()
+}
+
 def extractOrganizationAndProjectFromGitHubUrl(url) {
     if (!url.contains('github.com') && !url.contains('gitlab.com')){
         error "${url} is not a GitHub URL, neither a Gitlab URL"
@@ -149,15 +206,14 @@ def extractOrganizationAndProjectFromGitHubUrl(url) {
 
     if (url.contains("https://github.com/")){
         url = url.replaceAll("https://github.com/", '')
-
     } else if (url.contains("git@github.com:")){
         url = url.replaceAll("git@github.com:", '')
     } else if (url.contains("https://gitlab.com/")){
         url = url.replaceAll("https://gitlab.com/", '')
-        url = url.replaceAll("/", "%2F")
+ //       url = url.replaceAll("/", "%2F")
     } else if (url.contains("git@gitlab.com:")){
         url = url.replaceAll("git@gitlab.com:", '')
-        url = url.replaceAll("/", "%2F")
+//        url = url.replaceAll("/", "%2F")
     }
 
     if (url.contains(".git")){

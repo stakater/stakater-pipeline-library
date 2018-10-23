@@ -69,6 +69,9 @@ def addCommentToPullRequest(String message) {
     def githubProject = flow.getGitHubProject()
     echo "githubProject: ${githubProject}"
 
+    def project = flow.getProject()
+    echo "project: ${project}"
+
     if (!changeAuthor){
         echo "no commit author found so cannot comment on PR"
         return
