@@ -91,7 +91,8 @@ def addCommentToPullRequest(String message) {
             flow.postPRCommentToGithub(message, pr, "${env.REPO_OWNER}/${env.REPO_NAME}")
 
         case "gitlab":
-            flow.postPRCommentToGitlab("Yikes! You better fix it before anyone else finds out! [Build 24](https://jenkins.cicd-tools.stackator.com/job/carbook/job/test/job/master/24/) has Failed!", pr, project)
+            def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME)
+            flow.postPRCommentToGitlab(message, pr, project)
 
         default:
             error "${provider} is not supported"    

@@ -1,5 +1,6 @@
 #!/usr/bin/groovy
 package io.stakater
+import groovy.json.JsonSlurperClassic
 
 def setupWorkspaceForRelease(String project, String useGitTagOrBranchForNextVersion = "", String mvnExtraArgs = "", String currentVersion = "") {
     def flow = new io.fabric8.Fabric8Commands()
@@ -129,7 +130,6 @@ def isAuthorCollaborator(githubToken, project) {
     }
 
     error "Error checking if user ${changeAuthor} is a collaborator on ${project}."
-
 }
 
 def getGitHubProject(){
@@ -266,6 +266,36 @@ def postPRCommentToGitlab(comment, pr, project) {
         connection.disconnect()
     } catch (err) {
         error "ERROR  ${err}"
+    }
+}
+
+def getGitLabMergeRequestsByBranchName(project, branchName){
+    def gitlabToken = getGitHubToken("gitlab")
+    echo "Fetching all MRs for ${branchName}"
+    def apiUrl = new URL("https://gitlab.com/api/v4/projects/${project}/merge_requests?state=opened&source_branch=${branchName}")
+    
+    try {
+        def HttpURLConnection connection = apiUrl.openConnection()
+        if (gitlabToken.length() > 0) {
+            connection.setRequestProperty("PRIVATE-TOKEN", "${gitlabToken}")
+        }
+        connection.setRequestMethod("GET")
+        connection.setDoOutput(true)
+        connection.connect()
+
+        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
+        writer.flush()
+
+        // execute the POST request
+        rs = new JsonSlurperClassic().parse(new InputStreamReader(connection.getInputStream()))
+
+        echo "Result: ${rs}"
+
+        return rs
+    } catch (err) {
+        error "ERROR  ${err}"
+    } finally {
+        connection.disconnect()
     }
 }
 
