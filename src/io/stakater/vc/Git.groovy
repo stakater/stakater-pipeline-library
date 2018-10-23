@@ -93,10 +93,10 @@ def addCommentToPullRequest(String message) {
         case "gitlab":
             def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME)
             result.each{value -> 
-                echo "For-each, id: ${value.iid}"
+                def prMessage = "@${value.author.username} " + message
+                echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
+                flow.postPRCommentToGitlab(prMessage, value.iid, project)
             }
-
-            flow.postPRCommentToGitlab(message, pr, project)
 
         default:
             error "${provider} is not supported"    
