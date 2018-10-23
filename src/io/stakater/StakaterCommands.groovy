@@ -284,16 +284,9 @@ def getGitLabMergeRequestsByBranchName(project, branchName){
         connection.setDoOutput(true)
         connection.connect()
 
-        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-        writer.flush()
+        new InputStreamReader(connection.getInputStream())
 
-        // execute the POST request
-        rs = new JsonSlurperClassic().parse(new InputStreamReader(connection.getInputStream()))
-
-        echo "Result: ${rs}"
         connection.disconnect()
-
-        return rs
     } catch (err) {
         error "ERROR  ${err}"
     }
