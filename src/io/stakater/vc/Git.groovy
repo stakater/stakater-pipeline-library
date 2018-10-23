@@ -77,6 +77,9 @@ def addCommentToPullRequest(String message) {
     def project = flow.getProject(provider)
     echo "project: ${project}"
 
+    def providerToken = flow.getGitHubToken(provider)
+    echo "Provider-Token: ${providerToken}"
+
     switch(provider) {
         case "github":
             if (!changeAuthor){
@@ -91,12 +94,12 @@ def addCommentToPullRequest(String message) {
             flow.postPRCommentToGithub(message, pr, "${env.REPO_OWNER}/${env.REPO_NAME}")
 
         case "gitlab":
-                flow.postPRCommentToGitlab("hello", 3, project)
-            // def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME)
-            // result.each{value -> 
-            //     def prMessage = "@${value.author.username} " + message
-            //     echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
-            // }
+            def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME, providerToken)
+            result.each{value -> 
+                def prMessage = "@${value.author.username} " + message
+                echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
+                flow.postPRCommentToGitlab(prMessage, ${value.iid}, project, providerToken)
+            }
 
         default:
             error "${provider} is not supported"    

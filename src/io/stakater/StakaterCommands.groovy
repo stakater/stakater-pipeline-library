@@ -74,7 +74,6 @@ def updateGithub() {
     sh "git push origin release-v${releaseVersion}"
 }
 
-@NonCPS
 def getGitHubToken(provider) {
     def tokenPath
     switch(provider) {
@@ -243,19 +242,19 @@ def postPRComment(comment, pr, project, provider) {
     }
 }
 
-def postPRCommentToGitlab(comment, pr, project) {
+def postPRCommentToGitlab(comment, pr, project, token) {
     project = project.replaceAll("/", "%2F")
     echo "Inside project: ${project}"
-    def gitlabToken = getGitHubToken("gitlab")
+//    def gitlabToken = getGitHubToken("gitlab")
     echo "Gitlab-token : ${gitlabToken}"
     def apiUrl = new URL("https://gitlab.com/api/v4/projects/${project}/merge_requests/${pr}/notes?body=${java.net.URLEncoder.encode(comment, 'UTF-8')}")
     
     echo "adding ${comment} to ${apiUrl}"
         try {
         def HttpURLConnection connection = apiUrl.openConnection()
-        if (gitlabToken.length() > 0) {
-            connection.setRequestProperty("PRIVATE-TOKEN", "${gitlabToken}")
-        }
+//        if (gitlabToken.length() > 0) {
+            connection.setRequestProperty("PRIVATE-TOKEN", "${token}")
+//        }
         connection.setRequestMethod("POST")
         connection.setDoOutput(true)
         connection.connect()
@@ -272,17 +271,17 @@ def postPRCommentToGitlab(comment, pr, project) {
     }
 }
 
-def getGitLabMergeRequestsByBranchName(project, branchName){
+def getGitLabMergeRequestsByBranchName(project, branchName, token){
     project = project.replaceAll("/", "%2F")
-    def gitlabToken = getGitHubToken("gitlab")
+//    def gitlabToken = getGitHubToken("gitlab")
     echo "Fetching all MRs for ${branchName}"
     def apiUrl = new URL("https://gitlab.com/api/v4/projects/${project}/merge_requests?state=opened&source_branch=${branchName}")
     
     try {
         def HttpURLConnection connection = apiUrl.openConnection()
-        if (gitlabToken.length() > 0) {
-            connection.setRequestProperty("PRIVATE-TOKEN", "${gitlabToken}")
-        }
+//        if (gitlabToken.length() > 0) {
+            connection.setRequestProperty("PRIVATE-TOKEN", "${token}")
+//        }
         connection.setRequestMethod("GET")
         connection.setDoOutput(true)
         connection.connect()
