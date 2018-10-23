@@ -129,8 +129,8 @@ def getGitHubProject(){
     return extractOrganizationAndProjectFromGitHubUrl(url)
 }
 
-def getProject(url, provider){
-    echo "Provider Name: ${provider}"
+def getProject(provider){
+    def url = getScmPushUrl()
     return extractOrganizationAndProjectFromUrl(url, provider)
 }
 
