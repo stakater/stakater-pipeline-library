@@ -1,6 +1,7 @@
 #!/usr/bin/groovy
 package io.stakater
 import groovy.json.JsonSlurperClassic
+import groovy.json.JsonSlurper
 
 def setupWorkspaceForRelease(String project, String useGitTagOrBranchForNextVersion = "", String mvnExtraArgs = "", String currentVersion = "") {
     def flow = new io.fabric8.Fabric8Commands()
@@ -284,8 +285,8 @@ def getGitLabMergeRequestsByBranchName(project, branchName){
         connection.setDoOutput(true)
         connection.connect()
 
-        new InputStreamReader(connection.getInputStream())
-
+        def rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream()))
+        echo "RS: ${rs}"
         connection.disconnect()
     } catch (err) {
         error "ERROR  ${err}"
