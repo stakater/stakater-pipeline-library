@@ -91,7 +91,7 @@ def addCommentToPullRequest(String message) {
             flow.postPRCommentToGithub(message, pr, "${env.REPO_OWNER}/${env.REPO_NAME}")
 
         case "gitlab":
-            flow.postPRCommentToGitlab(message, pr, project)
+            flow.postPRCommentToGitlab("testing-message", pr, project)
 
         default:
             error "${provider} is not supported"    
