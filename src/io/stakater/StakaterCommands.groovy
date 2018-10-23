@@ -274,7 +274,7 @@ def getGitLabMergeRequestsByBranchName(project, branchName){
     project = project.replaceAll("/", "%2F")
     def gitlabToken = getGitHubToken("gitlab")
     echo "Fetching all MRs for ${branchName}"
-    def apiUrl = new URL("https://gitlab.com/api/v4/projects/${project}/merge_requests")
+    def apiUrl = new URL("https://gitlab.com/api/v4/projects/${project}/merge_requests?state=opened&source_branch=${branchName}")
     
     try {
         def HttpURLConnection connection = apiUrl.openConnection()
@@ -288,6 +288,7 @@ def getGitLabMergeRequestsByBranchName(project, branchName){
         def rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream()))
         echo "RS: ${rs}"
         connection.disconnect()
+        return rs
     } catch (err) {
         error "ERROR  ${err}"
     }
