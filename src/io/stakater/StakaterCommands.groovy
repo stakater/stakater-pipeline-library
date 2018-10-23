@@ -241,10 +241,11 @@ def postPRComment(comment, pr, project, provider) {
 }
 
 def postPRCommentToGitlab(comment, pr, project) {
+    project = project.replaceAll("/", "%2F")
     echo "Inside project: ${project}"
     def gitlabToken = getGitHubToken("gitlab")
     echo "Gitlab-token : ${gitlabToken}"
-    def apiUrl = new URL("https://gitlab.com/api/v4/projects/carbook%2Ftest/merge_requests/1/notes?body=hello")
+    def apiUrl = new URL("https://gitlab.com/api/v4/projects/${project}/merge_requests/1/notes?body=${comment}")
     echo "adding ${comment} to ${apiUrl}"
         try {
         def HttpURLConnection connection = apiUrl.openConnection()
@@ -255,10 +256,7 @@ def postPRCommentToGitlab(comment, pr, project) {
         connection.setDoOutput(true)
         connection.connect()
 
-//        def body = "{\"body\":\"${comment}\"}"
-
         OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-//        writer.write(body)
         writer.flush()
 
         // execute the POST request

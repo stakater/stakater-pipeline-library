@@ -77,18 +77,25 @@ def addCommentToPullRequest(String message) {
     def project = flow.getProject(provider)
     echo "project: ${project}"
 
-    // if (!changeAuthor){
-    //     echo "no commit author found so cannot comment on PR"
-    //     return
-    // }
+    switch(provider) {
+        case "github":
+            if (!changeAuthor){
+                echo "no commit author found so cannot comment on PR"
+                return
+            }
+            if (!pr){
+                echo "no pull request number found so cannot comment on PR"
+                return
+            }
+            message = "@${changeAuthor} " + message
+            flow.postPRCommentToGithub(message, pr, "${env.REPO_OWNER}/${env.REPO_NAME}")
 
-    // if (!pr){
-    //     echo "no pull request number found so cannot comment on PR"
-    //     return
-    // }
+        case "gitlab":
+            flow.postPRCommentToGitlab(message, pr, project)
 
-    message = "@${changeAuthor} " + message
-    flow.postPRCommentToGitlab("hello from the other side", pr, "${env.REPO_OWNER}/${env.REPO_NAME}")
+        default:
+            error "${provider} is not supported"    
+    }
 }
 
 def getGitAuthor() {
