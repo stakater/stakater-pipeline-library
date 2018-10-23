@@ -74,7 +74,7 @@ def addCommentToPullRequest(String message) {
     def githubProject = flow.getGitHubProject()
     echo "githubProject: ${githubProject}"
 
-    def project = flow.getProject(url)
+    def project = flow.getProject(provider)
     echo "project: ${project}"
 
     if (!changeAuthor){
