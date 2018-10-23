@@ -91,12 +91,12 @@ def addCommentToPullRequest(String message) {
             flow.postPRCommentToGithub(message, pr, "${env.REPO_OWNER}/${env.REPO_NAME}")
 
         case "gitlab":
-            def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME)
-            result.each{value -> 
-                def prMessage = "@${value.author.username} " + message
-                echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
-                flow.postPRCommentToGitlab(prMessage, value.iid, project)
-            }
+                flow.postPRCommentToGitlab("hello", 3, project)
+            // def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME)
+            // result.each{value -> 
+            //     def prMessage = "@${value.author.username} " + message
+            //     echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
+            // }
 
         default:
             error "${provider} is not supported"    
