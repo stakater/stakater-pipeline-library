@@ -249,7 +249,7 @@ def postPRCommentToGitlab(comment, pr, project) {
         try {
         def HttpURLConnection connection = apiUrl.openConnection()
         if (gitlabToken.length() > 0) {
-            connection.setRequestProperty("PRIVATE-TOKEN", "Bearer ${gitlabToken}")
+            connection.setRequestProperty("PRIVATE-TOKEN", "${gitlabToken}")
         }
         connection.setRequestMethod("POST")
         connection.setDoOutput(true)
