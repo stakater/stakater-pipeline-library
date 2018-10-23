@@ -290,12 +290,11 @@ def getGitLabMergeRequestsByBranchName(project, branchName){
         rs = new JsonSlurperClassic().parse(new InputStreamReader(connection.getInputStream()))
 
         echo "Result: ${rs}"
+        connection.disconnect()
 
         return rs
     } catch (err) {
         error "ERROR  ${err}"
-    } finally {
-        connection.disconnect()
     }
 }
 
