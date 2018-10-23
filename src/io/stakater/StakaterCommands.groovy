@@ -246,7 +246,7 @@ def postPRCommentToGitlab(comment, pr, project, token) {
     project = project.replaceAll("/", "%2F")
     echo "Inside project: ${project}"
 //    def gitlabToken = getGitHubToken("gitlab")
-    echo "Gitlab-token : ${gitlabToken}"
+//    echo "Gitlab-token : ${gitlabToken}"
     def apiUrl = new URL("https://gitlab.com/api/v4/projects/${project}/merge_requests/${pr}/notes?body=${java.net.URLEncoder.encode(comment, 'UTF-8')}")
     
     echo "adding ${comment} to ${apiUrl}"
