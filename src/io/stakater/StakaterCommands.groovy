@@ -151,9 +151,9 @@ def getScmPushUrl() {
 
 def getProvider(url) {
     switch(url) {
-        case url.contains('github.com'):
+        case ~/.*github.com.*/:
             return 'github'
-        case url.contains('gitlab.com'):
+        case ~/.*gitlab.com.*/:
             return 'gitlab'
         default:
          error "${url} is not a GitHub URL, neither a Gitlab URL"
