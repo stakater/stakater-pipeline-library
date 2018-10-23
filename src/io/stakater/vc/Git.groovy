@@ -92,8 +92,8 @@ def addCommentToPullRequest(String message) {
 
         case "gitlab":
             def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME)
-            result.each{key, value -> 
-                echo "For-each, id:${key} ${value}"
+            result.each{value -> 
+                echo "For-each, id: ${value.iid}"
             }
 
             flow.postPRCommentToGitlab(message, pr, project)
