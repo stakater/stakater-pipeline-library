@@ -65,7 +65,7 @@ def addCommentToPullRequest(String message) {
     echo "PR-No: ${pr}"
 
     def flow = new StakaterCommands()
-    def url = getScmPushUrl
+    def url = flow.getScmPushUrl()
     echo "URL: ${url}"
 
     def provider = getProvider(url)
