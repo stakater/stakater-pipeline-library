@@ -270,6 +270,7 @@ def postPRCommentToGitlab(comment, pr, project) {
 }
 
 def getGitLabMergeRequestsByBranchName(project, branchName){
+    project = project.replaceAll("/", "%2F")
     def gitlabToken = getGitHubToken("gitlab")
     echo "Fetching all MRs for ${branchName}"
     def apiUrl = new URL("https://gitlab.com/api/v4/projects/${project}/merge_requests?state=opened&source_branch=${branchName}")
