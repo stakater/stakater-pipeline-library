@@ -77,18 +77,18 @@ def addCommentToPullRequest(String message) {
     def project = flow.getProject(provider)
     echo "project: ${project}"
 
-    if (!changeAuthor){
-        echo "no commit author found so cannot comment on PR"
-        return
-    }
+    // if (!changeAuthor){
+    //     echo "no commit author found so cannot comment on PR"
+    //     return
+    // }
 
-    if (!pr){
-        echo "no pull request number found so cannot comment on PR"
-        return
-    }
+    // if (!pr){
+    //     echo "no pull request number found so cannot comment on PR"
+    //     return
+    // }
 
     message = "@${changeAuthor} " + message
-    flow.postPRCommentToGithub(message, pr, "${env.REPO_OWNER}/${env.REPO_NAME}")
+    flow.postPRCommentToGitlab(message, pr, "${env.REPO_OWNER}/${env.REPO_NAME}")
 }
 
 def getGitAuthor() {

@@ -72,8 +72,16 @@ def updateGithub() {
     sh "git push origin release-v${releaseVersion}"
 }
 
-def getGitHubToken() {
-    def tokenPath = '/home/jenkins/.apitoken/hub'
+def getGitHubToken(provider) {
+    def tokenPath
+    switch(provider) {
+        case "github":
+            tokenPath = '/home/jenkins/.apitoken/hub'
+
+        case "gitlab":
+            tokenPath = '/home/jenkins/.apitoken/gitlab.hub'
+    }
+
     def githubToken = readFile tokenPath
     if (!githubToken?.trim()) {
         error "No GitHub token found in ${tokenPath}"
@@ -85,7 +93,7 @@ def isAuthorCollaborator(githubToken, project) {
 
     if (!githubToken){
 
-        githubToken = getGitHubToken()
+        githubToken = getGitHubToken("github")
 
         if (!githubToken){
             echo "No GitHub api key found so trying annonynous GitHub api call"
@@ -219,8 +227,50 @@ def extractOrganizationAndProjectFromGitHubUrl(url) {
     return url.trim()
 }
 
+def postPRComment(comment, pr, project, provider) {
+    switch(provider){
+        case "github":
+            postPRCommentToGithub(comment, pr, project)
+        
+        case "gitlab":
+            postPRCommentToGitlab(comment, pr, project)
+        
+        default: 
+            error "${provider} is not supported"
+    }
+}
+
+def postPRCommentToGitlab(comment, pr, project) {
+    echo "Inside project: ${project}"
+    def gitlabToken = getGitHubToken("gitlab")
+    def apiUrl = new URL("https://gitlab.com/api/v4/projects/carbook%2Ftest/merge_requests/1")
+    echo "adding ${comment} to ${apiUrl}"
+        try {
+        def HttpURLConnection connection = apiUrl.openConnection()
+        if (gitlabToken.length() > 0) {
+            connection.setRequestProperty("PRIVATE-TOKEN", "Bearer ${gitlabToken}")
+        }
+        connection.setRequestMethod("POST")
+        connection.setDoOutput(true)
+        connection.connect()
+
+        def body = "{\"body\":\"${comment}\"}"
+
+        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
+        writer.write(body)
+        writer.flush()
+
+        // execute the POST request
+        new InputStreamReader(connection.getInputStream())
+
+        connection.disconnect()
+    } catch (err) {
+        error "ERROR  ${err}"
+    }
+}
+
 def postPRCommentToGithub(comment, pr, project) {
-    def githubToken = getGitHubToken()
+    def githubToken = getGitHubToken("github")
     def apiUrl = new URL("https://api.github.com/repos/${project}/issues/${pr}/comments")
     echo "adding ${comment} to ${apiUrl}"
     try {
@@ -310,7 +360,7 @@ def createImageVersionForCiAndCd(String imagePrefix, String prNumber, String bui
 }
 
 def createGitHubRelease(def version) {
-    def githubToken = getGitHubToken()
+    def githubToken = getGitHubToken("github")
     def githubProject = getGitHubProject()
 
     def apiUrl = new URL("https://api.github.com/repos/${githubProject}/releases")
