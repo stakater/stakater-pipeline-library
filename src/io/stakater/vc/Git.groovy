@@ -98,7 +98,7 @@ def addCommentToPullRequest(String message) {
             result.each{value -> 
                 def prMessage = "@${value.author.username} " + message
                 echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
-                flow.postPRCommentToGitlab(prMessage, ${value.iid}, project, providerToken)
+                flow.postPRCommentToGitlab(prMessage, value.iid, project, providerToken)
             }
 
         default:
