@@ -25,7 +25,7 @@ def call(body) {
         def syntheticTestsJob = config.syntheticTestJob ?: ""
         def performanceTestsJob = config.performanceTestJob ?: ""
         def dockerImage = ""
-        def dockerImageVersion = ""
+        def version = ""
 
         container(name: 'tools') {
             withCurrentRepo() { def repoUrl, def repoName, def repoOwner, def repoBranch ->
@@ -35,30 +35,39 @@ def call(body) {
                 def manifestsDir = kubernetesDir + "/manifests"
 
                 def imageName = repoName.split("dockerfile-").last().toLowerCase()
+                def fullAppNameWithVersion = ""
                 echo "Image NAME: ${imageName}"
                 if (repoOwner.startsWith('stakater-')){
                     repoOwner = 'stakater'
                 }
                 echo "Repo Owner: ${repoOwner}" 
                 try {
-                    stage('Build Maven Application') {
-                        echo "Building Maven application"   
-                        builder.buildMavenApplication()
-                    }
-                    stage('Create Version & Image name'){
+                    stage('Create Version'){
                         dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
                         // If image Prefix is passed, use it, else pass empty string to create versions
                         def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
-                        dockerImageVersion = stakaterCommands.createImageVersionForCiAndCd(imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
-                        echo "Version: ${dockerImageVersion}"
+                        version = stakaterCommands.createImageVersionForCiAndCd(imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
+                        echo "Version: ${version}"
+                        fullAppNameWithVersion = imageName + '-'+ version
                     }
-                    stage('Image build & push') {                        
+                    stage('Build Maven Application') {
+                        echo "Building Maven application"   
+                        builder.buildMavenApplication(fullAppNameWithVersion)
+                    }                    
+                    stage('Image build & push') {
                         sh """
                             export DOCKER_IMAGE=${dockerImage}
-                            export DOCKER_TAG=${dockerImageVersion}
+                            export DOCKER_TAG=${version}
                         """
-                        docker.buildImageWithTagCustom(dockerImage, dockerImageVersion)
-                        docker.pushTagCustom(dockerImage, dockerImageVersion)
+                        docker.buildImageWithTagCustom(dockerImage, version)
+                        docker.pushTagCustom(dockerImage, version)
+                    }
+                    stage('Publish Charts, Manifests'){
+                        echo "Rendering Chart & generating manifests"
+                        // Render chart from templates
+                        templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, dockerImage)
+                        // Generate manifests from chart
+                        templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
                     }
                     stage('Run Synthetic Tests') {                    
                         echo "Running synthetic tests for Maven application"
@@ -69,14 +78,6 @@ def call(body) {
                         }else{
                             build job: syntheticTestsJob
                         }
-                    }
-
-                    stage('Publish Charts, Manifests'){
-                        echo "Rendering Chart & generating manifests"
-                        // Render chart from templates
-                        templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), dockerImageVersion, dockerImage)
-                        // Generate manifests from chart
-                        templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
                     }
                     stage('Deploy chart'){
                         echo "Deploying Chart for PR"   
@@ -102,9 +103,9 @@ def call(body) {
                 }
 
                 stage('Notify') {
-                    slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${dockerImageVersion}")])
+                    slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")])
 
-                    def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${dockerImageVersion}`"
+                    def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
                     git.addCommentToPullRequest(commentMessage)
                 }
             }

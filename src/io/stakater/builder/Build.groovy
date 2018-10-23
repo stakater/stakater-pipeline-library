@@ -1,9 +1,10 @@
 #!/usr/bin/groovy
 package io.stakater.builder
 
-def buildMavenApplication(){
+def buildMavenApplication(String appName){
     sh """
         mvn clean package -f application/pom.xml
+        mv application/target/*.jar application/target/${appName}.jar
     """
 }
 
