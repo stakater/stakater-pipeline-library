@@ -65,11 +65,16 @@ def addCommentToPullRequest(String message) {
     echo "PR-No: ${pr}"
 
     def flow = new StakaterCommands()
+    def url = getScmPushUrl
+    echo "URL: ${url}"
+
+    def provider = getProvider(url)
+    echo "Provider: ${provider}"
 
     def githubProject = flow.getGitHubProject()
     echo "githubProject: ${githubProject}"
 
-    def project = flow.getProject()
+    def project = flow.getProject(url)
     echo "project: ${project}"
 
     if (!changeAuthor){
