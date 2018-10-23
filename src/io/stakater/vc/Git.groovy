@@ -88,7 +88,7 @@ def addCommentToPullRequest(String message) {
     // }
 
     message = "@${changeAuthor} " + message
-    flow.postPRCommentToGitlab(message, pr, "${env.REPO_OWNER}/${env.REPO_NAME}")
+    flow.postPRCommentToGitlab("hello from the other side", pr, "${env.REPO_OWNER}/${env.REPO_NAME}")
 }
 
 def getGitAuthor() {
