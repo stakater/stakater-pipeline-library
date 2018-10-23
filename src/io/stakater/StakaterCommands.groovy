@@ -74,6 +74,7 @@ def updateGithub() {
     sh "git push origin release-v${releaseVersion}"
 }
 
+@NonCPS
 def getGitHubToken(provider) {
     def tokenPath
     switch(provider) {
