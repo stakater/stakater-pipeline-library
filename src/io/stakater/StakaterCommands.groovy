@@ -301,6 +301,7 @@ def postPRCommentToGithub(comment, pr, project, githubToken) {
 
     def apiUrl = new URL("https://api.github.com/repos/${project}/issues/${pr}/comments")
     echo "adding ${comment} to ${apiUrl}"
+    echo "Github-token: ${githubToken}"
     try {
         def HttpURLConnection connection = apiUrl.openConnection()
         if (githubToken.length() > 0) {
