@@ -108,7 +108,7 @@ def isAuthorCollaborator(githubToken, project) {
         }
     }
     if (!project){
-        project = getGitHubProject()
+        project = getProject("github")
     }
 
     def changeAuthor = env.CHANGE_AUTHOR
@@ -137,11 +137,6 @@ def isAuthorCollaborator(githubToken, project) {
     }
 
     error "Error checking if user ${changeAuthor} is a collaborator on ${project}."
-}
-
-def getGitHubProject(){
-    def url = getScmPushUrl()
-    return extractOrganizationAndProjectFromGitHubUrl(url)
 }
 
 def getProject(provider){
@@ -173,19 +168,26 @@ def getProvider(url) {
 }
 
 def extractOrganizationAndProjectFromUrl(url, provider) {
+    def result
     switch(provider) {
         case "github": 
-            return formatGithubUrl(url)
+            result = formatGithubUrl(url)
             break
 
         case "gitlab":
-            return formatGitlabUrl(url)
+            result = formatGitlabUrl(url)
             break
 
         default:
             error "${provider} is not supported"
             break
     }
+
+    if (result.contains(".git")){
+        result = result.replaceAll("\\.git", '')
+    }
+
+    return result
 }
 
 def formatGithubUrl(url) {
@@ -195,9 +197,6 @@ def formatGithubUrl(url) {
         url = url.replaceAll("git@github.com:", '')
     }
 
-    if (url.contains(".git")){
-        url = url.replaceAll("\\.git", '')
-    }
     return url.trim()
 }
 
@@ -208,32 +207,6 @@ def formatGitlabUrl(url) {
         url = url.replaceAll("git@gitlab.com:", '')
     }
 
-    if (url.contains(".git")){
-        url = url.replaceAll("\\.git", '')
-    }
-    return url.trim()
-}
-
-def extractOrganizationAndProjectFromGitHubUrl(url) {
-    if (!url.contains('github.com') && !url.contains('gitlab.com')){
-        error "${url} is not a GitHub URL, neither a Gitlab URL"
-    }
-
-    if (url.contains("https://github.com/")){
-        url = url.replaceAll("https://github.com/", '')
-    } else if (url.contains("git@github.com:")){
-        url = url.replaceAll("git@github.com:", '')
-    } else if (url.contains("https://gitlab.com/")){
-        url = url.replaceAll("https://gitlab.com/", '')
- //       url = url.replaceAll("/", "%2F")
-    } else if (url.contains("git@gitlab.com:")){
-        url = url.replaceAll("git@gitlab.com:", '')
-//        url = url.replaceAll("/", "%2F")
-    }
-
-    if (url.contains(".git")){
-        url = url.replaceAll("\\.git", '')
-    }
     return url.trim()
 }
 
@@ -403,7 +376,7 @@ def createImageVersionForCiAndCd(String imagePrefix, String prNumber, String bui
 
 def createGitHubRelease(def version) {
     def githubToken = getProviderToken("github")
-    def githubProject = getGitHubProject()
+    def githubProject = getProject("github")
 
     def apiUrl = new URL("https://api.github.com/repos/${githubProject}/releases")
     echo "creating release ${version} on ${apiUrl}"
