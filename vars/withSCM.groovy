@@ -13,9 +13,9 @@ def call(body) {
     echo "INSIDE SCM"
     echo "Branch Name: ${env.BRANCH_NAME}"
 
-    def url = flow.getScmPushUrl()
-    echo "URL: ${url}"
-    def provider = flow.getProvider(url)
+    def projectUrl = flow.getScmPushUrl()
+    echo "URL: ${projectUrl}"
+    def provider = flow.getProvider(projectUrl)
     echo "provider: ${provider}"
 
     def project = flow.getProject(provider)
