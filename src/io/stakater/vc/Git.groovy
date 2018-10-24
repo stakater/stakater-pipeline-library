@@ -62,10 +62,9 @@ def addCommentToPullRequest(String message) {
     echo "provider: ${provider}"
 
     def project = flow.getProject(provider)
-    echo "project: ${project}"
+    echo "project name with organization: ${project}"
 
     def providerToken = flow.getProviderToken(provider)
-    echo "Provider-Token: ${providerToken}"
 
     switch(provider) {
         case "github":
