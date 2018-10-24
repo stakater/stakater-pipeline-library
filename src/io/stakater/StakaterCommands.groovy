@@ -83,9 +83,7 @@ def getProviderToken(provider) {
         case "gitlab":
             tokenPath = '/home/jenkins/.apitoken/gitlab.hub'
     }
-    echo "Before reading file: ${tokenPath}"
     def githubToken = readFile tokenPath
-    echo "After reading file: ${githubToken}"
     if (!githubToken?.trim()) {
         error "No GitHub token found in ${tokenPath}"
     }
