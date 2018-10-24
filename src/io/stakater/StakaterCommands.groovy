@@ -268,9 +268,8 @@ def postPRCommentToGitlab(comment, pr, project, token) {
 }
 
 def getGitLabMergeRequestsByBranchName(project, branchName, token){
-    project = project.replaceAll("/", "%2F")
     echo "Fetching all MRs for ${branchName}"
-    def apiUrl = new URL("https://gitlab.com/api/v4/projects/${project}/merge_requests?state=opened&source_branch=${branchName}")
+    def apiUrl = new URL("https://gitlab.com/api/v4/projects/${java.net.URLEncoder.encode(project, 'UTF-8')}/merge_requests?state=opened&source_branch=${branchName}")
     
     try {
         def HttpURLConnection connection = apiUrl.openConnection()
@@ -282,7 +281,6 @@ def getGitLabMergeRequestsByBranchName(project, branchName, token){
         connection.connect()
 
         def rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream()))
-        echo "RS: ${rs}"
         connection.disconnect()
         return rs
     } catch (err) {
