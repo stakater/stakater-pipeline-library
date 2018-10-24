@@ -89,7 +89,7 @@ def getProviderToken(provider) {
             error "${provider} is not supported"
             break
     }
-    echo "Token-path: ${tokenPath}"
+
     def githubToken = readFile tokenPath
     if (!githubToken?.trim()) {
         error "No GitHub token found in ${tokenPath}"
@@ -314,7 +314,7 @@ def postPRCommentToGithub(comment, pr, project, githubToken) {
 
     def apiUrl = new URL("https://api.github.com/repos/${project}/issues/${pr}/comments")
     echo "adding ${comment} to ${apiUrl}"
-    echo "Github-token: ${githubToken}"
+
     try {
         def HttpURLConnection connection = apiUrl.openConnection()
         if (githubToken.length() > 0) {
