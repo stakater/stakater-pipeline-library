@@ -79,9 +79,15 @@ def getProviderToken(provider) {
     switch(provider) {
         case "github":
             tokenPath = '/home/jenkins/.apitoken/hub'
+            break
 
         case "gitlab":
             tokenPath = '/home/jenkins/.apitoken/gitlab.hub'
+            break
+
+        default: 
+            error "${provider} is not supported"
+            break
     }
     echo "Token-path: ${tokenPath}"
     def githubToken = readFile tokenPath
@@ -170,12 +176,15 @@ def extractOrganizationAndProjectFromUrl(url, provider) {
     switch(provider) {
         case "github": 
             return formatGithubUrl(url)
+            break
 
         case "gitlab":
             return formatGitlabUrl(url)
+            break
 
         default:
             error "${provider} is not supported"
+            break
     }
 }
 
@@ -232,12 +241,15 @@ def postPRComment(comment, pr, project, provider, token) {
     switch(provider){
         case "github":
             postPRCommentToGithub(comment, pr, project, token)
+            break
         
         case "gitlab":
             postPRCommentToGitlab(comment, pr, project, token)
-        
+            break
+
         default: 
             error "${provider} is not supported"
+            break
     }
 }
 

@@ -69,6 +69,7 @@ def addCommentToPullRequest(String message) {
     switch(provider) {
         case "github":
             flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken)
+            break
 
         case "gitlab":
             def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME, providerToken)
@@ -77,9 +78,11 @@ def addCommentToPullRequest(String message) {
                 echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
                 flow.postPRComment(prMessage, value.iid, project, provider, providerToken)
             }
+            break
 
         default:
-            error "${provider} is not supported"    
+            error "${provider} is not supported" 
+            break   
     }
 }
 
