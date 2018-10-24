@@ -74,7 +74,7 @@ def updateGithub() {
     sh "git push origin release-v${releaseVersion}"
 }
 
-def getGitHubToken(provider) {
+def getProviderToken(provider) {
     def tokenPath
     switch(provider) {
         case "github":
@@ -96,7 +96,7 @@ def isAuthorCollaborator(githubToken, project) {
 
     if (!githubToken){
 
-        githubToken = getGitHubToken("github")
+        githubToken = getProviderToken("github")
 
         if (!githubToken){
             echo "No GitHub api key found so trying annonynous GitHub api call"
@@ -229,13 +229,13 @@ def extractOrganizationAndProjectFromGitHubUrl(url) {
     return url.trim()
 }
 
-def postPRComment(comment, pr, project, provider) {
+def postPRComment(comment, pr, project, provider, token) {
     switch(provider){
         case "github":
-            postPRCommentToGithub(comment, pr, project)
+            postPRCommentToGithub(comment, pr, project, token)
         
         case "gitlab":
-            postPRCommentToGitlab(comment, pr, project)
+            postPRCommentToGitlab(comment, pr, project, token)
         
         default: 
             error "${provider} is not supported"
@@ -245,16 +245,14 @@ def postPRComment(comment, pr, project, provider) {
 def postPRCommentToGitlab(comment, pr, project, token) {
     project = project.replaceAll("/", "%2F")
     echo "Inside project: ${project}"
-//    def gitlabToken = getGitHubToken("gitlab")
-//    echo "Gitlab-token : ${gitlabToken}"
     def apiUrl = new URL("https://gitlab.com/api/v4/projects/${project}/merge_requests/${pr}/notes?body=${java.net.URLEncoder.encode(comment, 'UTF-8')}")
     
     echo "adding ${comment} to ${apiUrl}"
         try {
         def HttpURLConnection connection = apiUrl.openConnection()
-//        if (gitlabToken.length() > 0) {
+        if (token.length() > 0) {
             connection.setRequestProperty("PRIVATE-TOKEN", "${token}")
-//        }
+        }
         connection.setRequestMethod("POST")
         connection.setDoOutput(true)
         connection.connect()
@@ -273,15 +271,14 @@ def postPRCommentToGitlab(comment, pr, project, token) {
 
 def getGitLabMergeRequestsByBranchName(project, branchName, token){
     project = project.replaceAll("/", "%2F")
-//    def gitlabToken = getGitHubToken("gitlab")
     echo "Fetching all MRs for ${branchName}"
     def apiUrl = new URL("https://gitlab.com/api/v4/projects/${project}/merge_requests?state=opened&source_branch=${branchName}")
     
     try {
         def HttpURLConnection connection = apiUrl.openConnection()
-//        if (gitlabToken.length() > 0) {
+        if (token.length() > 0) {
             connection.setRequestProperty("PRIVATE-TOKEN", "${token}")
-//        }
+        }
         connection.setRequestMethod("GET")
         connection.setDoOutput(true)
         connection.connect()
@@ -295,8 +292,19 @@ def getGitLabMergeRequestsByBranchName(project, branchName, token){
     }
 }
 
-def postPRCommentToGithub(comment, pr, project) {
-    def githubToken = getGitHubToken("github")
+def postPRCommentToGithub(comment, pr, project, githubToken) {
+    def changeAuthor = env.CHANGE_AUTHOR
+    if (!changeAuthor){
+        echo "no commit author found so cannot comment on PR"
+        return
+    }
+    if (!pr){
+        echo "no pull request number found so cannot comment on PR"
+        return
+    }
+
+    comment = "@${changeAuthor} " + comment
+
     def apiUrl = new URL("https://api.github.com/repos/${project}/issues/${pr}/comments")
     echo "adding ${comment} to ${apiUrl}"
     try {
@@ -386,7 +394,7 @@ def createImageVersionForCiAndCd(String imagePrefix, String prNumber, String bui
 }
 
 def createGitHubRelease(def version) {
-    def githubToken = getGitHubToken("github")
+    def githubToken = getProviderToken("github")
     def githubProject = getGitHubProject()
 
     def apiUrl = new URL("https://api.github.com/repos/${githubProject}/releases")

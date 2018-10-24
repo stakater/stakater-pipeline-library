@@ -55,50 +55,28 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
 }
 
 def addCommentToPullRequest(String message) {
-    sh 'env > env.txt'
-    readFile('env.txt').split("\r?\n").each {
-        println it
-    }
-    def changeAuthor = env.CHANGE_AUTHOR
-    def pr = env.CHANGE_ID
-    echo "Author: ${changeAuthor}"
-    echo "PR-No: ${pr}"
-
     def flow = new StakaterCommands()
     def url = flow.getScmPushUrl()
-    echo "URL: ${url}"
 
     def provider = flow.getProvider(url)
-    echo "Provider: ${provider}"
-
-    def githubProject = flow.getGitHubProject()
-    echo "githubProject: ${githubProject}"
+    echo "provider: ${provider}"
 
     def project = flow.getProject(provider)
     echo "project: ${project}"
 
-    def providerToken = flow.getGitHubToken(provider)
+    def providerToken = flow.getProviderToken(provider)
     echo "Provider-Token: ${providerToken}"
 
     switch(provider) {
         case "github":
-            if (!changeAuthor){
-                echo "no commit author found so cannot comment on PR"
-                return
-            }
-            if (!pr){
-                echo "no pull request number found so cannot comment on PR"
-                return
-            }
-            message = "@${changeAuthor} " + message
-            flow.postPRCommentToGithub(message, pr, "${env.REPO_OWNER}/${env.REPO_NAME}")
+            flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", providerToken)
 
         case "gitlab":
             def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME, providerToken)
             result.each{value -> 
                 def prMessage = "@${value.author.username} " + message
                 echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
-                flow.postPRCommentToGitlab(prMessage, value.iid, project, providerToken)
+                flow.postPRComment(prMessage, value.iid, project, providerToken)
             }
 
         default:
