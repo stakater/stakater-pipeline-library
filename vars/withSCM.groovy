@@ -7,6 +7,8 @@ def call(body) {
     def repoName = tokenizedUrl.last().split('\\.git').first()
     def repoOwner = tokenizedUrl.get(tokenizedUrl.size() - 2)
 
+    echo "INSIDE SCM"
+
     if(!repoUrl.startsWith("git@")) {
         // Lets make it ssh url link
         def url = new java.net.URL(repoUrl)
