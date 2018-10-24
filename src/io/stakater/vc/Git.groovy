@@ -69,14 +69,14 @@ def addCommentToPullRequest(String message) {
 
     switch(provider) {
         case "github":
-            flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", providerToken)
+            flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken)
 
         case "gitlab":
             def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME, providerToken)
             result.each{value -> 
                 def prMessage = "@${value.author.username} " + message
                 echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
-                flow.postPRComment(prMessage, value.iid, project, providerToken)
+                flow.postPRComment(prMessage, value.iid, project, provider, providerToken)
             }
 
         default:
