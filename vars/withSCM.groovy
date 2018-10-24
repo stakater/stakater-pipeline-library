@@ -25,7 +25,8 @@ def call(body) {
         repoBranch = "${env.CHANGE_BRANCH}"
     }
     else {
-        repoBranch = scmConfig.getRefspec().tokenize('/').last()
+        //repoBranch = scmConfig.getRefspec().tokenize('/').last()
+        repoBranch = utils.getBranch()
     }
     withEnv(["REPO_URL=${repoUrl}",
              "REPO_NAME=${repoName}",

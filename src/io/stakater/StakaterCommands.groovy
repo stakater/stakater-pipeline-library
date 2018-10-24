@@ -1,5 +1,7 @@
 #!/usr/bin/groovy
 package io.stakater
+import groovy.json.JsonSlurperClassic
+import groovy.json.JsonSlurper
 
 def setupWorkspaceForRelease(String project, String useGitTagOrBranchForNextVersion = "", String mvnExtraArgs = "", String currentVersion = "") {
     def flow = new io.fabric8.Fabric8Commands()
@@ -72,8 +74,22 @@ def updateGithub() {
     sh "git push origin release-v${releaseVersion}"
 }
 
-def getGitHubToken() {
-    def tokenPath = '/home/jenkins/.apitoken/hub'
+def getProviderToken(provider) {
+    def tokenPath
+    switch(provider) {
+        case "github":
+            tokenPath = '/home/jenkins/.apitoken/hub'
+            break
+
+        case "gitlab":
+            tokenPath = '/home/jenkins/.apitoken/gitlab.hub'
+            break
+
+        default: 
+            error "${provider} is not supported"
+            break
+    }
+
     def githubToken = readFile tokenPath
     if (!githubToken?.trim()) {
         error "No GitHub token found in ${tokenPath}"
@@ -85,14 +101,14 @@ def isAuthorCollaborator(githubToken, project) {
 
     if (!githubToken){
 
-        githubToken = getGitHubToken()
+        githubToken = getProviderToken("github")
 
         if (!githubToken){
             echo "No GitHub api key found so trying annonynous GitHub api call"
         }
     }
     if (!project){
-        project = getGitHubProject()
+        project = getProject("github")
     }
 
     def changeAuthor = env.CHANGE_AUTHOR
@@ -121,12 +137,11 @@ def isAuthorCollaborator(githubToken, project) {
     }
 
     error "Error checking if user ${changeAuthor} is a collaborator on ${project}."
-
 }
 
-def getGitHubProject(){
+def getProject(provider){
     def url = getScmPushUrl()
-    return extractOrganizationAndProjectFromGitHubUrl(url)
+    return extractOrganizationAndProjectFromUrl(url, provider)
 }
 
 /**
@@ -142,28 +157,137 @@ def getScmPushUrl() {
     return url
 }
 
-def extractOrganizationAndProjectFromGitHubUrl(url) {
-    if (!url.contains('github.com')){
-        error "${url} is not a GitHub URL"
+def getProvider(url) {
+    if (url.contains("github.com")){
+        return 'github'
+    } else if (url.contains("gitlab.com")){
+        return 'gitlab'
+    } else {
+         error "${url} is not a GitHub URL, neither a Gitlab URL"
+    }
+}
+
+def extractOrganizationAndProjectFromUrl(url, provider) {
+    def result
+    switch(provider) {
+        case "github": 
+            result = formatGithubUrl(url)
+            break
+
+        case "gitlab":
+            result = formatGitlabUrl(url)
+            break
+
+        default:
+            error "${provider} is not supported"
+            break
     }
 
+    if (result.contains(".git")){
+        result = result.replaceAll("\\.git", '')
+    }
+
+    return result
+}
+
+def formatGithubUrl(url) {
     if (url.contains("https://github.com/")){
         url = url.replaceAll("https://github.com/", '')
-
     } else if (url.contains("git@github.com:")){
         url = url.replaceAll("git@github.com:", '')
     }
 
-    if (url.contains(".git")){
-        url = url.replaceAll("\\.git", '')
-    }
     return url.trim()
 }
 
-def postPRCommentToGithub(comment, pr, project) {
-    def githubToken = getGitHubToken()
+def formatGitlabUrl(url) {
+    if (url.contains("https://gitlab.com/")){
+        url = url.replaceAll("https://gitlab.com/", '')
+    } else if (url.contains("git@gitlab.com:")){
+        url = url.replaceAll("git@gitlab.com:", '')
+    }
+
+    return url.trim()
+}
+
+def postPRComment(comment, pr, project, provider, token) {
+    switch(provider){
+        case "github":
+            postPRCommentToGithub(comment, pr, project, token)
+            break
+        
+        case "gitlab":
+            postPRCommentToGitlab(comment, pr, project, token)
+            break
+
+        default: 
+            error "${provider} is not supported"
+            break
+    }
+}
+
+def postPRCommentToGitlab(comment, pr, project, token) {
+    def apiUrl = new URL("https://gitlab.com/api/v4/projects/${java.net.URLEncoder.encode(project, 'UTF-8')}/merge_requests/${pr}/notes?body=${java.net.URLEncoder.encode(comment, 'UTF-8')}")
+    
+    echo "adding ${comment} to ${apiUrl}"
+        try {
+        def HttpURLConnection connection = apiUrl.openConnection()
+        if (token.length() > 0) {
+            connection.setRequestProperty("PRIVATE-TOKEN", "${token}")
+        }
+        connection.setRequestMethod("POST")
+        connection.setDoOutput(true)
+        connection.connect()
+
+        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
+        writer.flush()
+
+        // execute the POST request
+        new InputStreamReader(connection.getInputStream())
+
+        connection.disconnect()
+    } catch (err) {
+        error "ERROR  ${err}"
+    }
+}
+
+def getGitLabMergeRequestsByBranchName(project, branchName, token){
+    echo "Fetching all MRs for ${branchName}"
+    def apiUrl = new URL("https://gitlab.com/api/v4/projects/${java.net.URLEncoder.encode(project, 'UTF-8')}/merge_requests?state=opened&source_branch=${branchName}")
+    
+    try {
+        def HttpURLConnection connection = apiUrl.openConnection()
+        if (token.length() > 0) {
+            connection.setRequestProperty("PRIVATE-TOKEN", "${token}")
+        }
+        connection.setRequestMethod("GET")
+        connection.setDoOutput(true)
+        connection.connect()
+
+        def rs = new JsonSlurper().parse(new InputStreamReader(connection.getInputStream()))
+        connection.disconnect()
+        return rs
+    } catch (err) {
+        error "ERROR  ${err}"
+    }
+}
+
+def postPRCommentToGithub(comment, pr, project, githubToken) {
+    def changeAuthor = env.CHANGE_AUTHOR
+    if (!changeAuthor){
+        echo "no commit author found so cannot comment on PR"
+        return
+    }
+    if (!pr){
+        echo "no pull request number found so cannot comment on PR"
+        return
+    }
+
+    comment = "@${changeAuthor} " + comment
+
     def apiUrl = new URL("https://api.github.com/repos/${project}/issues/${pr}/comments")
     echo "adding ${comment} to ${apiUrl}"
+
     try {
         def HttpURLConnection connection = apiUrl.openConnection()
         if (githubToken.length() > 0) {
@@ -251,8 +375,8 @@ def createImageVersionForCiAndCd(String imagePrefix, String prNumber, String bui
 }
 
 def createGitHubRelease(def version) {
-    def githubToken = getGitHubToken()
-    def githubProject = getGitHubProject()
+    def githubToken = getProviderToken("github")
+    def githubProject = getProject("github")
 
     def apiUrl = new URL("https://api.github.com/repos/${githubProject}/releases")
     echo "creating release ${version} on ${apiUrl}"

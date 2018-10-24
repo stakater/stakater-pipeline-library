@@ -56,24 +56,34 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
 
 def addCommentToPullRequest(String message) {
     def flow = new StakaterCommands()
+    def url = flow.getScmPushUrl()
 
-    def githubProject = flow.getGitHubProject()
+    def provider = flow.getProvider(url)
+    echo "provider: ${provider}"
 
+    def project = flow.getProject(provider)
+    echo "project name with organization: ${project}"
 
-    def changeAuthor = env.CHANGE_AUTHOR
-    if (!changeAuthor){
-        echo "no commit author found so cannot comment on PR"
-        return
+    def providerToken = flow.getProviderToken(provider)
+
+    switch(provider) {
+        case "github":
+            flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken)
+            break
+
+        case "gitlab":
+            def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME, providerToken)
+            result.each{value -> 
+                def prMessage = "@${value.author.username} " + message
+                echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
+                flow.postPRComment(prMessage, value.iid, project, provider, providerToken)
+            }
+            break
+
+        default:
+            error "${provider} is not supported" 
+            break   
     }
-
-    def pr = env.CHANGE_ID
-    if (!pr){
-        echo "no pull request number found so cannot comment on PR"
-        return
-    }
-
-    message = "@${changeAuthor} " + message
-    flow.postPRCommentToGithub(message, pr, "${env.REPO_OWNER}/${env.REPO_NAME}")
 }
 
 def getGitAuthor() {
