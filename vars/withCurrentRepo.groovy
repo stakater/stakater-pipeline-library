@@ -44,11 +44,19 @@ def call(Map parameters = [:], body) {
             def provider = flow.getProvider(projectUrl)
             echo "provider: ${provider}"
 
-            def project = flow.getProject(provider)
-            echo "project name with organization: ${project}"
+            if (provider.equals("gitlab")){
+                def project = flow.getProject(provider)
+                echo "project name with organization: ${project}"
 
-            def providerToken = flow.getProviderToken(provider)
-            echo "provider-token: ${providerToken}"
+                def providerToken = flow.getProviderToken(provider)
+
+                def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME, providerToken)
+
+                if (result.length == 0) {
+                    echo "No Merge request exist for branch ${env.BRANCH_NAME}, stopping further executions"
+                    return
+                }
+            }
 
             body(repoUrl, repoName, repoOwner, repoBranch)
         }
