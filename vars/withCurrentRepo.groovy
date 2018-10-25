@@ -34,6 +34,20 @@ def call(Map parameters = [:], body) {
         git.checkoutRepo(repoUrl, repoBranch, workspaceDir)
 
         ws(workspaceDir) {
+            echo "INSIDE current repos"
+            echo "Branch Name: ${env.BRANCH_NAME}"
+
+            def projectUrl = flow.getScmPushUrl()
+            echo "URL: ${projectUrl}"
+            def provider = flow.getProvider(projectUrl)
+            echo "provider: ${provider}"
+
+            def project = flow.getProject(provider)
+            echo "project name with organization: ${project}"
+
+            def providerToken = flow.getProviderToken(provider)
+            echo "provider-token: ${providerToken}"
+
             body(repoUrl, repoName, repoOwner, repoBranch)
         }
     }

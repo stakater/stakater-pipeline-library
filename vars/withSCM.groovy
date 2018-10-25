@@ -10,20 +10,6 @@ def call(body) {
     def repoName = tokenizedUrl.last().split('\\.git').first()
     def repoOwner = tokenizedUrl.get(tokenizedUrl.size() - 2)
 
-    echo "INSIDE SCM"
-    echo "Branch Name: ${env.BRANCH_NAME}"
-
-    def projectUrl = flow.getScmPushUrl()
-    echo "URL: ${projectUrl}"
-    def provider = flow.getProvider(projectUrl)
-    echo "provider: ${provider}"
-
-    def project = flow.getProject(provider)
-    echo "project name with organization: ${project}"
-
-    def providerToken = flow.getProviderToken(provider)
-    echo "provider-token: ${providerToken}"
-
     if(!repoUrl.startsWith("git@")) {
         // Lets make it ssh url link
         def url = new java.net.URL(repoUrl)
