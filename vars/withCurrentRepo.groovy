@@ -34,6 +34,8 @@ def call(Map parameters = [:], body) {
         git.checkoutRepo(repoUrl, repoBranch, workspaceDir)
 
         ws(workspaceDir) {
+            def flow = new io.stakater.StakaterCommands()
+
             echo "INSIDE current repos"
             echo "Branch Name: ${env.BRANCH_NAME}"
 
