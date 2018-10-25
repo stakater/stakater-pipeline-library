@@ -35,27 +35,16 @@ def call(Map parameters = [:], body) {
 
         ws(workspaceDir) {
             def flow = new io.stakater.StakaterCommands()
-
-            echo "INSIDE current repos"
-            echo "Branch Name: ${env.BRANCH_NAME}"
-
             def projectUrl = flow.getScmPushUrl()
-            echo "URL: ${projectUrl}"
             def provider = flow.getProvider(projectUrl)
-            echo "provider: ${provider}"
 
             switch(provider) {
                 case "gitlab":
                     def project = flow.getProject(provider)
-                    echo "project name with organization: ${project}"
-
                     def providerToken = flow.getProviderToken(provider)
                     def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME, providerToken)
 
-                    echo "Result: ${result}"
-                    echo "Result length: ${result.size()}"
-
-                    if (result.length == 0) {
+                    if (result.size() == 0) {
                         echo "No Merge request exist for branch ${env.BRANCH_NAME}, stopping further executions"
                         return
                     }
