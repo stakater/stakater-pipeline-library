@@ -1,5 +1,6 @@
 def call(body) {
     def utils = new io.fabric8.Utils()
+
     def scmConfig = scm.getUserRemoteConfigs()[0]
     
     def repoUrl = scmConfig.getUrl()
