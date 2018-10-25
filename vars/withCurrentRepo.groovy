@@ -53,7 +53,7 @@ def call(Map parameters = [:], body) {
                     def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME, providerToken)
 
                     echo "Result: ${result}"
-                    echo "Result length: ${result.length}"
+                    echo "Result length: ${result.size()}"
 
                     if (result.length == 0) {
                         echo "No Merge request exist for branch ${env.BRANCH_NAME}, stopping further executions"
