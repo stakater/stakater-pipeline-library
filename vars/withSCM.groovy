@@ -1,7 +1,5 @@
 def call(body) {
     def utils = new io.fabric8.Utils()
-    def git = new io.stakater.vc.Git()
-    def flow = new io.stakater.StakaterCommands()
 
     def scmConfig = scm.getUserRemoteConfigs()[0]
     
