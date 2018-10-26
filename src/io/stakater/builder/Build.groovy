@@ -27,4 +27,11 @@ def deployHelmChartForPR(String chartDir){
     """
 }
 
+def deployHelmChart(String chartDir){
+    sh """        
+        make install-chart
+        sleep 10s
+    """
+}
+
 return this
