@@ -13,7 +13,7 @@ def call(body) {
         repoName = env['gitlabSourceRepoName']
         repoBranch = env['gitlabSourceBranch']
         repoOwner = env['gitlabSourceNamespace']
-        echo "Trigger Phrase: ${env['gitlabTriggerPhrase']}"
+        echo "Trigger Phrase: ${env}"
     } else {
         def scmConfig = scm.getUserRemoteConfigs()[0]
     
