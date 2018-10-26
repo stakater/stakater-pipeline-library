@@ -1,4 +1,6 @@
 #!/usr/bin/groovy
+// This function can be called if your app is built and run in your Dockerfile, 
+// This will create version, build & push Image, render charts, and deploy that chart
 
 def call(body) {
     def config = [:]
