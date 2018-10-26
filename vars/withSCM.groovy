@@ -14,6 +14,7 @@ def call(body) {
         repoBranch = env['gitlabSourceBranch']
         repoOwner = env['gitlabSourceNamespace']
         echo "Trigger Phrase: ${env}"
+        printParams()
     } else {
         def scmConfig = scm.getUserRemoteConfigs()[0]
     
@@ -51,4 +52,9 @@ def call(body) {
              "REPO_BRANCH=${repoBranch}"]) {
         body(repoUrl, repoName, repoOwner, repoBranch)
     }
+}
+
+@NonCPS
+def printParams() {
+  env.getEnvironment().each { name, value -> println "Name: $name -> Value $value" }
 }
