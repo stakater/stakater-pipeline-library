@@ -1,7 +1,6 @@
 
 def call(body) {
     def utils = new io.fabric8.Utils()
-    echo "SCM Configs: ${scm.getUserRemoteConfigs()}"
 
     def repoUrl
     def repoName
@@ -11,10 +10,12 @@ def call(body) {
     if(env['gitlabSourceRepoSshUrl'] != null) { // Triggered by gitlab webhook
         repoUrl = env['gitlabSourceRepoSshUrl']
         repoName = env['gitlabSourceRepoName']
-        repoBranch = env['gitlabSourceBranch']
+        if(env['gitlabMergeRequestState'] == "merged") {
+            repoBranch = env['gitlabTargetBranch']
+        } else {
+            repoBranch = env['gitlabSourceBranch']
+        }
         repoOwner = env['gitlabSourceNamespace']
-        echo "Trigger Phrase: ${env}"
-        printParams()
     } else {
         def scmConfig = scm.getUserRemoteConfigs()[0]
     
@@ -52,9 +53,4 @@ def call(body) {
              "REPO_BRANCH=${repoBranch}"]) {
         body(repoUrl, repoName, repoOwner, repoBranch)
     }
-}
-
-@NonCPS
-def printParams() {
-  env.getEnvironment().each { name, value -> println "Name: $name -> Value $value" }
 }
