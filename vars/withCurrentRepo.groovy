@@ -34,26 +34,6 @@ def call(Map parameters = [:], body) {
         git.checkoutRepo(repoUrl, repoBranch, workspaceDir)
 
         ws(workspaceDir) {
-            def flow = new io.stakater.StakaterCommands()
-            def projectUrl = flow.getScmPushUrl()
-            def provider = flow.getProvider(projectUrl)
-
-            switch(provider) {
-                case "gitlab":
-                    def project = flow.getProject(provider)
-                    def providerToken = flow.getProviderToken(provider)
-                    def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME, providerToken)
-
-                    if (result.size() == 0) {
-                        echo "No Merge request exist for branch ${env.BRANCH_NAME}, stopping further executions"
-                        return
-                    }
-                    break
-
-                case "github":
-                    break
-            }
-
             body(repoUrl, repoName, repoOwner, repoBranch)            
         }
     }
