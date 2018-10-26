@@ -2,7 +2,7 @@ import groovy.json.JsonOutput
 
 def call(config) {
     stage("System test") {
-        def testJob = build job: "e2e-test", parameters: [[$class: 'StringParameterValue', name: 'config', value: JsonOutput.toJson(config) ]], propagate:false
+        def testJob = build job: "carbook/e2e-tests", parameters: [[$class: 'StringParameterValue', name: 'config', value: JsonOutput.toJson(config) ]], propagate:false
 
         node {
             String text = "<h2>Regression test</h2><a href=\"${testJob.getAbsoluteUrl()}\">${testJob.getProjectName()} ${testJob.getDisplayName()} - ${testJob.getResult()}</a>"
