@@ -22,7 +22,6 @@ def call(body) {
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
         def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
-        def syntheticTestsJob = config.syntheticTestJob ?: ""
         def performanceTestsJob = config.performanceTestJob ?: ""
         def dockerImage = ""
         def version = ""
