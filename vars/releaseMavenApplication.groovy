@@ -69,15 +69,16 @@ def call(body) {
                         // Generate manifests from chart
                         templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
                     }
-                    stage('Run Synthetic Tests') {                    
+                    stage('Run Synthetic Tests') {          
                         echo "Running synthetic tests for Maven application"
-                        echo "Synthetic Test Job: ${syntheticTestsJob}"
-                        if (syntheticTestsJob.equals("")){
-                            echo "Running synthetic tests from Makefile"                           
-                            builder.runSyntheticTestsForMavenApplication()
-                        }else{
-                            build job: syntheticTestsJob
-                        }
+                        
+                        e2eTestStage([
+                            microservice: [
+                                    name   : "carbook",
+                                    version: version
+                            ]
+                        ])
+                    
                     }
                     stage('Deploy chart'){
                         echo "Deploying Chart for PR"   

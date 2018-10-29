@@ -1,7 +1,7 @@
 import groovy.json.JsonOutput
 
 def call(config) {
-    stage("System test") {
+    stage("E2E test") {
         def testJob = build job: "carbook/e2e-tests", parameters: [[$class: 'StringParameterValue', name: 'config', value: JsonOutput.toJson(config) ]], propagate:false
 
         node {

@@ -8,12 +8,6 @@ def buildMavenApplication(String appName){
     """
 }
 
-def runSyntheticTestsForMavenApplication(){
-    sh """
-        make run-synthetic-tests
-    """
-}
-
 def runPerformanceTestsForMavenApplication(){
     sh """
         make run-performance-tests
