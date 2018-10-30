@@ -71,7 +71,7 @@ def call(body) {
                     stage('Run Synthetic Tests') {          
                         echo "Running synthetic tests for Maven application"
                         
-                        e2eTestStage([
+                        carbookE2ETestStage([
                             microservice: [
                                     name   : "carbook",
                                     version: version
