@@ -72,7 +72,7 @@ def addCommentToPullRequest(String message) {
             break
 
         case "gitlab":
-            def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME, providerToken)
+            def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME == null ? env.REPO_BRANCH : env.BRANCH_NAME, providerToken)
             result.each{value -> 
                 def prMessage = "@${value.author.username} " + message
                 echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
