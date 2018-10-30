@@ -17,9 +17,12 @@ def call(body) {
         }
         repoOwner = env['gitlabSourceNamespace']
     } else {
+        echo "In else"
         def scmConfig = scm.getUserRemoteConfigs()[0]
+        echo "scmConfig: ${scmConfig}"
     
         repoUrl = scmConfig.getUrl()
+        echo "repoUrl: ${repoUrl}"
         def tokenizedUrl = repoUrl.tokenize('/')
         repoName = tokenizedUrl.last().split('\\.git').first()
         repoOwner = tokenizedUrl.get(tokenizedUrl.size() - 2)
