@@ -67,6 +67,10 @@ def call(body) {
                         templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, dockerImage)
                         // Generate manifests from chart
                         templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
+                    }                    
+                    stage('Deploy chart'){
+                        echo "Deploying Chart for PR"   
+                        builder.deployHelmChartForPR(chartDir)
                     }
                     stage('Run Synthetic Tests') {          
                         echo "Running synthetic tests for Maven application"
@@ -78,10 +82,6 @@ def call(body) {
                             ]
                         ])
                     
-                    }
-                    stage('Deploy chart'){
-                        echo "Deploying Chart for PR"   
-                        builder.deployHelmChartForPR(chartDir)
                     }
                     stage('Run Performance Tests') {
                         echo "Running Performance tests for Maven application"
