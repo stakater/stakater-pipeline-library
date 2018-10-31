@@ -16,7 +16,7 @@ def call(body) {
             repoBranch = env['gitlabSourceBranch']
         }
         repoOwner = env['gitlabSourceNamespace']
-    } else {        
+    } else {
         def scmConfig = scm.getUserRemoteConfigs()[0]
     
         repoUrl = scmConfig.getUrl()
