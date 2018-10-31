@@ -8,12 +8,6 @@ def buildMavenApplication(String appName){
     """
 }
 
-def runSyntheticTestsForMavenApplication(){
-    sh """
-        make run-synthetic-tests
-    """
-}
-
 def runPerformanceTestsForMavenApplication(){
     sh """
         make run-performance-tests
@@ -24,6 +18,12 @@ def deployHelmChartForPR(String chartDir){
     sh """        
         make install-chart ENVIRONMENT='pr'
         sleep 10s
+    """
+}
+
+def deployHelmChart(String chartDir){
+    sh """        
+        make install-chart
     """
 }
 

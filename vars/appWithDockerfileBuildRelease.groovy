@@ -1,4 +1,7 @@
 #!/usr/bin/groovy
+// This function can be called if your app is built and run in your Dockerfile, 
+// This will create version, build & push Image, render charts, and deploy that chart using
+// the install-chart target in your Makefile
 
 def call(body) {
     def config = [:]
@@ -6,7 +9,9 @@ def call(body) {
     body.delegate = config
     body()
 
-    toolsNode(toolsImage: 'stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.3') {
+    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.15.0'
+
+    toolsNode(toolsImage: toolsImage) {
 
         def builder = new io.stakater.builder.Build()
         def docker = new io.stakater.containers.Docker()
@@ -14,7 +19,6 @@ def call(body) {
         def git = new io.stakater.vc.Git()
         def slack = new io.stakater.notifications.Slack()
         def common = new io.stakater.Common()
-        def utils = new io.fabric8.Utils()
         def templates = new io.stakater.charts.Templates()
 
         // Slack variables
@@ -22,7 +26,7 @@ def call(body) {
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
         def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
-        def e2eTestJob = config.e2eTestJob ?: ""
+        def syntheticTestsJob = config.syntheticTestJob ?: ""
         def performanceTestsJob = config.performanceTestJob ?: ""
         def dockerImage = ""
         def version = ""
@@ -50,10 +54,6 @@ def call(body) {
                         echo "Version: ${version}"
                         fullAppNameWithVersion = imageName + '-'+ version
                     }
-                    stage('Build Maven Application') {
-                        echo "Building Maven application"   
-                        builder.buildMavenApplication(fullAppNameWithVersion)
-                    }                    
                     stage('Image build & push') {
                         sh """
                             export DOCKER_IMAGE=${dockerImage}
@@ -69,32 +69,10 @@ def call(body) {
                         // Generate manifests from chart
                         templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
                     }                    
-                    stage('Run Synthetic Tests') {          
-                        echo "Running synthetic tests for Maven application:  ${e2eTestJob}"   
-                        if (!e2eTestJob.equals("")){                     
-                            e2eTestStage(jobName: e2eTestJob,[
-                                microservice: [
-                                        name   : "carbook",
-                                        version: version
-                                ]
-                            ])
-                        }else{
-                            echo "No Job Name passed."
-                        }                    
-                    }
                     stage('Deploy chart'){
                         echo "Deploying Chart for PR"   
-                        builder.deployHelmChartForPR(chartDir)
+                        builder.deployHelmChart(chartDir)
                     }
-                    stage('Run Performance Tests') {
-                        echo "Running Performance tests for Maven application"
-                        if (performanceTestsJob.equals("")){
-                            echo "Running performance tests from Makefile"                           
-                            builder.runPerformanceTestsForMavenApplication()
-                        }else{
-                            build job: performanceTestsJob
-                        }
-                    }                  
                 }
                 catch (e) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
