@@ -67,6 +67,7 @@ def call(body) {
                     }
                     stage('Publish & Upload Helm Chart'){
                         echo "Rendering Chart & generating manifests"
+                        helm.init(true)
                         helm.lint(chartDir, repoName.toLowerCase())
                         String helmVersion = ""
                         if (version.contains("SNAPSHOT")) {
