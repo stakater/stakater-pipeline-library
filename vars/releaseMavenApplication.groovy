@@ -68,12 +68,19 @@ def call(body) {
                     stage('Publish & Upload Helm Chart'){
                         echo "Rendering Chart & generating manifests"
                         helm.lint(chartDir, repoName.toLowerCase())
-                        chartPackageName = helm.package(chartDir, repoName.toLowerCase())
-                        
+                        String helmVersion = ""
+                        if (version.contains("SNAPSHOT")) {
+                            helmVersion = "0.0.0"
+                        }else{
+                            helmVersion = version
+                        }
                         // Render chart from templates
-                        templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, dockerImage)
+                        templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), helmVersion, dockerImage)
                         // Generate manifests from chart
                         templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
+                        chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)
+                        
+                        
                         String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                         String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                         chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword)                        
@@ -81,10 +88,10 @@ def call(body) {
                     stage('Run Synthetic Tests') {          
                         echo "Running synthetic tests for Maven application:  ${e2eTestJob}"   
                         if (!e2eTestJob.equals("")){                     
-                            e2eTestStage(jobName: e2eTestJob, chartName: repoName.toLowerCase(), chartVersion: version, [
+                            e2eTestStage(jobName: e2eTestJob, chartName: repoName.toLowerCase(), chartVersion: helmVersion, [
                                 microservice: [
-                                        name   : "carbook",
-                                        version: version
+                                        name   : repoName.toLowerCase(),
+                                        version: helmVersion
                                 ]
                             ])
                         }else{
