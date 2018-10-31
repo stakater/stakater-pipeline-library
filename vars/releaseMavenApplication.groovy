@@ -22,6 +22,7 @@ def call(body) {
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
         def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
+        def e2eTestJob = config.e2eTestJob ?: "carbook/e2e-tests-manual/master"
         def performanceTestsJob = config.performanceTestJob ?: ""
         def dockerImage = ""
         def version = ""
@@ -69,9 +70,8 @@ def call(body) {
                         templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
                     }                    
                     stage('Run Synthetic Tests') {          
-                        echo "Running synthetic tests for Maven application"
-                        
-                        carbookE2ETestStage([
+                        echo "Running synthetic tests for Maven application:  ${e2eTestJob}"                        
+                        e2eTestStage(jobName: e2eTestJob,[
                             microservice: [
                                     name   : "carbook",
                                     version: version
