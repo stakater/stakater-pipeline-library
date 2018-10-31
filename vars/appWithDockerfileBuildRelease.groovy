@@ -1,6 +1,7 @@
 #!/usr/bin/groovy
 // This function can be called if your app is built and run in your Dockerfile, 
-// This will create version, build & push Image, render charts, and deploy that chart
+// This will create version, build & push Image, render charts, and deploy that chart using
+// the install-chart target in your Makefile
 
 def call(body) {
     def config = [:]
@@ -18,7 +19,6 @@ def call(body) {
         def git = new io.stakater.vc.Git()
         def slack = new io.stakater.notifications.Slack()
         def common = new io.stakater.Common()
-        def utils = new io.fabric8.Utils()
         def templates = new io.stakater.charts.Templates()
 
         // Slack variables
