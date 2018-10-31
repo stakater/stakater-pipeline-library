@@ -16,6 +16,9 @@ def call(body) {
         def common = new io.stakater.Common()
         def utils = new io.fabric8.Utils()
         def templates = new io.stakater.charts.Templates()
+        def chartManager = new io.stakater.charts.ChartManager()
+        def helm = new io.stakater.charts.Helm()
+        String chartPackageName = ""
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
@@ -62,17 +65,23 @@ def call(body) {
                         docker.buildImageWithTagCustom(dockerImage, version)
                         docker.pushTagCustom(dockerImage, version)
                     }
-                    stage('Publish Charts, Manifests'){
+                    stage('Publish & Upload Helm Chart'){
                         echo "Rendering Chart & generating manifests"
+                        helm.lint(chartDir, repoName.toLowerCase())
+                        chartPackageName = helm.package(chartDir, repoName.toLowerCase())
+                        
                         // Render chart from templates
                         templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, dockerImage)
                         // Generate manifests from chart
                         templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
-                    }                    
+                        String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
+                        String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
+                        chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword)                        
+                    }
                     stage('Run Synthetic Tests') {          
                         echo "Running synthetic tests for Maven application:  ${e2eTestJob}"   
                         if (!e2eTestJob.equals("")){                     
-                            e2eTestStage(jobName: e2eTestJob,[
+                            e2eTestStage(jobName: e2eTestJob, chartName: repoName.toLowerCase(), chartVersion: version, [
                                 microservice: [
                                         name   : "carbook",
                                         version: version
