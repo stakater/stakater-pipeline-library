@@ -22,7 +22,7 @@ def call(body) {
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
         def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
-        def e2eTestJob = config.e2eTestJob ?: "carbook/e2e-tests-manual/master"
+        def e2eTestJob = config.e2eTestJob ?: ""
         def performanceTestsJob = config.performanceTestJob ?: ""
         def dockerImage = ""
         def version = ""
@@ -70,14 +70,17 @@ def call(body) {
                         templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
                     }                    
                     stage('Run Synthetic Tests') {          
-                        echo "Running synthetic tests for Maven application:  ${e2eTestJob}"                        
-                        e2eTestStage(jobName: e2eTestJob,[
-                            microservice: [
-                                    name   : "carbook",
-                                    version: version
-                            ]
-                        ])
-                    
+                        echo "Running synthetic tests for Maven application:  ${e2eTestJob}"   
+                        if (!e2eTestJob.equals("")){                     
+                            e2eTestStage(jobName: e2eTestJob,[
+                                microservice: [
+                                        name   : "carbook",
+                                        version: version
+                                ]
+                            ])
+                        }else{
+                            echo "No Job Name passed."
+                        }                    
                     }
                     stage('Deploy chart'){
                         echo "Deploying Chart for PR"   
