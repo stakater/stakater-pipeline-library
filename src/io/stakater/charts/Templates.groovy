@@ -18,6 +18,18 @@ def renderChart(String chartTemplatesDir, String chartDir, String chartName, Str
     """
 }
 
+def renderTemplate(String version, String manifestDir){
+    sh """
+        export VERSION=${version}
+        for template in ${manifestDir}/*.yaml.tmpl; do 
+            # Remove .tmpl suffix
+            file=\${template%.tmpl}
+            # Render template
+            gotplenv \${template} > \${file}
+        done
+    """
+}
+
 def renderChart(String chartTemplatesDir, String chartDir, String chartName, String version) {
     sh """
         export VERSION=${version}
