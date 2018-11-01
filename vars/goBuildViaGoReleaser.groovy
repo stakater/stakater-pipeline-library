@@ -47,12 +47,12 @@ def call(body) {
                         """
                     }
 
-                    /*stage('Run Tests') {
+                    stage('Run Tests') {
                         sh """
                             cd ${goProjectDir}
                             make test
                         """
-                    }*/
+                    }
 
                     if (utils.isCI()) {
                         stage('CI: Publish Dev Image') {
@@ -65,12 +65,6 @@ def call(body) {
                               make binary-image
                               make push
                             """
-                        }
-
-                        stage('Create Binary') {
-                            def versionFile = ".version"
-                            git.generateVersionAndPush(versionFile, repoName, repoOwner)
-                            git.runGoReleaser(goProjectDir)
                         }
 
                         stage('Notify') {
@@ -118,7 +112,8 @@ def call(body) {
                             git.commitChanges(WORKSPACE, "Bump Version to ${version}")
 
                             print "Pushing Tag ${version} to Git"
-                            git.createReleaseViaGoReleaser(versionFile, repoName, repoOwner)
+                            git.generateVersionAndPush(versionFile, repoName, repoOwner)
+                            git.runGoReleaser(goProjectDir)
                         }
 
                         stage('Chart: Init Helm') {
