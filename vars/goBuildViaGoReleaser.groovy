@@ -69,7 +69,8 @@ def call(body) {
 
                         stage('Create Binary') {
                             def versionFile = ".version"
-                            git.createReleaseViaGoReleaser(versionFile, repoName, repoOwner)
+                            git.generateVersionAndPush(versionFile, repoName, repoOwner)
+                            git.runGoReleaser(goProjectDir)
                         }
 
                         stage('Notify') {

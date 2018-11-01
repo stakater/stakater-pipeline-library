@@ -129,6 +129,19 @@ def generateVersionAndPush(def versionFile, def repoName, def repoOwner){
   return version
 }
 
+def generateVersionAndPush(def versionFile, def repoName, def repoOwner, def goProjectPath){
+  echo "Generating New Version"
+  def common = new io.stakater.Common()
+  def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
+  sh """
+      echo -n "${version}" > ${versionFile}
+  """
+  commitChanges(goProjectPath, "Bump Version to ${version}")
+  echo "Pushing Tag ${version} to Git"
+  createTagAndPush(goProjectPath, version)
+  return version
+}
+
 def tagAndRelease(def versionFile, def repoName, def repoOwner){
   def version = generateVersionAndPush(versionFile, repoName, repoOwner)
   createRelease(version)
