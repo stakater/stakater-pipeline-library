@@ -47,12 +47,12 @@ def call(body) {
                         """
                     }
 
-                    stage('Run Tests') {
+                    /*stage('Run Tests') {
                         sh """
                             cd ${goProjectDir}
                             make test
                         """
-                    }
+                    }*/
 
                     if (utils.isCI()) {
                         stage('CI: Publish Dev Image') {
