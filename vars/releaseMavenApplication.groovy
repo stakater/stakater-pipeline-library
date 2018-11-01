@@ -76,6 +76,9 @@ def call(body) {
                         }else{
                             helmVersion = version
                         }
+                         sh """
+                            export IMAGE_VERSION=${version}
+                        """
                         // Render chart from templates
                         templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), helmVersion, dockerImage)
                         // Generate manifests from chart
