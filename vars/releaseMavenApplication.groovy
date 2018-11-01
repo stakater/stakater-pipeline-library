@@ -19,6 +19,7 @@ def call(body) {
         def chartManager = new io.stakater.charts.ChartManager()
         def helm = new io.stakater.charts.Helm()
         String chartPackageName = ""
+        String helmVersion = ""
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
@@ -69,7 +70,7 @@ def call(body) {
                         echo "Rendering Chart & generating manifests"
                         helm.init(true)
                         helm.lint(chartDir, repoName.toLowerCase())
-                        String helmVersion = ""
+                        
                         if (version.contains("SNAPSHOT")) {
                             helmVersion = "0.0.0"
                         }else{
