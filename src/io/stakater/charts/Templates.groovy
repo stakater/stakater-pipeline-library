@@ -20,10 +20,14 @@ def renderChart(String chartTemplatesDir, String chartDir, String chartName, Str
 
 // for an additional argument when image version is different than helm version
 def renderChart(String chartTemplatesDir, String chartDir, String chartName, String imageVersion, String helmVersion, String dockerImage){
-    sh """
+    echo "Rendering chart for separate image & helm versions"
+    echo "Helm version: ${helmVersion}"
+    echo "Image version: ${imageVersion}"
+    sh """    
         export VERSION=${helmVersion}
         export DOCKER_IMAGE=${dockerImage}
         export DOCKER_TAG=${imageVersion}
+        echo ${DOCKER_TAG}
         for template in ${chartTemplatesDir}/*.yaml.tmpl; do 
             # Remove .tmpl suffix
             file=\${template%.tmpl}
