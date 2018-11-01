@@ -80,7 +80,7 @@ def call(body) {
                             export IMAGE_VERSION=${version}
                         """
                         // Render chart from templates
-                        templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), helmVersion, dockerImage)
+                        templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
                         // Generate manifests from chart
                         templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
                         chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)
