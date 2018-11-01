@@ -27,7 +27,6 @@ def renderChart(String chartTemplatesDir, String chartDir, String chartName, Str
         export VERSION=${helmVersion}
         export DOCKER_IMAGE=${dockerImage}
         export DOCKER_TAG=${imageVersion}
-        echo ${DOCKER_TAG}
         for template in ${chartTemplatesDir}/*.yaml.tmpl; do 
             # Remove .tmpl suffix
             file=\${template%.tmpl}
