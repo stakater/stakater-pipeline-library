@@ -102,20 +102,7 @@ def call(body) {
                         }else{
                             echo "No Job Name passed."
                         }                    
-                    }
-                    stage('Deploy chart'){
-                        echo "Deploying Chart for PR"   
-                        builder.deployHelmChartForPR(chartDir)
-                    }
-                    stage('Run Performance Tests') {
-                        echo "Running Performance tests for Maven application"
-                        if (performanceTestsJob.equals("")){
-                            echo "Running performance tests from Makefile"                           
-                            builder.runPerformanceTestsForMavenApplication()
-                        }else{
-                            build job: performanceTestsJob
-                        }
-                    }                  
+                    }                    
                 }
                 catch (e) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
