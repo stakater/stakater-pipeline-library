@@ -26,6 +26,7 @@ def call(body) {
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
         def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
+        def appName = config.appName ?: ""
         def e2eTestJob = config.e2eTestJob ?: ""
         def performanceTestsJob = config.performanceTestJob ?: ""
         def dockerImage = ""
@@ -92,7 +93,7 @@ def call(body) {
                     stage('Run Synthetic Tests') {
                         echo "Running synthetic tests for Maven application:  ${e2eTestJob}"   
                         if (!e2eTestJob.equals("")){                     
-                            e2eTestStage(jobName: e2eTestJob, chartName: repoName.toLowerCase(), chartVersion: "0.0.0", repoUrl: repoUrl, repoBranch: repoBranch, [
+                            e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestJob, chartName: repoName.toLowerCase(), chartVersion: "0.0.0", repoUrl: repoUrl, repoBranch: repoBranch, [
                                 microservice: [
                                         name   : repoName.toLowerCase(),
                                         version: helmVersion
