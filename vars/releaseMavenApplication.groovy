@@ -93,7 +93,7 @@ def call(body) {
                         String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                         chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword)                        
                     }
-                    stage('Run Synthetic Tests') {
+                    stage('Run Synthetic/E2E Tests') {
                         echo "Running synthetic tests for Maven application:  ${e2eTestJob}"   
                         if (!e2eTestJob.equals("")){                     
                             e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestsJob, chartName: repoName.toLowerCase(), chartVersion: "0.0.0", repoUrl: repoUrl, repoBranch: repoBranch, [
