@@ -83,8 +83,7 @@ def call(body) {
                         templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
                         // Generate manifests from chart
                         templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
-                        chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)
-                        
+                        chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)                        
                         
                         String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                         String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
