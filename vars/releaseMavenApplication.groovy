@@ -28,7 +28,7 @@ def call(body) {
         def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
         def appName = config.appName ?: ""
         def e2eTestJob = config.e2eTestJob ?: ""
-        def performanceTestsJob = config.performanceTestJob ?: ""
+        def performanceTestsJob = config.performanceTestsJob ?: "carbook/performance-tests-manual/add-initial-implementation"
         def gitUser = config.gitUser ?: "stakater-user"
         def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
 
@@ -96,7 +96,7 @@ def call(body) {
                     stage('Run Synthetic Tests') {
                         echo "Running synthetic tests for Maven application:  ${e2eTestJob}"   
                         if (!e2eTestJob.equals("")){                     
-                            e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestJob, chartName: repoName.toLowerCase(), chartVersion: "0.0.0", repoUrl: repoUrl, repoBranch: repoBranch, [
+                            e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestsJob, chartName: repoName.toLowerCase(), chartVersion: "0.0.0", repoUrl: repoUrl, repoBranch: repoBranch, [
                                 microservice: [
                                         name   : repoName.toLowerCase(),
                                         version: helmVersion
