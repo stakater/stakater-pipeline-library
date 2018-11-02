@@ -103,6 +103,15 @@ def call(body) {
                             echo "No Job Name passed."
                         }
                     }
+                    // If master
+                    if (utils.isCD()) {
+                        stage("Create Git Tag"){
+
+                        }
+                        stage("Push to Dev-Apps Repo"){
+
+                        }
+                    }
                 }
                 catch (e) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
