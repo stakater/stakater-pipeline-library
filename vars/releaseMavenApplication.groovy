@@ -29,11 +29,14 @@ def call(body) {
         def appName = config.appName ?: ""
         def e2eTestJob = config.e2eTestJob ?: ""
         def performanceTestsJob = config.performanceTestJob ?: ""
+        def gitUser = config.gitUser ?: "stakater-user"
+        def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
+
         def dockerImage = ""
         def version = ""
 
         container(name: 'tools') {
-            withCurrentRepo() { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+            withCurrentRepo(gitUsername: gitUser, gitEmail: gitEmailID) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def kubernetesDir = WORKSPACE + "/deployments/kubernetes"
                 def chartTemplatesDir = kubernetesDir + "/templates/chart"
                 def chartDir = kubernetesDir + "/chart"
