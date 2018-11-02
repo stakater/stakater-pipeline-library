@@ -90,7 +90,7 @@ def call(body) {
                         String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                         chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword)                        
                     }
-                    stage('Run Synthetic Tests') {          
+                    stage('Run Synthetic Tests') {
                         echo "Running synthetic tests for Maven application:  ${e2eTestJob}"   
                         if (!e2eTestJob.equals("")){                     
                             e2eTestStage(jobName: e2eTestJob, chartName: repoName.toLowerCase(), chartVersion: "0.0.0", repoUrl: repoUrl, repoBranch: repoBranch, [
@@ -101,8 +101,8 @@ def call(body) {
                             ])
                         }else{
                             echo "No Job Name passed."
-                        }                    
-                    }                    
+                        }
+                    }
                 }
                 catch (e) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
@@ -112,7 +112,6 @@ def call(body) {
 
                     throw e
                 }
-
                 stage('Notify') {
                     slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")])
 
