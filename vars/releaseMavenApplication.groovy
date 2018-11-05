@@ -60,8 +60,10 @@ def call(body) {
                             println it
                         }
                         def prNumber = "${env.asd}"
-                        if (prNumber.equals("null"){
-                            prNumber = "MR-${env.gitlabMergeRequestIid}"
+                        echo "prNumber : ${prNumber}" 
+                        if (prNumber == null){
+                            echo "Inside prNumber : ${prNumber}"
+                            prNumber = "MR-${env.gitlabMergeRequestIid}"                            
                         }
                         // if("github".equalsIgnoreCase(stakaterCommands.getProvider(repoUrl))) {
                         //     prNumber = "MR-${env.gitlabMergeRequestIid}"
