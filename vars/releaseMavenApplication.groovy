@@ -53,25 +53,12 @@ def call(body) {
                     stage('Create Version'){
                         dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
                         // If image Prefix is passed, use it, else pass empty string to create versions
-                        def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
-                        echo "Environ: "
-                        sh 'env > env.txt'
-                        readFile('env.txt').split("\r?\n").each {
-                            println it
-                        }
-                        def prNumber = "${env.asd}"
-                        echo "prNumber : ${prNumber}"
-                        if (env['asd'] == null) {
-                            echo "Inside prNumber : ${prNumber}"
+                        def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
+                        def prNumber = "${env.BRANCH_NAME}"                        
+                        if (env['BRANCH_NAME'] == null) {
+                            echo "Branch Name Null"
                             prNumber = "MR-${env.gitlabMergeRequestIid}"                            
-                        }
-                        // if("github".equalsIgnoreCase(stakaterCommands.getProvider(repoUrl))) {
-                        //     prNumber = "MR-${env.gitlabMergeRequestIid}"
-                        //     echo "In if"
-                        // }else{
-                        //     prNumber = "${env.BRANCH_NAME}"
-                        //     echo "in else"
-                        // }
+                        }                       
                         echo "prNumber : ${prNumber}"
                         version = stakaterCommands.createImageVersionForCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
                         echo "Version: ${version}"
