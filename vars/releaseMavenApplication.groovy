@@ -54,7 +54,11 @@ def call(body) {
                         dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
                         // If image Prefix is passed, use it, else pass empty string to create versions
                         def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
-                        echo "Environ: ${env}"
+                        echo "Environ: "
+                        sh 'env > env.txt'
+                        readFile('env.txt').split("\r?\n").each {
+                            println it
+                        }
                         version = stakaterCommands.createImageVersionForCiAndCd(imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
                         echo "Version: ${version}"
                         fullAppNameWithVersion = imageName + '-'+ version
