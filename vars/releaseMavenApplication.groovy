@@ -62,9 +62,12 @@ def call(body) {
                         def prNumber = ""
                         if("github".equalsIgnoreCase(stakaterCommands.getProvider(repoUrl))) {
                             prNumber = "MR-${env.gitlabMergeRequestIid}"
+                            echo "In if"
                         }else{
                             prNumber = "${env.BRANCH_NAME}"
+                            echo "in else"
                         }
+                        echo "prNumber : ${prNumber}"
                         version = stakaterCommands.createImageVersionForCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
                         echo "Version: ${version}"
                         fullAppNameWithVersion = imageName + '-'+ version
