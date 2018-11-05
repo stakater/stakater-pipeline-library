@@ -350,7 +350,7 @@ def ReadVersionFromFile(String file) {
  * @param buildNumber - Used only in case of CI
  * @return
  */
-def createImageVersionForCiAndCd(String imagePrefix, String prNumber, String buildNumber) {
+def createImageVersionForCiAndCd(String repoUrl, String imagePrefix, String prNumber, String buildNumber) {
     def utils = new io.fabric8.Utils()
     def branchName = utils.getBranch()
     def git = new io.stakater.vc.Git()
@@ -362,7 +362,9 @@ def createImageVersionForCiAndCd(String imagePrefix, String prNumber, String bui
         def version = readFile('commandResult').trim()
         version = 'v' + version
         git.createTagAndPush(WORKSPACE, version)
-        git.createRelease(version)
+        if("github".equalsIgnoreCase(getProvider(repoUrl))) {
+            git.createRelease(version)
+        }
 
         imageVersion = imagePrefix + version
     }
