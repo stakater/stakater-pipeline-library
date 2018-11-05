@@ -59,8 +59,8 @@ def call(body) {
                         readFile('env.txt').split("\r?\n").each {
                             println it
                         }
-                        def prNumber = "${env.BRANCH_NAME}"
-                        if (prNumber == null){
+                        def prNumber = "${env.asd}"
+                        if (prNumber.equals("null"){
                             prNumber = "MR-${env.gitlabMergeRequestIid}"
                         }
                         // if("github".equalsIgnoreCase(stakaterCommands.getProvider(repoUrl))) {
