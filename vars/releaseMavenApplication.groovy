@@ -58,10 +58,10 @@ def call(body) {
                         if (env['BRANCH_NAME'] == null) {
                             echo "Branch Name Null"
                             prNumber = "MR-${env.gitlabMergeRequestIid}"                            
-                        }                       
-                        echo "prNumber : ${prNumber}"
-                        version = stakaterCommands.createImageVersionForCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
+                        }
+                        version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
                         echo "Version: ${version}"
+                        echo "Helm Version: ${helmVersion}"
                         fullAppNameWithVersion = imageName + '-'+ version
                     }
                     stage('Build Maven Application') {
@@ -84,7 +84,7 @@ def call(body) {
                         if (version.contains("SNAPSHOT")) {
                             helmVersion = "0.0.0"
                         }else{
-                            helmVersion = version
+                            helmVersion = version.substring(1)
                         }
                          sh """
                             export IMAGE_VERSION=${version}
@@ -99,10 +99,10 @@ def call(body) {
                         String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                         chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword)                        
                     }
-                    stage('Run Synthetic/E2E Tests') {
+                    stage('Run Synthetic/E2E Tests') {                        
                         echo "Running synthetic tests for Maven application:  ${e2eTestJob}"   
                         if (!e2eTestJob.equals("")){                     
-                            e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestsJob, chartName: repoName.toLowerCase(), chartVersion: "0.0.0", repoUrl: repoUrl, repoBranch: repoBranch, [
+                            e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestsJob, chartName: repoName.toLowerCase(), chartVersion: helmVersion, repoUrl: repoUrl, repoBranch: repoBranch, [
                                 microservice: [
                                         name   : repoName.toLowerCase(),
                                         version: helmVersion
@@ -115,7 +115,13 @@ def call(body) {
                     // If master
                     if (utils.isCD()) {
                         stage("Create Git Tag"){
-
+                            sh """
+                                echo "${version}" > ${versionFile}
+                            """
+                            git.commitChanges(WORKSPACE, "Bump Version to ${version}")
+                            print "Pushing Tag ${version} to Git"
+                            git.createTagAndPush(WORKSPACE, version)
+                            git.createRelease(version)
                         }
                         stage("Push to Dev-Apps Repo"){
 
