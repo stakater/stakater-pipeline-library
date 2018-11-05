@@ -60,8 +60,7 @@ def call(body) {
                             prNumber = "MR-${env.gitlabMergeRequestIid}"                            
                         }
                         version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
-                        echo "Version: ${version}"
-                        echo "Helm Version: ${helmVersion}"
+                        echo "Version: ${version}"                       
                         fullAppNameWithVersion = imageName + '-'+ version
                     }
                     stage('Build Maven Application') {
@@ -86,9 +85,7 @@ def call(body) {
                         }else{
                             helmVersion = version.substring(1)
                         }
-                         sh """
-                            export IMAGE_VERSION=${version}
-                        """
+                        echo "Helm Version: ${helmVersion}"
                         // Render chart from templates
                         templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
                         // Generate manifests from chart
