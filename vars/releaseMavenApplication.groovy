@@ -60,7 +60,7 @@ def call(body) {
                             println it
                         }
                         def prNumber = "${env.BRANCH_NAME}"
-                        if prNumber == null{
+                        if (prNumber == null){
                             prNumber = "MR-${env.gitlabMergeRequestIid}"
                         }
                         // if("github".equalsIgnoreCase(stakaterCommands.getProvider(repoUrl))) {
