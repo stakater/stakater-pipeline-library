@@ -48,10 +48,24 @@ def call(body) {
                         echo "Building Maven application"   
                         builder.buildMavenApplication(fullAppNameWithVersion)
                     }
+                    stage('Image build & push') {
+                        sh """
+                            export DOCKER_IMAGE=${dockerImage}
+                            export DOCKER_TAG=${version}
+                        """
+                        docker.buildImageWithTagCustom(dockerImage, version)
+                        docker.pushTagCustom(dockerImage, version)
+                    }
                     // If master
                     if (utils.isCD()) {
                         stage("Create Git Tag"){
-
+                            sh """
+                                echo "${version}" > ${versionFile}
+                            """
+                            git.commitChanges(WORKSPACE, "Bump Version to ${version}")
+                            print "Pushing Tag ${version} to Git"
+                            git.createTagAndPush(WORKSPACE, version)
+                            git.createRelease(version)
                         }                        
                     }
                 }
