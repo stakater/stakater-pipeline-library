@@ -59,7 +59,7 @@ def call(body) {
                         readFile('env.txt').split("\r?\n").each {
                             println it
                         }
-                        version = stakaterCommands.createImageVersionForCiAndCd(imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
+                        version = stakaterCommands.createImageVersionForCiAndCd(repoUrl,imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
                         echo "Version: ${version}"
                         fullAppNameWithVersion = imageName + '-'+ version
                     }
