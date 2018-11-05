@@ -61,8 +61,7 @@ def call(body) {
                         }
                         def prNumber = "${env.asd}"
                         echo "prNumber : ${prNumber}"
-                        if (env['asd'] == null) 
-                        // if (prNumber.equals('null'){
+                        if (env['asd'] == null) {
                             echo "Inside prNumber : ${prNumber}"
                             prNumber = "MR-${env.gitlabMergeRequestIid}"                            
                         }
