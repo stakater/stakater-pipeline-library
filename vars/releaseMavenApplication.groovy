@@ -59,14 +59,17 @@ def call(body) {
                         readFile('env.txt').split("\r?\n").each {
                             println it
                         }
-                        def prNumber = ""
-                        if("github".equalsIgnoreCase(stakaterCommands.getProvider(repoUrl))) {
+                        def prNumber = "${env.BRANCH_NAME}"
+                        if prNmber == null{
                             prNumber = "MR-${env.gitlabMergeRequestIid}"
-                            echo "In if"
-                        }else{
-                            prNumber = "${env.BRANCH_NAME}"
-                            echo "in else"
                         }
+                        // if("github".equalsIgnoreCase(stakaterCommands.getProvider(repoUrl))) {
+                        //     prNumber = "MR-${env.gitlabMergeRequestIid}"
+                        //     echo "In if"
+                        // }else{
+                        //     prNumber = "${env.BRANCH_NAME}"
+                        //     echo "in else"
+                        // }
                         echo "prNumber : ${prNumber}"
                         version = stakaterCommands.createImageVersionForCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
                         echo "Version: ${version}"
