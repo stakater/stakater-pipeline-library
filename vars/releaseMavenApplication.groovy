@@ -59,7 +59,13 @@ def call(body) {
                         readFile('env.txt').split("\r?\n").each {
                             println it
                         }
-                        version = stakaterCommands.createImageVersionForCiAndCd(repoUrl,imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
+                        def prNumber = ""
+                        if("github".equalsIgnoreCase(stakaterCommands.getProvider(repoUrl))) {
+                            prNumber = "MR-"+env.gitlabMergeRequestIid
+                        }else{
+                            prNumber = ${env.BRANCH_NAME}
+                        }
+                        version = stakaterCommands.createImageVersionForCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
                         echo "Version: ${version}"
                         fullAppNameWithVersion = imageName + '-'+ version
                     }
