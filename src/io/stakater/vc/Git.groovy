@@ -111,6 +111,17 @@ def createTagAndPush(def repoDir, String version, String message) {
     """
 }
 
+def push(def repoDir, String branchName) {
+    sh """
+        chmod 600 /root/.ssh-git/ssh-key
+        eval `ssh-agent -s`
+        ssh-add /root/.ssh-git/ssh-key
+
+        cd ${repoDir}
+        git push origin ${branchName}
+    """
+}
+
 def createRelease(def version) {
     def flow = new io.stakater.StakaterCommands()
     flow.createGitHubRelease(version)
