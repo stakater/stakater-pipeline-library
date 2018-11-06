@@ -17,6 +17,7 @@ def call(body) {
             def utils = new io.fabric8.Utils()
             def templates = new io.stakater.charts.Templates()
             def chartManager = new io.stakater.charts.ChartManager()
+            def helmRepoUrl =  'https://chartmuseum.tools.stackator.com'
             def helm = new io.stakater.charts.Helm()
             String chartPackageName = ""
             String helmVersion = ""
@@ -30,6 +31,7 @@ def call(body) {
             def e2eTestJob = config.e2eTestJob ?: ""
             def performanceTestsJob = config.performanceTestsJob ?: "carbook/performance-tests-manual/add-initial-implementation"
             def mockAppsJobName = config.mockAppsJobName ?: ""
+            def devAppsJobName = config.devAppsJobName ?: ""
             def gitUser = config.gitUser ?: "stakater-user"
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
 
@@ -122,7 +124,7 @@ def call(body) {
                                 git.createRelease(version)
                             }
                             stage("Push to Dev-Apps Repo"){
-
+                                // build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: helmRepoUrl ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
                             }
                         }
                     }
