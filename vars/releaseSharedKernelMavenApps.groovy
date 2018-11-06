@@ -48,13 +48,10 @@ def call(body) {
                         echo "Building Maven application"   
                         builder.buildMavenApplication(fullAppNameWithVersion)
                     }
-                    stage('Image build & push') {
+                    stage('Push Jar') {
                         sh """
-                            export DOCKER_IMAGE=${dockerImage}
-                            export DOCKER_TAG=${version}
-                        """
-                        docker.buildImageWithTagCustom(dockerImage, version)
-                        docker.pushTagCustom(dockerImage, version)
+                            
+                        """                        
                     }
                     // If master
                     if (utils.isCD()) {
