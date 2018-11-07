@@ -16,7 +16,7 @@ def call(body) {
         def common = new io.stakater.Common()
         def utils = new io.fabric8.Utils()
         def templates = new io.stakater.charts.Templates()
-        def nexus = new io.stakater.Repository.Nexus()    
+        def nexus = new io.stakater.repository.Nexus()    
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
