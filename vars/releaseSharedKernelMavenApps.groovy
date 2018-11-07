@@ -46,11 +46,11 @@ def call(body) {
                     }
                     stage('Build Maven Application') {
                         echo "Building Maven application"   
-                        builder.buildMavenApplication(fullAppNameWithVersion)
+                        builder.buildMavenApplication(version)
                     }
                     stage('Push Jar') {
                         sh """
-                            
+                            curl -v -u admin:admin123 --upload-file pom.xml http://localhost:8081/repository/maven-releases/org/foo/1.0/foo-1.0.pom
                         """                        
                     }
                     // If master
