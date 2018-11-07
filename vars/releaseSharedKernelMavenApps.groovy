@@ -15,7 +15,8 @@ def call(body) {
         def slack = new io.stakater.notifications.Slack()
         def common = new io.stakater.Common()
         def utils = new io.fabric8.Utils()
-        def templates = new io.stakater.charts.Templates()        
+        def templates = new io.stakater.charts.Templates()
+        def nexus = new io.stakater.repository.Nexus()    
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
@@ -37,21 +38,24 @@ def call(body) {
                 echo "Repo Owner: ${repoOwner}" 
                 try {
                     stage('Create Version'){
-                        dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
-                        // If image Prefix is passed, use it, else pass empty string to create versions
-                        def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
-                        version = stakaterCommands.createImageVersionForCiAndCd(imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
-                        echo "Version: ${version}"
-                        fullAppNameWithVersion = imageName + '-'+ version
+                            dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
+                            // If image Prefix is passed, use it, else pass empty string to create versions
+                            def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
+                            def prNumber = "${env.BRANCH_NAME}"                        
+                            if (env['BRANCH_NAME'] == null) {
+                                echo "Branch Name Null"
+                                prNumber = "MR-${env.gitlabMergeRequestIid}"                            
+                            }
+                            version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
+                            echo "Version: ${version}"                       
+                            fullAppNameWithVersion = imageName + '-'+ version
                     }
                     stage('Build Maven Application') {
                         echo "Building Maven application"   
-                        builder.buildMavenApplication(fullAppNameWithVersion)
+                        builder.buildMavenApplication(version)
                     }
                     stage('Push Jar') {
-                        sh """
-                            
-                        """                        
+                        nexus.pushAppArtifact(imageName, version)                      
                     }
                     // If master
                     if (utils.isCD()) {

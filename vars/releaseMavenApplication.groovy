@@ -68,7 +68,7 @@ def call(body) {
                         }
                         stage('Build Maven Application') {
                             echo "Building Maven application"   
-                            builder.buildMavenApplication(fullAppNameWithVersion)
+                            builder.buildMavenApplication(version)
                         }                    
                         stage('Image build & push') {
                             sh """
