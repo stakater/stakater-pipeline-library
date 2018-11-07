@@ -46,7 +46,7 @@ def call(body) {
                                 echo "Branch Name Null"
                                 prNumber = "MR-${env.gitlabMergeRequestIid}"                            
                             }
-                            version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
+                            version = stakaterCommands.getImageVersionForMavenCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
                             echo "Version: ${version}"                       
                             fullAppNameWithVersion = imageName + '-'+ version
                     }
