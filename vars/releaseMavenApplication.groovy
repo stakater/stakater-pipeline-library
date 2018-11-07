@@ -17,7 +17,7 @@ def call(body) {
             def utils = new io.fabric8.Utils()
             def templates = new io.stakater.charts.Templates()
             def chartManager = new io.stakater.charts.ChartManager()
-            def helmRepoUrl =  'https://chartmuseum.tools.stackator.com'
+            def helmRepoUrl =  'http://chartmuseum.tools'
             def helm = new io.stakater.charts.Helm()
             String chartPackageName = ""
             String helmVersion = ""
@@ -62,6 +62,7 @@ def call(body) {
                                 echo "Branch Name Null"
                                 prNumber = "MR-${env.gitlabMergeRequestIid}"                            
                             }
+                            prNumber = prNumber.replace('/','-')
                             version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
                             echo "Version: ${version}"                       
                             fullAppNameWithVersion = imageName + '-'+ version
