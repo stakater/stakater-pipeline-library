@@ -15,7 +15,8 @@ def call(body) {
         def slack = new io.stakater.notifications.Slack()
         def common = new io.stakater.Common()
         def utils = new io.fabric8.Utils()
-        def templates = new io.stakater.charts.Templates()        
+        def templates = new io.stakater.charts.Templates()
+        def nexus = new io.stakater.Repository.Nexus()    
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
@@ -49,9 +50,7 @@ def call(body) {
                         builder.buildMavenApplication(version)
                     }
                     stage('Push Jar') {
-                        sh """
-                            curl -v -u admin:admin123 --upload-file pom.xml http://localhost:8081/repository/maven-releases/org/foo/1.0/foo-1.0.pom
-                        """                        
+                        nexus.pushAppArtifact(imageName, version)                      
                     }
                     // If master
                     if (utils.isCD()) {
