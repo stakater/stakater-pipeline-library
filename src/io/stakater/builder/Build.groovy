@@ -3,8 +3,8 @@ package io.stakater.builder
 
 def buildMavenApplication(String version){
     sh """
-        mvn versions:set -DnewVersion=${version} -f application/pom.xml
-        mvn clean package -f application/pom.xml
+        mvn versions:set -DnewVersion=${version} -f pom.xml
+        mvn clean package -f pom.xml
     """
 }
 
