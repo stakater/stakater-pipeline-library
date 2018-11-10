@@ -9,7 +9,6 @@ def call(body) {
     toolsNode(toolsImage: 'stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.3') {
 
         def builder = new io.stakater.builder.Build()
-        def docker = new io.stakater.containers.Docker()
         def stakaterCommands = new io.stakater.StakaterCommands()
         def git = new io.stakater.vc.Git()
         def slack = new io.stakater.notifications.Slack()
@@ -22,23 +21,18 @@ def call(body) {
         def slackChannel = "${env.SLACK_CHANNEL}"
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
-        def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')       
-        def dockerImage = ""
         def version = ""
 
         container(name: 'tools') {
             withCurrentRepo() { def repoUrl, def repoName, def repoOwner, def repoBranch ->                
-
-                def imageName = repoName.split("dockerfile-").last().toLowerCase()
+                def imageName = repoName.toLowerCase()
                 def fullAppNameWithVersion = ""
-                echo "Image NAME: ${imageName}"
                 if (repoOwner.startsWith('stakater-')){
                     repoOwner = 'stakater'
                 }
                 echo "Repo Owner: ${repoOwner}" 
                 try {
                     stage('Create Version'){
-                            dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
                             // If image Prefix is passed, use it, else pass empty string to create versions
                             def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
                             def prNumber = "${env.BRANCH_NAME}"                        
@@ -79,9 +73,9 @@ def call(body) {
                     throw e
                 }
                 stage('Notify') {
-                    slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")])
+                    slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createArtifactField("${fullAppNameWithVersion}")])
 
-                    def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
+                    def commentMessage = "Artifact is available for testing. `${fullAppNameWithVersion}`"
                     git.addCommentToPullRequest(commentMessage)
                 }
             }
