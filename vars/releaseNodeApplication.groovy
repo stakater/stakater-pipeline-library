@@ -6,7 +6,7 @@ def call(body) {
     body.delegate = config
     body()
     timestamps {
-        toolsNode(toolsImage: 'stakater/pipeline-tools:v1.16.3') {
+        toolsNode(toolsImage: 'stakater/pipeline-tools:v1.16.4') {
 
             def builder = new io.stakater.builder.Build()
             def docker = new io.stakater.containers.Docker()
