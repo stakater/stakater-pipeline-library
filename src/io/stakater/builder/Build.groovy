@@ -8,6 +8,13 @@ def buildMavenApplication(String version){
     """
 }
 
+def buildNodeApplication(String version) {
+    sh """
+        npm version ${version}
+        npm install
+    """
+}
+
 def deployHelmChart(String chartDir){
     sh """        
         make install-chart
