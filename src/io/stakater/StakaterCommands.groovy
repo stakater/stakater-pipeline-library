@@ -428,6 +428,30 @@ def getImageVersionForMavenCiAndCd(String repoUrl, String imagePrefix, String pr
     return imageVersion
 }
 
+def getImageVersionForMavenCiAndCd(String repoUrl, String imagePrefix, String prNumber, String buildNumber) {
+    def utils = new io.fabric8.Utils()
+    def branchName = utils.getBranch()
+    def git = new io.stakater.vc.Git()
+    def imageVersion = ''
+
+    // For CD
+    if (branchName.equalsIgnoreCase("master")) {
+        sh "stk generate version > commandResult"
+        def version = readFile('commandResult').trim()
+        version = 'v' + version        
+        imageVersion = imagePrefix + version
+    }
+    // For CI
+    else {
+        if(imagePrefix == "") {
+            imagePrefix = "1.0.0"
+        }
+        imageVersion = imagePrefix + "-" + prNumber + '-' + buildNumber + '-SNAPSHOT'
+    }
+
+    return imageVersion
+}
+
 
 def createGitHubRelease(def version) {
     def githubToken = getProviderToken("github")

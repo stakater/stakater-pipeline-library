@@ -58,7 +58,7 @@ def call(body) {
                                 prNumber = "MR-${env.gitlabMergeRequestIid}"                            
                             }
                             prNumber = prNumber.replace('/','-')
-                            version = stakaterCommands.getImageVersionForMavenCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
+                            version = stakaterCommands.getImageVersionForNodeCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
                             echo "Version: ${version}"                       
                             fullAppNameWithVersion = imageName + '-'+ version
                         }
