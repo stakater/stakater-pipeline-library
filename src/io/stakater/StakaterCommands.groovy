@@ -428,7 +428,7 @@ def getImageVersionForMavenCiAndCd(String repoUrl, String imagePrefix, String pr
     return imageVersion
 }
 
-def getImageVersionForMavenCiAndCd(String repoUrl, String imagePrefix, String prNumber, String buildNumber) {
+def getImageVersionForNodeCiAndCd(String repoUrl, String imagePrefix, String prNumber, String buildNumber) {
     def utils = new io.fabric8.Utils()
     def branchName = utils.getBranch()
     def git = new io.stakater.vc.Git()
