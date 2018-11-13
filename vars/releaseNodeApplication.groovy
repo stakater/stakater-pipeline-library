@@ -104,7 +104,7 @@ def call(body) {
                                 git.commitChanges(WORKSPACE, "Bump Version to ${version}")
                                 print "Pushing Tag ${version} to Git"
                                 git.createTagAndPush(WORKSPACE, version)
-                                git.createRelease(version)
+                                // git.createRelease(version)
                             }
                             stage("Push to Dev-Apps Repo"){
                                 // build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: helmRepoUrl ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
