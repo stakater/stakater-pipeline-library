@@ -1,23 +1,17 @@
 #!/usr/bin/groovy
 package io.stakater.builder
 
-def buildMavenApplication(String appName){
+def buildMavenApplication(String version){
     sh """
-        mvn clean package -f application/pom.xml
-        mv application/target/*.jar application/target/${appName}.jar
+        mvn versions:set -DnewVersion=${version} -f pom.xml
+        mvn clean package -f pom.xml
     """
 }
 
-def runPerformanceTestsForMavenApplication(){
+def buildNodeApplication(String version) {
     sh """
-        make run-performance-tests
-    """
-}
-
-def deployHelmChartForPR(String chartDir){
-    sh """        
-        make install-chart ENVIRONMENT='pr'
-        sleep 10s
+        npm version ${version}
+        npm install
     """
 }
 

@@ -32,6 +32,15 @@ def 'package'(String location, String chartName) {
     return result.substring(result.lastIndexOf('/') + 1, result.length())
 }
 
+def 'package'(String location, String chartName, String version) {
+    result = new io.stakater.Common().shOutput """
+                cd ${location}/${chartName}
+                helm package --version ${version} .
+            """
+
+    return result.substring(result.lastIndexOf('/') + 1, result.length())
+}
+
 def addRepo(String name, String url) {
     sh "helm repo add ${name} ${url}"
     updateRepos()

@@ -93,6 +93,10 @@ def createDockerImageField(String image) {
     return createField("Docker Image", image, false)
 }
 
+def createArtifactField(String artifact) {
+    return createField("Artifact Name", artifact, false)
+}
+
 def createAttachmentWithColor(String title, String titleLink, String color, String authorName, String text, fields) {
     return [
         title: "${title}",

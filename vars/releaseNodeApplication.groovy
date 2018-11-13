@@ -6,7 +6,7 @@ def call(body) {
     body.delegate = config
     body()
     timestamps {
-        toolsNode(toolsImage: 'stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.3') {
+        toolsNode(toolsImage: 'stakater/pipeline-tools:v1.16.4') {
 
             def builder = new io.stakater.builder.Build()
             def docker = new io.stakater.containers.Docker()
@@ -27,13 +27,15 @@ def call(body) {
             def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
             def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
-            def appName = config.appName ?: ""
-            def e2eTestJob = config.e2eTestJob ?: ""
-            def performanceTestsJob = config.performanceTestsJob ?: "carbook/performance-tests-manual/add-initial-implementation"
-            def mockAppsJobName = config.mockAppsJobName ?: ""
-            def devAppsJobName = config.devAppsJobName ?: ""
             def gitUser = config.gitUser ?: "stakater-user"
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
+            def devAppsJobName = config.devAppsJobName ?: ""
+            def e2eTestJob = config.e2eTestJob ?: ""
+            def appName = config.appName ?: ""
+            def performanceTestsJob = config.performanceTestsJob ?: "carbook/performance-tests-manual/add-initial-implementation"
+            def mockAppsJobName = config.mockAppsJobName ?: ""
+
+
 
             def dockerImage = ""
             def version = ""
@@ -63,13 +65,13 @@ def call(body) {
                                 prNumber = "MR-${env.gitlabMergeRequestIid}"                            
                             }
                             prNumber = prNumber.replace('/','-')
-                            version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
+                            version = stakaterCommands.getImageVersionForNodeCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
                             echo "Version: ${version}"                       
                             fullAppNameWithVersion = imageName + '-'+ version
                         }
-                        stage('Build Maven Application') {
-                            echo "Building Maven application"   
-                            builder.buildMavenApplication(version)
+                        stage('Build Node Application') {
+                            echo "Building Node application"   
+                            builder.buildNodeApplication(version)
                         }                    
                         stage('Image build & push') {
                             sh """
@@ -101,7 +103,7 @@ def call(body) {
                             chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword)                        
                         }
                         stage('Run Synthetic/E2E Tests') {                        
-                            echo "Running synthetic tests for Maven application:  ${e2eTestJob}"   
+                            echo "Running synthetic tests for Node application:  ${e2eTestJob}"   
                             if (!e2eTestJob.equals("")){                     
                                 e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestsJob, chartName: repoName.toLowerCase(), chartVersion: helmVersion, repoUrl: repoUrl, repoBranch: repoBranch, mockAppsJobName: mockAppsJobName, [
                                     microservice: [
@@ -115,10 +117,9 @@ def call(body) {
                         }
                         // If master
                         if (utils.isCD()) {
-                            stage("Create Git Tag"){                          
+                            stage("Create Git Tag"){
                                 print "Pushing Tag ${version} to Git"
                                 git.createTagAndPush(WORKSPACE, version)
-                                // echo "Creating Git Release"
                                 // git.createRelease(version)
                             }
                             stage("Push to Dev-Apps Repo"){
