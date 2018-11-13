@@ -444,7 +444,7 @@ def getImageVersionForNodeCiAndCd(String repoUrl, String imagePrefix, String prN
     // For CI
     else {
         if(imagePrefix == "") {
-            imagePrefix = "1.0.0"
+            imagePrefix = "0.0.0"
         }
         imageVersion = imagePrefix + "-" + prNumber + '-' + buildNumber + '-SNAPSHOT'
     }
