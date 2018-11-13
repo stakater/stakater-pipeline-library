@@ -115,17 +115,14 @@ def call(body) {
                         }
                         // If master
                         if (utils.isCD()) {
-                            stage("Create Git Tag"){
-                                sh """
-                                    echo "${version}" > ${versionFile}
-                                """
-                                git.commitChanges(WORKSPACE, "Bump Version to ${version}")
+                            stage("Create Git Tag"){                          
                                 print "Pushing Tag ${version} to Git"
                                 git.createTagAndPush(WORKSPACE, version)
+                                echo "Creating Git Release"
                                 git.createRelease(version)
                             }
                             stage("Push to Dev-Apps Repo"){
-                                // build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: helmRepoUrl ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
+                                build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: helmRepoUrl ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
                             }
                         }
                     }
