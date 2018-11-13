@@ -117,6 +117,10 @@ def call(body) {
                         }
                         // If master
                         if (utils.isCD()) {
+                            stage("Push Changes") {
+                                print "Pushing changes to Git"
+                                git.commitChanges(WORKSPACE, "Update chart and version")
+                            }
                             stage("Create Git Tag"){
                                 print "Pushing Tag ${version} to Git"
                                 git.createTagAndPush(WORKSPACE, version)
