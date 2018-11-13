@@ -98,10 +98,6 @@ def call(body) {
                         // If master
                         if (utils.isCD()) {
                             stage("Create Git Tag"){
-                                sh """
-                                    echo "${version}" > ${versionFile}
-                                """
-                                git.commitChanges(WORKSPACE, "Bump Version to ${version}")
                                 print "Pushing Tag ${version} to Git"
                                 git.createTagAndPush(WORKSPACE, version)
                                 // git.createRelease(version)
