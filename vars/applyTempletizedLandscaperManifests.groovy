@@ -67,7 +67,7 @@ def call(body) {
 
                     sh "sleep 30s"
 
-                    helm.addRepo("chartmuseum", "http://chartmuseum")
+                    helm.addRepo(helmRepoName, helmRepoUrl)
                 }
 
                 stage('Dry Run Charts') {
