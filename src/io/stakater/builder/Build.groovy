@@ -10,7 +10,7 @@ def buildMavenApplication(String version){
 
 def buildNodeApplication(String version) {
     sh """
-        npm version ${version}
+        npm version ${version} --allow-same-version
         npm install
     """
 }
