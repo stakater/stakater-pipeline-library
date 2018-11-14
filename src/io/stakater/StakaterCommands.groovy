@@ -360,6 +360,7 @@ def createImageVersionForCiAndCd(String repoUrl, String imagePrefix, String prNu
     if (branchName.equalsIgnoreCase("master")) {
         sh "stk generate version > commandResult"
         def version = readFile('commandResult').trim()
+        sh "rm commandResult .VERSION"
         version = 'v' + version
         git.createTagAndPush(WORKSPACE, version)
         if("github".equalsIgnoreCase(getProvider(repoUrl))) {
@@ -396,6 +397,7 @@ def getImageVersionForCiAndCd(String repoUrl, String imagePrefix, String prNumbe
     if (branchName.equalsIgnoreCase("master")) {
         sh "stk generate version > commandResult"
         def version = readFile('commandResult').trim()
+        sh "rm commandResult .VERSION"
         version = 'v' + version        
         imageVersion = imagePrefix + version
     }
@@ -417,6 +419,7 @@ def getImageVersionForMavenCiAndCd(String repoUrl, String imagePrefix, String pr
     if (branchName.equalsIgnoreCase("master")) {
         sh "stk generate version > commandResult"
         def version = readFile('commandResult').trim()
+        sh "rm commandResult .VERSION"
         version = 'v' + version        
         imageVersion = imagePrefix + version
     }
@@ -438,6 +441,7 @@ def getImageVersionForNodeCiAndCd(String repoUrl, String imagePrefix, String prN
     if (branchName.equalsIgnoreCase("master")) {
         sh "stk generate version > commandResult"
         def version = readFile('commandResult').trim()
+        sh "rm commandResult .VERSION"
         version = 'v' + version        
         imageVersion = imagePrefix + version
     }
