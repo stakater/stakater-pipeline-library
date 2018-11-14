@@ -64,7 +64,7 @@ def sendDefaultSuccessNotification(String webhookURL, String channel, fields) {
 }
 
 def sendDefaultSuccessNotification(String webhookURL, String channel, fields, String branchName) {
-    def attachment = createDefaultAttachment(fields)
+    def attachment = createDefaultAttachment(fields, branchName)
     sendSuccessNotification(webhookURL, "", channel, [attachment])
 }
 
