@@ -47,6 +47,9 @@ def call(body) {
 
                     def imageName = repoName.split("dockerfile-").last().toLowerCase()
                     def fullAppNameWithVersion = ""
+                    
+                    def prNumber = "${env.BRANCH_NAME}"                        
+
                     echo "Image NAME: ${imageName}"
                     if (repoOwner.startsWith('stakater-')){
                         repoOwner = 'stakater'
@@ -57,7 +60,6 @@ def call(body) {
                             dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
                             // If image Prefix is passed, use it, else pass empty string to create versions
                             def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
-                            def prNumber = "${env.BRANCH_NAME}"                        
                             if (env['BRANCH_NAME'] == null) {
                                 echo "Branch Name Null"
                                 prNumber = "MR-${env.gitlabMergeRequestIid}"                            
@@ -131,7 +133,7 @@ def call(body) {
                         }
                     }
                     catch (e) {
-                        slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
+                        slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)], prNumber)
 
                         def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
                         git.addCommentToPullRequest(commentMessage)
@@ -139,7 +141,7 @@ def call(body) {
                         throw e
                     }
                     stage('Notify') {
-                        slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")])
+                        slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")], prNumber)
 
                         def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
                         git.addCommentToPullRequest(commentMessage)
