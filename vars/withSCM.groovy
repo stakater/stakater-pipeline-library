@@ -4,17 +4,27 @@ def call(body) {
 
     def repoUrl
     def repoName
-    def repoBranch
+    def repoCloneBranch
     def repoOwner
+    def repoBranch
     
     if(env['gitlabSourceRepoSshUrl'] != null) { // Triggered by gitlab webhook
         repoUrl = env['gitlabSourceRepoSshUrl']
         repoName = env['gitlabSourceRepoName']
+
         if(env['gitlabMergeRequestState'] == "merged") {
-            repoBranch = env['gitlabTargetBranch']
+            repoCloneBranch = env['gitlabTargetBranch']
         } else {
-            repoBranch = env['gitlabSourceBranch']
+            repoCloneBranch = env['gitlabSourceBranch']
         }
+
+        repoBranch = repoCloneBranch
+
+        // Override repoBranch if its MR
+        if(env['gitlabMergeRequestId'] != null) {
+            repoBranch = "MR-" + env['gitlabMergeRequestId']
+        }
+        
         repoOwner = env['gitlabSourceNamespace']
     } else {
         def scmConfig = scm.getUserRemoteConfigs()[0]
@@ -36,21 +46,26 @@ def call(body) {
         }
         
         if(env['defaultBranch'] != null) {
-            repoBranch = env['defaultBranch']
+            repoCloneBranch = env['defaultBranch']
         } else if(utils.getBranch().startsWith("PR-")) {
             // Fetch branch from CHANGE_AUTHOR
-            repoBranch = "${env.CHANGE_BRANCH}"
+            repoCloneBranch = "${env.CHANGE_BRANCH}"
         }
         else {
-            //repoBranch = scmConfig.getRefspec().tokenize('/').last()
-            repoBranch = utils.getBranch()
+            //repoCloneBranch = scmConfig.getRefspec().tokenize('/').last()
+            repoCloneBranch = utils.getBranch()
         }
+        repoBranch = utils.getBranch()
     }
+
+    // Fixes issues while generating tags for docker images
+    repoBranch = repoBranch.replace('/', '-')
     
     withEnv(["REPO_URL=${repoUrl}",
              "REPO_NAME=${repoName}",
              "REPO_OWNER=${repoOwner}",
+             "REPO_CLONE_BRANCH=${repoCloneBranch}",
              "REPO_BRANCH=${repoBranch}"]) {
-        body(repoUrl, repoName, repoOwner, repoBranch)
+        body(repoUrl, repoName, repoOwner, repoCloneBranch)
     }
 }
