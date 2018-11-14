@@ -21,7 +21,7 @@ def call(body) {
         def slackChannel = "${env.SLACK_CHANNEL}"
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
-        def prNumber = "${env.BRANCH_NAME}"                        
+        def prNumber = "${env.REPO_BRANCH}"                        
 
         def version = ""
 
@@ -35,15 +35,11 @@ def call(body) {
                 echo "Repo Owner: ${repoOwner}" 
                 try {
                     stage('Create Version'){
-                            // If image Prefix is passed, use it, else pass empty string to create versions
-                            def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
-                            if (env['BRANCH_NAME'] == null) {
-                                echo "Branch Name Null"
-                                prNumber = "MR-${env.gitlabMergeRequestIid}"                            
-                            }
-                            version = stakaterCommands.getImageVersionForMavenCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
-                            echo "Version: ${version}"                       
-                            fullAppNameWithVersion = imageName + '-'+ version
+                        // If image Prefix is passed, use it, else pass empty string to create versions
+                        def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
+                        version = stakaterCommands.getImageVersionForMavenCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
+                        echo "Version: ${version}"                       
+                        fullAppNameWithVersion = imageName + '-'+ version
                     }
                     stage('Build Maven Application') {
                         echo "Building Maven application"   

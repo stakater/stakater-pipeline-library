@@ -48,7 +48,7 @@ def call(body) {
                     def imageName = repoName.split("dockerfile-").last().toLowerCase()
                     def fullAppNameWithVersion = ""
                     
-                    def prNumber = "${env.BRANCH_NAME}"                        
+                    def prNumber = "${env.REPO_BRANCH}"                        
 
                     echo "Image NAME: ${imageName}"
                     if (repoOwner.startsWith('stakater-')){
@@ -60,12 +60,7 @@ def call(body) {
                             dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
                             // If image Prefix is passed, use it, else pass empty string to create versions
                             def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
-                            if (env['BRANCH_NAME'] == null) {
-                                echo "Branch Name Null"
-                                prNumber = "MR-${env.gitlabMergeRequestIid}"                            
-                            }
-                            prNumber = prNumber.replace('/','-')
-                            version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, "${prNumber}", "${env.BUILD_NUMBER}")
+                            version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
                             echo "Version: ${version}"                       
                             fullAppNameWithVersion = imageName + '-'+ version
                         }
