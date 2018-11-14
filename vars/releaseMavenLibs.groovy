@@ -21,6 +21,8 @@ def call(body) {
         def slackChannel = "${env.SLACK_CHANNEL}"
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
+        def prNumber = "${env.BRANCH_NAME}"                        
+
         def version = ""
 
         container(name: 'tools') {
@@ -35,7 +37,6 @@ def call(body) {
                     stage('Create Version'){
                             // If image Prefix is passed, use it, else pass empty string to create versions
                             def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
-                            def prNumber = "${env.BRANCH_NAME}"                        
                             if (env['BRANCH_NAME'] == null) {
                                 echo "Branch Name Null"
                                 prNumber = "MR-${env.gitlabMergeRequestIid}"                            
@@ -62,7 +63,7 @@ def call(body) {
                     }
                 }
                 catch (e) {
-                    slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
+                    slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)], prNumber)
 
                     def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
                     git.addCommentToPullRequest(commentMessage)
@@ -70,7 +71,7 @@ def call(body) {
                     throw e
                 }
                 stage('Notify') {
-                    slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createArtifactField("${fullAppNameWithVersion}")])
+                    slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createArtifactField("${fullAppNameWithVersion}")], prNumber)
 
                     def commentMessage = "Artifact is available for testing. `${fullAppNameWithVersion}`"
                     git.addCommentToPullRequest(commentMessage)
