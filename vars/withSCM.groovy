@@ -7,6 +7,8 @@ def call(body) {
     def repoCloneBranch
     def repoOwner
     def repoBranch
+
+    printParams()
     
     if(env['gitlabSourceRepoSshUrl'] != null) { // Triggered by gitlab webhook
         repoUrl = env['gitlabSourceRepoSshUrl']
@@ -68,4 +70,9 @@ def call(body) {
              "REPO_BRANCH=${repoBranch}"]) {
         body(repoUrl, repoName, repoOwner, repoCloneBranch)
     }
+}
+
+@NonCPS
+def printParams() {
+  env.getEnvironment().each { name, value -> println "Name: $name -> Value $value" }
 }
