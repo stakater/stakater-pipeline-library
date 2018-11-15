@@ -22,7 +22,7 @@ def call(body) {
 
         // Override repoBranch if its MR
         if(env['gitlabMergeRequestId'] != null) {
-            repoBranch = "MR-" + env['gitlabMergeRequestId']
+            repoBranch = "MR-" + env['gitlabMergeRequestIid']
         }
         
         repoOwner = env['gitlabSourceNamespace']
