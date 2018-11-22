@@ -57,30 +57,25 @@ def call(body) {
                     }
                     echo "Repo Owner: ${repoOwner}" 
                     try {
-                        mavenNode(mavenImage: 'stakater/maven-jenkins:3.5.4-0.6',
-                                javaOptions: '-Duser.home=/home/jenkins -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90',
-                                mavenOpts: '-Duser.home=/home/jenkins -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn') {
-                            container(name: 'maven') {
-                            stage('Create Version'){
-                                dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
-                                // If image Prefix is passed, use it, else pass empty string to create versions
-                                def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
-                                version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
-                                echo "Version: ${version}"                       
-                                fullAppNameWithVersion = imageName + '-'+ version
-                            }
-                            stage('Build Maven Application') {
-                                echo "Building Maven application"   
-                                builder.buildMavenApplication(version)
-                            }                    
-                            stage('Image build & push') {
-                                sh """
-                                    export DOCKER_IMAGE=${dockerImage}
-                                    export DOCKER_TAG=${version}
-                                """
-                                docker.buildImageWithTagCustom(dockerImage, version)
-                                docker.pushTagCustom(dockerImage, version)
-                            }
+                        stage('Create Version'){
+                            dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
+                            // If image Prefix is passed, use it, else pass empty string to create versions
+                            def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
+                            version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
+                            echo "Version: ${version}"                       
+                            fullAppNameWithVersion = imageName + '-'+ version
+                        }
+                        stage('Build Maven Application') {
+                            echo "Building Maven application"   
+                            builder.buildMavenApplication(version)
+                        }                    
+                        stage('Image build & push') {
+                            sh """
+                                export DOCKER_IMAGE=${dockerImage}
+                                export DOCKER_TAG=${version}
+                            """
+                            docker.buildImageWithTagCustom(dockerImage, version)
+                            docker.pushTagCustom(dockerImage, version)
                         }
                         stage('Publish & Upload Helm Chart'){
                             echo "Rendering Chart & generating manifests"
