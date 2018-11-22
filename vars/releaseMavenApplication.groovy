@@ -16,6 +16,7 @@ def call(body) {
             def common = new io.stakater.Common()
             def utils = new io.fabric8.Utils()
             def templates = new io.stakater.charts.Templates()
+            def nexus = new io.stakater.repository.Nexus()   
             def chartManager = new io.stakater.charts.ChartManager()
             def helmRepoUrl =  'https://chartmuseum.tools.stackator.com'
             def helm = new io.stakater.charts.Helm()
@@ -117,6 +118,9 @@ def call(body) {
                         }
                         // If master
                         if (utils.isCD()) {
+                            stage('Push Jar') {
+                                nexus.pushAppArtifact(imageName, version)                      
+                            }
                             stage("Push Changes") {
                                 print "Pushing changes to Git"
                                 git.commitChanges(WORKSPACE, "Update chart and version")
