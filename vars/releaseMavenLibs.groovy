@@ -39,7 +39,7 @@ def call(body) {
                     stage('Create Version'){
                         // If image Prefix is passed, use it, else pass empty string to create versions
                         def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
-                        version = stakaterCommands.getImageVersionForMavenCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")                        
+                        version = stakaterCommands.getImageVersionForMavenCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
                         echo "Version: ${version}"                       
                         fullAppNameWithVersion = imageName + '-'+ version
                     }
@@ -61,14 +61,14 @@ def call(body) {
                     }
                 }
                 catch (e) {
-                    slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)], prNumber)                    
+                    slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)], prNumber)
 
                     def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
                     git.addCommentToPullRequest(commentMessage)
 
                     throw e
                 }
-                stage('Notify') {                    
+                stage('Notify') {
                     slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createArtifactField("${fullAppNameWithVersion}")], prNumber)
 
                     def commentMessage = "Artifact is available for testing. `${fullAppNameWithVersion}`"
