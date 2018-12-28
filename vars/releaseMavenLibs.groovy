@@ -19,9 +19,7 @@ def call(body) {
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
-        def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
-
-        def prNumber = "${env.REPO_BRANCH}"                        
+        def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"        
 
         def version = ""
 
@@ -29,6 +27,10 @@ def call(body) {
             withCurrentRepo() { def repoUrl, def repoName, def repoOwner, def repoBranch ->                
                 def imageName = repoName.toLowerCase()
                 def fullAppNameWithVersion = ""
+                def prNumber = "${env.REPO_BRANCH}"
+
+                echo "Image NAME: ${imageName}"
+                
                 if (repoOwner.startsWith('stakater-')){
                     repoOwner = 'stakater'
                 }
