@@ -39,7 +39,7 @@ def call(body) {
                     stage('Create Version'){
                         // If image Prefix is passed, use it, else pass empty string to create versions
                         def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
-                        version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")                        
+                        version = stakaterCommands.getImageVersionForMavenCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")                        
                         echo "Version: ${version}"                       
                         fullAppNameWithVersion = imageName + '-'+ version
                     }
