@@ -20,7 +20,7 @@ def call(body) {
                 def git = new io.stakater.vc.Git()
                 def common = new io.stakater.Common()
                 def utils = new io.fabric8.Utils()
-                print notifyOnSlack
+
                 try {
                     def versionFile = ".version"
                     def version = common.shOutput("cat ${versionFile}")
