@@ -19,7 +19,7 @@ def call(body) {
                 def slack = new io.stakater.notifications.Slack()
                 def git = new io.stakater.vc.Git()
                 def common = new io.stakater.Common()
-
+                print notifyOnSlack
                 try {
                     def versionFile = ".version"
                     def version = common.shOutput("cat ${versionFile}")
@@ -70,7 +70,7 @@ def call(body) {
                             """
                         }
                     }
-                    print notifyOnSlack
+                    
 
                     // if (notifyOnSlack){
                     //     stage('Notify') {
