@@ -6,7 +6,7 @@ def call(body) {
     body.delegate = config
     body()
 
-    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.13.2'
+    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.16.0'
     chartName = config.chartName ?: 'global'
     runPreInstall = config.runPreInstall ?: false
     notifyOnSlack = !config.notifyOnSlack ? config.notifyOnSlack : true
