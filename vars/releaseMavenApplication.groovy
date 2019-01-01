@@ -18,7 +18,7 @@ def call(body) {
             def templates = new io.stakater.charts.Templates()
             def nexus = new io.stakater.repository.Nexus()   
             def chartManager = new io.stakater.charts.ChartManager()
-            def helmRepoUrl =  'https://chartmuseum.tools.stackator.com'
+            def helmRepoUrl =  'https://chartmuseum.release.stakater.com'
             def helm = new io.stakater.charts.Helm()
             String chartPackageName = ""
             String helmVersion = ""
