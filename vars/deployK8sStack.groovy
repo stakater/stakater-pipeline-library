@@ -13,7 +13,7 @@ def call(body) {
 
     toolsWithCurrentKubeNode(toolsImage: toolsImage) {
         container(name: 'tools') {
-            withCurrentRepo(type: 'go') { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+            withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def slackChannel = "${env.SLACK_CHANNEL}"
                 def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
                 def slack = new io.stakater.notifications.Slack()
