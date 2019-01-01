@@ -42,8 +42,7 @@ def call(body) {
                     }
 
                     print "Branch: ${repoBranch}"
-                    // Commenting this check temporarily for test purposes
-                    //if (utils.isCD()) {
+                    if (utils.isCD()) {
                         String repoDir = WORKSPACE
                         stage('Deploy Chart') {
                             sh """
@@ -63,7 +62,7 @@ def call(body) {
                             git.createTagAndPush(repoDir, version)
                             git.createRelease(version)
                         }
-                    /*} else {
+                    } else {
                         stage('Dry Run Chart') {
                             print "Branch is not master so just dry running"
                             sh """
@@ -71,7 +70,7 @@ def call(body) {
                                 echo "Dry run successful"
                             """
                         }
-                    }*/
+                    }
                     
 
                     if (notifyOnSlack){
