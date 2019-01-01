@@ -6,10 +6,10 @@ def call(body) {
     body.delegate = config
     body()
 
-    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.16.0'
+    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.13.2'
     chartName = config.chartName ?: 'global'
     runPreInstall = config.runPreInstall ?: false
-    notifyOnSlack = !config.notifyOnSlack ?: true
+    notifyOnSlack = config.notifyOnSlack ?: true
 
     toolsWithCurrentKubeNode(toolsImage: toolsImage) {
         container(name: 'tools') {
