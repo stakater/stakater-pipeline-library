@@ -9,7 +9,7 @@ def call(body) {
     toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.16.0'
     chartName = config.chartName ?: 'global'
     runPreInstall = config.runPreInstall ?: false
-    notifyOnSlack = config.notifyOnSlack ?: true
+    notifyOnSlack = !config.notifyOnSlack ?: true
 
     toolsWithCurrentKubeNode(toolsImage: toolsImage) {
         container(name: 'tools') {
@@ -70,25 +70,26 @@ def call(body) {
                             """
                         }
                     }
+                    print notifyOnSlack
 
-                    if (notifyOnSlack){
-                        stage('Notify') {
-                            def message
-                            if (utils.isCD()) {
-                                message = "Release ${repoName} ${version}"
-                            }
-                            else {
-                                message = "Dry Run successful"
-                            }
-                            slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createField("Message", message, false)])
+                    // if (notifyOnSlack){
+                    //     stage('Notify') {
+                    //         def message
+                    //         if (utils.isCD()) {
+                    //             message = "Release ${repoName} ${version}"
+                    //         }
+                    //         else {
+                    //             message = "Dry Run successful"
+                    //         }
+                    //         slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createField("Message", message, false)])
 
-                            git.addCommentToPullRequest(message)
-                        }
-                    }
+                    //         git.addCommentToPullRequest(message)
+                    //     }
+                    // }
                 } catch(e) {
-                    if (notifyOnSlack){
-                        slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
-                    }
+                    // if (notifyOnSlack){
+                    //     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
+                    // }
 
                     def commentMessage = "[Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
                     git.addCommentToPullRequest(commentMessage)
