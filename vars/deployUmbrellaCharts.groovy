@@ -7,7 +7,7 @@ def call(body) {
     body()
 
     toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.16.0'
-    chartName = config.chartName ?: 'global'
+    chartName = config.chartName
     runPreInstall = config.runPreInstall ?: false
     notifyOnSlack = !config.notifyOnSlack ? config.notifyOnSlack : true
 
@@ -45,9 +45,15 @@ def call(body) {
                     if (utils.isCD()) {
                         String repoDir = WORKSPACE
                         stage('Deploy Chart') {
-                            sh """
-                                make install CHART_NAME=${chartName}
-                            """
+                            if(chartName){
+                                sh """
+                                    make install CHART_NAME=${chartName}
+                                """
+                            } else {
+                                sh """
+                                    make install-all
+                                """
+                            }   
                         }
 
                         stage('Tag and Release') {
@@ -65,10 +71,17 @@ def call(body) {
                     } else {
                         stage('Dry Run Chart') {
                             print "Branch is not master so just dry running"
-                            sh """
-                                make install-dry-run CHART_NAME=${chartName}
-                                echo "Dry run successful"
-                            """
+                            if(chartName){
+                                sh """
+                                    make install-dry-run CHART_NAME=${chartName}
+                                    echo "Dry run successful"
+                                """
+                            } else {
+                                sh """
+                                    make install-all-dry-run
+                                    echo "Dry run successful"
+                                """
+                            }
                         }
                     }
                     
