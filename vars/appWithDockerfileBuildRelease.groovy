@@ -10,6 +10,7 @@ def call(body) {
     body()
 
     toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.15.0'
+    shouldDeploy = config.deploy ?: false
 
     toolsNode(toolsImage: toolsImage) {
 
@@ -20,6 +21,7 @@ def call(body) {
         def slack = new io.stakater.notifications.Slack()
         def common = new io.stakater.Common()
         def templates = new io.stakater.charts.Templates()
+        def utils = new io.fabric8.Utils()
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
@@ -50,7 +52,7 @@ def call(body) {
                         dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
                         // If image Prefix is passed, use it, else pass empty string to create versions
                         def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
-                        version = stakaterCommands.createImageVersionForCiAndCd(repoUrl, imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
+                        version = stakaterCommands.getImageVersionForCiAndCd(repoUrl, imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
                         echo "Version: ${version}"
                         fullAppNameWithVersion = imageName + '-'+ version
                     }
@@ -62,17 +64,27 @@ def call(body) {
                         docker.buildImageWithTagCustom(dockerImage, version)
                         docker.pushTagCustom(dockerImage, version)
                     }
-                    stage('Publish Charts, Manifests'){
-                        echo "Rendering Chart & generating manifests"
-                        // Render chart from templates
-                        templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, dockerImage)
-                        // Generate manifests from chart
-                        templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
-                    }                    
-                    stage('Deploy chart'){
-                        echo "Deploying Chart for PR"   
-                        builder.deployHelmChart(chartDir)
+                    if(shouldDeploy){
+                        stage('Publish Charts, Manifests'){
+                            echo "Rendering Chart & generating manifests"
+                            // Render chart from templates
+                            templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, dockerImage)
+                            // Generate manifests from chart
+                            templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
+                        }    
+                        stage('Deploy chart'){
+                            echo "Deploying Chart"   
+                            builder.deployHelmChart(chartDir)
+                        }
                     }
+                    if (utils.isCD()) {
+                                                                
+                        stage("Create Git Tag"){
+                            print "Pushing Tag ${version} to Git"
+                            git.createTagAndPush(WORKSPACE, version)
+                            git.createRelease(version)
+                        }                        
+                    }                    
                 }
                 catch (e) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
