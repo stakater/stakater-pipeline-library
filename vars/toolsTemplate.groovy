@@ -25,7 +25,7 @@ def call(Map parameters = [:], body) {
                 secretEnvVar(key: 'SLACK_WEBHOOK_URL', secretName: 'slack-notification-hook', secretKey: 'webHookURL'),
                 secretEnvVar(key: 'GITHUB_AUTH_TOKEN', secretName: 'jenkins-hub-api-token', secretKey: 'hub'),
                 secretEnvVar(key: 'GITLAB_AUTH_TOKEN', secretName: 'jenkins-hub-api-token', secretKey: 'gitlab.hub'),
-                envVar(key: 'DOCKER_REGISTRY_URL', value: 'docker.tools.stackator.com:443')
+                envVar(key: 'DOCKER_REGISTRY_URL', value: 'docker.release.stakater.com:443')
             ],
             containers: [
                     containerTemplate(
