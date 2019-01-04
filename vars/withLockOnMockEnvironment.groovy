@@ -5,7 +5,7 @@ import groovy.json.JsonOutput
 def call(Map parameters = [:], body) {
     int defaultLifetimeInSeconds = 25 * 60
     int defaultWaitInSeconds = 5
-    URL url = new URL("http://restful-distributed-lock-manager.cicd-tools:8080/locks/mock")
+    URL url = new URL("http://restful-distributed-lock-manager.release:8080/locks/mock")
 
     String lockName = parameters.get('lockName')
     String lockJson = JsonOutput.toJson(
