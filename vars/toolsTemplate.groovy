@@ -26,7 +26,8 @@ def call(Map parameters = [:], body) {
                 secretEnvVar(key: 'GITHUB_AUTH_TOKEN', secretName: 'jenkins-hub-api-token', secretKey: 'hub'),
                 secretEnvVar(key: 'GITLAB_AUTH_TOKEN', secretName: 'jenkins-hub-api-token', secretKey: 'gitlab.hub'),
                 envVar(key: 'DOCKER_REGISTRY_URL', value: 'docker.release.stakater.com:443'),
-                envVar(key: 'CHARTMUSEUM_URL', value: 'https://chartmuseum.release.stakater.com')
+                envVar(key: 'CHARTMUSEUM_URL', value: 'https://chartmuseum.release.stakater.com'),
+                envVar(key: 'NEXUS_URL', value: 'http://nexus.release/repository/maven-')
             ],
             containers: [
                     containerTemplate(

@@ -19,6 +19,7 @@ def call(body) {
             def nexus = new io.stakater.repository.Nexus()   
             def chartManager = new io.stakater.charts.ChartManager()
             def helmRepoUrl =  config.chartMuseumUrl ?: common.getEnvValue('CHARTMUSEUM_URL')
+            def nexusURL = config.nexusURL ?: common.getEnvValue('NEXUS_URL')
             echo "Helm Repo Url: ${helmRepoUrl}"
             
             def helm = new io.stakater.charts.Helm()
@@ -116,7 +117,7 @@ def call(body) {
                         // If master
                         if (utils.isCD()) {
                             stage('Push Jar') {
-                                nexus.pushAppArtifact(imageName, version)                      
+                                nexus.pushAppArtifact(imageName, version, nexusURL)                      
                             }
                             stage("Push Changes") {
                                 print "Pushing changes to Git"
