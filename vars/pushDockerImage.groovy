@@ -17,7 +17,7 @@ def call(body) {
         def slackChannel = "${env.SLACK_CHANNEL}"
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
-        def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
+        def dockerRepositoryURL = config.dockerRepositoryURL ?: common.getEnvValue('DOCKER_REPOSITORY_URL')
 
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
@@ -26,7 +26,7 @@ def call(body) {
                     repoOwner = 'stakater'
                 }
                 echo "Repo Owner: ${repoOwner}" 
-                def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
+                def dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
                 // If image Prefix is passed, use it, else pass empty string to create versions
                 def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
                 def dockerImageVersion = stakaterCommands.createImageVersionForCiAndCd(repoUrl, imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")

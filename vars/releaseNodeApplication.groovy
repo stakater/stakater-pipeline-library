@@ -17,7 +17,7 @@ def call(body) {
             def utils = new io.fabric8.Utils()
             def templates = new io.stakater.charts.Templates()
             def chartManager = new io.stakater.charts.ChartManager()
-            def helmRepoUrl =  config.chartMuseumUrl ?: common.getEnvValue('CHARTMUSEUM_URL')
+            def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
             def helm = new io.stakater.charts.Helm()
             String chartPackageName = ""
             String helmVersion = ""
@@ -26,7 +26,7 @@ def call(body) {
             def slackChannel = "${env.SLACK_CHANNEL}"
             def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
-            def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
+            def dockerRepositoryURL = config.dockerRepositoryURL ?: common.getEnvValue('DOCKER_REPOSITORY_URL')
             def gitUser = config.gitUser ?: "stakater-user"
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
             def devAppsJobName = config.devAppsJobName ?: ""
@@ -59,7 +59,7 @@ def call(body) {
                     echo "Repo Owner: ${repoOwner}" 
                     try {
                         stage('Create Version'){
-                            dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
+                            dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
                             // If image Prefix is passed, use it, else pass empty string to create versions
                             def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
                             version = stakaterCommands.getImageVersionForNodeCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
@@ -124,7 +124,7 @@ def call(body) {
                                 // git.createRelease(version)
                             }
                             stage("Push to Dev-Apps Repo"){
-                                build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: helmRepoUrl ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
+                                build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: chartRepositoryURL ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
                             }
                         }
                     }
