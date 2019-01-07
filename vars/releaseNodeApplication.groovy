@@ -17,7 +17,7 @@ def call(body) {
             def utils = new io.fabric8.Utils()
             def templates = new io.stakater.charts.Templates()
             def chartManager = new io.stakater.charts.ChartManager()
-            def helmRepoUrl =  'https://chartmuseum.release.stakater.com'
+            def helmRepoUrl =  config.chartMuseumUrl ?: common.getEnvValue('CHARTMUSEUM_URL')
             def helm = new io.stakater.charts.Helm()
             String chartPackageName = ""
             String helmVersion = ""

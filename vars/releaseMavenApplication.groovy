@@ -18,7 +18,9 @@ def call(body) {
             def templates = new io.stakater.charts.Templates()
             def nexus = new io.stakater.repository.Nexus()   
             def chartManager = new io.stakater.charts.ChartManager()
-            def helmRepoUrl =  'https://chartmuseum.release.stakater.com'
+            def helmRepoUrl =  config.chartMuseumUrl ?: common.getEnvValue('CHARTMUSEUM_URL')
+            def mavenURL = config.mavenURL ?: common.getEnvValue('MAVEN_URL')
+            
             def helm = new io.stakater.charts.Helm()
             String chartPackageName = ""
             String helmVersion = ""
@@ -114,7 +116,7 @@ def call(body) {
                         // If master
                         if (utils.isCD()) {
                             stage('Push Jar') {
-                                nexus.pushAppArtifact(imageName, version)                      
+                                nexus.pushAppArtifact(imageName, version, mavenURL)                      
                             }
                             stage("Push Changes") {
                                 print "Pushing changes to Git"
