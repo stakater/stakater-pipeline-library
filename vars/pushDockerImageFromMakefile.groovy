@@ -6,7 +6,7 @@ def call(body) {
     body.delegate = config
     body()
 
-    def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
+    def dockerRepositoryURL = config.dockerRepositoryURL ?: common.getEnvValue('DOCKER_REPOSITORY_URL')
 
     toolsNode(toolsImage: 'stakater/pipeline-tools:1.5.2') {
         def common = new io.stakater.Common()
@@ -21,11 +21,11 @@ def call(body) {
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->         
                 def imageName = repoName.split("dockerfile-").last().toLowerCase()                       
-                def dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"                
+                def dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"                
                 def dockerImageVersion
                 try {
                     stage('Canary Release') {                        
-                        docker.buildAndPushImageFromMakefile(dockerRegistryURL,repoOwner,imageName)
+                        docker.buildAndPushImageFromMakefile(dockerRepositoryURL,repoOwner,imageName)
                         dockerImageVersion = common.shOutput """
                             release=\$(cat .release)
                             pattern="release="

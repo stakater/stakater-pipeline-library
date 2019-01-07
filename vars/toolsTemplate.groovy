@@ -25,9 +25,9 @@ def call(Map parameters = [:], body) {
                 secretEnvVar(key: 'SLACK_WEBHOOK_URL', secretName: 'slack-notification-hook', secretKey: 'webHookURL'),
                 secretEnvVar(key: 'GITHUB_AUTH_TOKEN', secretName: 'jenkins-hub-api-token', secretKey: 'hub'),
                 secretEnvVar(key: 'GITLAB_AUTH_TOKEN', secretName: 'jenkins-hub-api-token', secretKey: 'gitlab.hub'),
-                envVar(key: 'DOCKER_REGISTRY_URL', value: 'docker.release.stakater.com:443'),
-                envVar(key: 'CHARTMUSEUM_URL', value: 'https://chartmuseum.release.stakater.com'),
-                envVar(key: 'ARTIFACT_REPOSITORY_URL', value: 'http://nexus.release/repository/maven-')
+                envVar(key: 'DOCKER_REPOSITORY_URL', value: 'docker.release.stakater.com:443'),
+                envVar(key: 'CHART_REPOSITORY_URL', value: 'https://chartmuseum.release.stakater.com'),
+                envVar(key: 'JAVA_REPOSITORY_URL', value: 'http://nexus.release/repository/maven')
             ],
             containers: [
                     containerTemplate(

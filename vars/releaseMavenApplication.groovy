@@ -18,8 +18,8 @@ def call(body) {
             def templates = new io.stakater.charts.Templates()
             def nexus = new io.stakater.repository.Nexus()   
             def chartManager = new io.stakater.charts.ChartManager()
-            def helmRepoUrl =  config.chartMuseumUrl ?: common.getEnvValue('CHARTMUSEUM_URL')
-            def artifactRepositoryURL = config.artifactRepositoryURL ?: common.getEnvValue('ARTIFACT_REPOSITORY_URL')
+            def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
+            def javaRepositoryURL = config.javaRepositoryURL ?: common.getEnvValue('JAVA_REPOSITORY_URL')
             
             def helm = new io.stakater.charts.Helm()
             String chartPackageName = ""
@@ -29,7 +29,7 @@ def call(body) {
             def slackChannel = "${env.SLACK_CHANNEL}"
             def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
-            def dockerRegistryURL = config.dockerRegistryURL ?: common.getEnvValue('DOCKER_REGISTRY_URL')
+            def dockerRepositoryURL = config.dockerRepositoryURL ?: common.getEnvValue('DOCKER_REPOSITORY_URL')
             def appName = config.appName ?: ""
             def e2eTestJob = config.e2eTestJob ?: ""
             def performanceTestsJob = config.performanceTestsJob ?: "carbook/performance-tests-manual/add-initial-implementation"
@@ -60,7 +60,7 @@ def call(body) {
                     echo "Repo Owner: ${repoOwner}" 
                     try {
                         stage('Create Version'){
-                            dockerImage = "${dockerRegistryURL}/${repoOwner.toLowerCase()}/${imageName}"
+                            dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
                             // If image Prefix is passed, use it, else pass empty string to create versions
                             def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
                             version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
@@ -116,7 +116,7 @@ def call(body) {
                         // If master
                         if (utils.isCD()) {
                             stage('Push Jar') {
-                                nexus.pushAppArtifact(imageName, version, artifactRepositoryURL)                      
+                                nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      
                             }
                             stage("Push Changes") {
                                 print "Pushing changes to Git"
@@ -129,7 +129,7 @@ def call(body) {
                                 // git.createRelease(version)
                             }
                             stage("Push to Dev-Apps Repo"){
-                                build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: helmRepoUrl ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
+                                build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: chartRepositoryURL ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
                             }
                         }
                     }
