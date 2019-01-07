@@ -16,7 +16,7 @@ def call(body) {
         def utils = new io.fabric8.Utils()
         def templates = new io.stakater.charts.Templates()
         def nexus = new io.stakater.repository.Nexus()    
-        def mavenURL = config.mavenURL ?: common.getEnvValue('mavenURL')
+        def artifactRepositoryURL = config.artifactRepositoryURL ?: common.getEnvValue('ARTIFACT_REPOSITORY_URL')
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
@@ -49,7 +49,7 @@ def call(body) {
                         builder.buildMavenApplication(version)
                     }
                     stage('Push Jar') {
-                        nexus.pushAppArtifact(imageName, version, mavenURL)                      
+                        nexus.pushAppArtifact(imageName, version, artifactRepositoryURL)                      
                     }
                     // If master
                     if (utils.isCD()) {
