@@ -10,7 +10,7 @@ def call(body) {
     body()
 
     toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.15.0'
-    shouldDeploy = config.deploy ?: false
+    shouldDeploy = config.deployApp ?: false
 
     toolsNode(toolsImage: toolsImage) {
 
