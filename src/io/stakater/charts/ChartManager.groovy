@@ -8,7 +8,7 @@ def uploadToChartMuseum(String location, String chartName, String fileName, Stri
 
 def uploadToChartMuseum(String location, String chartName, String fileName, String cmUsername, String cmPassword, String chartRepositoryURL) {
     def chartMuseum = new io.stakater.charts.ChartMuseum()
-    chartMuseum.upload(location, chartName, fileName, cmUsername, cmPassword, chartRepositoryURL)
+    chartMuseum.upload(location, chartName, fileName, chartRepositoryURL, cmUsername, cmPassword)
 }
 
 def uploadToStakaterCharts(String packagedChart) {
