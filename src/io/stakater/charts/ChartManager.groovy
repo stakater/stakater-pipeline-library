@@ -1,14 +1,16 @@
 #!/usr/bin/groovy
 package io.stakater.charts
 
-def uploadToChartMuseum(String location, String chartName, String fileName) {
+def uploadToChartMuseum(String location, String chartName, String fileName, String chartRepositoryURL) {
     def chartMuseum = new io.stakater.charts.ChartMuseum()
-    chartMuseum.upload(location, chartName, fileName)
+    chartRepositoryURL = chartRepositoryURL + '/api/charts'
+    chartMuseum.upload(location, chartName, fileName, chartRepositoryURL)
 }
 
-def uploadToChartMuseum(String location, String chartName, String fileName, String cmUsername, String cmPassword) {
+def uploadToChartMuseum(String location, String chartName, String fileName, String cmUsername, String cmPassword, String chartRepositoryURL) {
     def chartMuseum = new io.stakater.charts.ChartMuseum()
-    chartMuseum.upload(location, chartName, fileName, cmUsername, cmPassword)
+    chartRepositoryURL = chartRepositoryURL + '/api/charts'
+    chartMuseum.upload(location, chartName, fileName, chartRepositoryURL, cmUsername, cmPassword)
 }
 
 def uploadToStakaterCharts(String packagedChart) {
