@@ -28,8 +28,6 @@ def call(body) {
         def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
         def dockerRepositoryURL = config.dockerRepositoryURL ?: common.getEnvValue('DOCKER_REPOSITORY_URL')
-        def syntheticTestsJob = config.syntheticTestJob ?: ""
-        def performanceTestsJob = config.performanceTestJob ?: ""
         def dockerImage = ""
         def version = ""
 
@@ -48,7 +46,7 @@ def call(body) {
                 }
                 echo "Repo Owner: ${repoOwner}" 
                 try {
-                    stage('Create Version'){
+                    stage('Generate Version'){
                         dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
                         // If image Prefix is passed, use it, else pass empty string to create versions
                         def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
@@ -56,7 +54,7 @@ def call(body) {
                         echo "Version: ${version}"
                         fullAppNameWithVersion = imageName + '-'+ version
                     }
-                    stage('Image build & push') {
+                    stage('Build & Push Image') {
                         sh """
                             export DOCKER_IMAGE=${dockerImage}
                             export DOCKER_TAG=${version}
