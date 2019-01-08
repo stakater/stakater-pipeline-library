@@ -14,10 +14,6 @@ def upload(String location, String chartName, String fileName, String cmUrl) {
     """
 }
 
-def upload(String location, String chartName, String fileName, String chartRepositoryURL) {
-    upload(location, chartName, fileName, chartRepositoryURL)
-}
-
 def upload(String location, String chartName, String fileName, String cmUrl, String cmUsername, String cmPassword) {
     sh """
         cd ${location}/${chartName}
@@ -28,10 +24,6 @@ def upload(String location, String chartName, String fileName, String cmUrl, Str
             exit 1
         fi
     """
-}
-
-def upload(String location, String chartName, String fileName, String cmUsername, String cmPassword, String chartRepositoryURL) {
-    upload(location, chartName, fileName, chartRepositoryURL, cmUsername, cmPassword)
 }
 
 return this
