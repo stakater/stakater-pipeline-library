@@ -38,6 +38,9 @@ def call(body) {
                 def docker = new io.stakater.containers.Docker()
                 def stakaterCommands = new io.stakater.StakaterCommands()
                 def slack = new io.stakater.notifications.Slack()
+
+                def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
+
                 try {
                     stage('Download Dependencies') {
                         sh """
@@ -128,7 +131,7 @@ def call(body) {
                         stage('Chart: Upload') {
                             String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                             String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
-                            chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword)
+                            chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)
 
                             def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
                             chartManager.uploadToStakaterCharts(packagedChartLocation)

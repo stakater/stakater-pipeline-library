@@ -2,12 +2,14 @@
 
 def call(body) {
     def config = [:]
+    def common = new io.stakater.Common()
+
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = config
     body()
 
     def helmRepoName = config.helmRepoName ?: 'chartmuseum '
-    def helmRepoUrl = config.helmRepoUrl ?: 'http://chartmuseum'
+    def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
     def cluster = config.cluster ?: 'external'
 
     def utils = new io.fabric8.Utils()
@@ -53,7 +55,7 @@ def call(body) {
 
                           sh "sleep 30s"
 
-                          helm.addRepo(helmRepoName, helmRepoUrl)
+                          helm.addRepo(helmRepoName, chartRepositoryURL)
                       }
 
                       stage('Dry Run Charts') {
@@ -149,7 +151,7 @@ def call(body) {
 
                           sh "sleep 30s"
 
-                          helm.addRepo(helmRepoName, helmRepoUrl)
+                          helm.addRepo(helmRepoName, chartRepositoryURL)
                       }
 
                       stage('Dry Run Charts') {

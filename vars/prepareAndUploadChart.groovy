@@ -18,6 +18,7 @@ def call(body) {
     def utils = new io.fabric8.Utils()
     def slack = new io.stakater.notifications.Slack()
 
+    def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
     def chartName = config.chartName
     def isPublic = config.isPublic ?: false
     def packageName
@@ -40,7 +41,7 @@ def call(body) {
             stage("Upload Chart: ${chartName}") {
                 String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                 String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
-                chartManager.uploadToChartMuseum(WORKSPACE, chartName.toLowerCase(), packageName, cmUsername, cmPassword)                
+                chartManager.uploadToChartMuseum(WORKSPACE, chartName.toLowerCase(), packageName, cmUsername, cmPassword, chartRepositoryURL)                
                 if(isPublic){
                     def packagedChartLocation = WORKSPACE + "/" + chartName.toLowerCase() + "/" + packageName;
                     chartManager.uploadToStakaterCharts(packagedChartLocation)

@@ -14,8 +14,8 @@ def upload(String location, String chartName, String fileName, String cmUrl) {
     """
 }
 
-def upload(String location, String chartName, String fileName) {
-    upload(location, chartName, fileName, "http://chartmuseum.release/api/charts")
+def upload(String location, String chartName, String fileName, String chartRepositoryURL) {
+    upload(location, chartName, fileName, chartRepositoryURL)
 }
 
 def upload(String location, String chartName, String fileName, String cmUrl, String cmUsername, String cmPassword) {
@@ -30,8 +30,8 @@ def upload(String location, String chartName, String fileName, String cmUrl, Str
     """
 }
 
-def upload(String location, String chartName, String fileName, String cmUsername, String cmPassword) {
-    upload(location, chartName, fileName, "http://chartmuseum.release/api/charts", cmUsername, cmPassword)
+def upload(String location, String chartName, String fileName, String cmUsername, String cmPassword, String chartRepositoryURL) {
+    upload(location, chartName, fileName, chartRepositoryURL, cmUsername, cmPassword)
 }
 
 return this
