@@ -3,11 +3,13 @@ package io.stakater.charts
 
 def uploadToChartMuseum(String location, String chartName, String fileName, String chartRepositoryURL) {
     def chartMuseum = new io.stakater.charts.ChartMuseum()
+    chartRepositoryURL = chartRepositoryURL + '/api/charts'
     chartMuseum.upload(location, chartName, fileName, chartRepositoryURL)
 }
 
 def uploadToChartMuseum(String location, String chartName, String fileName, String cmUsername, String cmPassword, String chartRepositoryURL) {
     def chartMuseum = new io.stakater.charts.ChartMuseum()
+    chartRepositoryURL = chartRepositoryURL + '/api/charts'
     chartMuseum.upload(location, chartName, fileName, chartRepositoryURL, cmUsername, cmPassword)
 }
 
