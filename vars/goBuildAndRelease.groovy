@@ -132,11 +132,14 @@ def call(body) {
                             echo ("Uploading chart")
                             String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                             String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
+                            String publicChartRepositoryURL = config.publicChartRepositoryURL
+                            String publicChartGitURL = config.publicChartGitURL
+
                             if (config.chartRepositoryURL) {
                                 echo "Uploading to custom chart repository: ${chartRepositoryURL}"
                                 chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
                             }
-                            if (config.publicChartRepositoryURL && config.publicChartGitURL) {
+                            if (publicChartRepositoryURL && publicChartGitURL) {
                                 echo "Uploading to public chart repository: ${publicChartRepositoryURL}"
                                 echo "Public chart repository Git URL: ${publicChartGitURL}"
 
