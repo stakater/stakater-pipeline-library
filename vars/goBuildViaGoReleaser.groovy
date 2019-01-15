@@ -130,10 +130,21 @@ def call(body) {
                         stage('Chart: Upload') {
                             String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                             String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
-                            chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)
+                            String publicChartRepositoryURL = config.publicChartRepositoryURL
+                            String publicChartGitURL = config.publicChartGitURL
 
-                            def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
-                            chartManager.uploadToStakaterCharts(packagedChartLocation)
+                            if (config.chartRepositoryURL) {
+                                echo "Uploading to custom chart repository: ${chartRepositoryURL}"
+                                chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
+                            }
+
+                            if (publicChartRepositoryURL && publicChartGitURL) {
+                                echo "Uploading to public chart repository: ${publicChartRepositoryURL}"
+                                echo "Public chart repository Git URL: ${publicChartGitURL}"
+
+                                def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
+                                chartManager.uploadToStakaterCharts(packagedChartLocation, publicChartRepositoryURL, publicChartGitURL)
+                            }
                         }
 
                         stage('Notify') {
