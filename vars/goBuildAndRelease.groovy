@@ -22,7 +22,7 @@ def call(body) {
                 def manifestsDir = kubernetesDir + "/manifests"
 
                 def dockerContextDir = WORKSPACE + "/build/package"
-                def dockerImage = repoOwner.toLowerCase() + "/" + repoName.toLowerCase()
+//                def dockerImage = repoOwner.toLowerCase() + "/" + repoName.toLowerCase()
                 def dockerImageVersion = ""
 
                 // Slack variables
@@ -38,10 +38,23 @@ def call(body) {
                 def docker = new io.stakater.containers.Docker()
                 def stakaterCommands = new io.stakater.StakaterCommands()
                 def slack = new io.stakater.notifications.Slack()
-
+                
                 def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
+                
+                def dockerImage = ""
+                def version = ""
+                def dockerRepositoryURL = config.dockerRepositoryURL ?: common.getEnvValue('DOCKER_REPOSITORY_URL')
 
                 try {
+                    stage('Create Version'){
+                        dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
+                        // If image Prefix is passed, use it, else pass empty string to create versions
+                        def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
+                        version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
+                        echo "Version: ${version}"                       
+                        fullAppNameWithVersion = imageName + '-'+ version
+                        echo "Full App name: ${fullAppNameWithVersion}"
+                    }
                     stage('Download Dependencies') {
                         sh """
                             cd ${goProjectDir}
@@ -56,7 +69,6 @@ def call(body) {
                             make test
                         """
                     }
-
                     if (utils.isCI()) {
                         stage('CI: Publish Dev Image') {
                             dockerImageVersion = stakaterCommands.getBranchedVersion("${env.BUILD_NUMBER}")
