@@ -74,10 +74,10 @@ def call(body) {
                     if (utils.isCI()) {
                         stage('CI: Publish Dev Image') {
                             dockerImageVersion = stakaterCommands.getBranchedVersion("${env.BUILD_NUMBER}")
-                            def builder = "docker.io/" + "${dockerImage}:${dockerImageVersion}"
+                            def builder = "docker.io/" + "${dockerImage}:${version}"
                             sh """
                               cd ${goProjectDir}
-                              export DOCKER_TAG=${dockerImageVersion}
+                              export DOCKER_TAG=${version}
                               export BUILDER=${builder}
                               make binary-image
                               make push
@@ -85,10 +85,10 @@ def call(body) {
                         }
 
                         stage('Notify') {
-                            def dockerImageWithTag = "${dockerImage}:${dockerImageVersion}"
+                            def dockerImageWithTag = "${dockerImage}:${version}"
                             slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
 
-                            def commentMessage = "Image is available for testing. ``docker pull ${dockerImageWithTag}``"
+                            def commentMessage = "Image is available for testing. ``docker pull ${version}``"
                             git.addCommentToPullRequest(commentMessage)
                             sh """
                                 stk notify jira --comment "${commentMessage}"
@@ -98,7 +98,7 @@ def call(body) {
                         stage('CD: Tag and Push') {
                             print "Generating New Version"
                             def versionFile = ".version"
-                            version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
+//                            version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
                             dockerImageVersion = version
 
                             print "Pushing Tag ${version} to DockerHub"
