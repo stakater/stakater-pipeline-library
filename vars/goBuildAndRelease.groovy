@@ -96,7 +96,7 @@ def call(body) {
                         stage('CD: Tag and Push') {
                             print "Generating New Version"
                             def versionFile = ".version"
-                            def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
+                            version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
                             dockerImageVersion = version
 
                             print "Pushing Tag ${version} to DockerHub"
