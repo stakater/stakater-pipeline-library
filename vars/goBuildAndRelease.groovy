@@ -45,6 +45,7 @@ def call(body) {
                 def dockerImage = ""
                 def version = ""
                 def dockerRepositoryURL = config.dockerRepositoryURL ?: common.getEnvValue('DOCKER_REPOSITORY_URL')
+                def prNumber = "${env.REPO_BRANCH}"                        
 
                 try {
                     stage('Create Version'){
