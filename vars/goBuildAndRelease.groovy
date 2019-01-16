@@ -6,7 +6,7 @@ def call(body) {
     body.delegate = config
     body()
 
-    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.16.0'
+    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.14.1'
 
     toolsNode(toolsImage: toolsImage) {
         container(name: 'tools') {
