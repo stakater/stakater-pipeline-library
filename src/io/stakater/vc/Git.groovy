@@ -127,10 +127,9 @@ def createRelease(def version) {
     flow.createGitHubRelease(version)
 }
 
-def generateVersionAndPush(def versionFile, def repoName, def repoOwner){
-  echo "Generating New Version"
+def generateVersionAndPush(def versionFile, def version, def repoName, def repoOwner){
   def common = new io.stakater.Common()
-  def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
+  
   sh """
       echo -n "${version}" > ${versionFile}
   """
@@ -140,27 +139,9 @@ def generateVersionAndPush(def versionFile, def repoName, def repoOwner){
   return version
 }
 
-def generateVersionAndPush(def versionFile, def repoName, def repoOwner, def goProjectPath){
-  echo "Generating New Version"
-  def common = new io.stakater.Common()
-  def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
-  sh """
-      echo -n "${version}" > ${versionFile}
-  """
-  commitChanges(goProjectPath, "Bump Version to ${version}")
-  echo "Pushing Tag ${version} to Git"
-  createTagAndPush(goProjectPath, version)
-  return version
-}
-
-def tagAndRelease(def versionFile, def repoName, def repoOwner){
-  def version = generateVersionAndPush(versionFile, repoName, repoOwner)
+def tagAndRelease(def versionFile, def version, def repoName, def repoOwner){
+  def version = generateVersionAndPush(versionFile, version, repoName, repoOwner)
   createRelease(version)
-}
-
-def createReleaseViaGoReleaser(def versionFile, def repoName, def repoOwner){
-  generateVersionAndPush(versionFile, repoName, repoOwner)
-  runGoReleaser(WORKSPACE)
 }
 
 def runGoReleaser(String repoDir){

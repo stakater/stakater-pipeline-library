@@ -35,6 +35,12 @@ def call(body) {
                 def landscaper = new io.stakater.charts.Landscaper()
                 def common = new io.stakater.Common()
 
+                def imageName = repoName.split("dockerfile-").last().toLowerCase()                
+                def dockerImage = ""
+                def version = ""
+                def prNumber = "${env.REPO_BRANCH}"                        
+                def dockerRepositoryURL = config.dockerRepositoryURL ?: "docker.io"
+  
                 stage('Update App Version') {
                     if(params.AppName != '' && params.AppVersion != '') {
                         sh """
@@ -77,12 +83,22 @@ def call(body) {
                 }
 
                 if(utils.isCD()) {
+                    stage('Create Version') {
+                        dockerImage = "${repoOwner.toLowerCase()}/${imageName}"
+                        // If image Prefix is passed, use it, else pass empty string to create versions
+                        def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
+                        version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
+                        echo "Version: ${version}"                       
+                        fullAppNameWithVersion = imageName + '-'+ version
+                        echo "Full App name: ${fullAppNameWithVersion}"
+                    }
+
                     stage('Install Charts') {
                         landscaper.apply(outputDir, false)
                     }
 
                     def versionFile = ".version"
-                    git.tagAndRelease(versionFile, repoName, repoOwner)
+                    git.tagAndRelease(versionFile, version, repoName, repoOwner)
                 }
             }
         }
