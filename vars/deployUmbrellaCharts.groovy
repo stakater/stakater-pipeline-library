@@ -20,10 +20,15 @@ def call(body) {
                 def git = new io.stakater.vc.Git()
                 def common = new io.stakater.Common()
                 def utils = new io.fabric8.Utils()
+                def stakaterCommands = new io.stakater.StakaterCommands()
 
                 try {
                     def versionFile = ".version"
-                    def version = common.shOutput("cat ${versionFile}")
+                    def imageName = repoName.split("dockerfile-").last().toLowerCase()                
+                    def dockerImage = ""
+                    def version = ""
+                    def prNumber = "${env.REPO_BRANCH}"                        
+                    def dockerRepositoryURL = config.dockerRepositoryURL ?: "docker.io"
 
                     stage('Run Prerequisites') {
                         sh """
@@ -44,6 +49,17 @@ def call(body) {
                     print "Branch: ${repoBranch}"
                     if (utils.isCD()) {
                         String repoDir = WORKSPACE
+
+                        stage('Create Version') {
+                            dockerImage = "${repoOwner.toLowerCase()}/${imageName}"
+                            // If image Prefix is passed, use it, else pass empty string to create versions
+                            def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
+                            version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
+                            echo "Version: ${version}"                       
+                            fullAppNameWithVersion = imageName + '-'+ version
+                            echo "Full App name: ${fullAppNameWithVersion}"
+                        }
+    
                         stage('Deploy Chart') {
                             if(chartName){
                                 sh """
@@ -58,7 +74,7 @@ def call(body) {
 
                         stage('Tag and Release') {
                             print "Generating New Version"
-                            version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
+
                             sh """
                                 echo "${version}" > ${versionFile}
                                 cd ${repoDir}
@@ -85,7 +101,6 @@ def call(body) {
                         }
                     }
                     
-
                     if (notifyOnSlack){
                         stage('Notify') {
                             def message
