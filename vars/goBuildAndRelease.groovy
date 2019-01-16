@@ -49,7 +49,7 @@ def call(body) {
 
                 try {
                     stage('Create Version'){
-                        dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
+                        dockerImage = "${repoOwner.toLowerCase()}/${imageName}"
                         // If image Prefix is passed, use it, else pass empty string to create versions
                         def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
                         version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
