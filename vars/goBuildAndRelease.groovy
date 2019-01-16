@@ -22,7 +22,6 @@ def call(body) {
                 def manifestsDir = kubernetesDir + "/manifests"
 
                 def dockerContextDir = WORKSPACE + "/build/package"
-                def imageName = repoName.split("dockerfile-").last().toLowerCase()
 
                 // Slack variables
                 def slackChannel = "${env.SLACK_CHANNEL}"
@@ -39,7 +38,8 @@ def call(body) {
                 def slack = new io.stakater.notifications.Slack()
                 
                 def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
-                
+
+                def imageName = repoName.split("dockerfile-").last().toLowerCase()                
                 def dockerImage = ""
                 def version = ""
                 def prNumber = "${env.REPO_BRANCH}"                        
@@ -95,7 +95,6 @@ def call(body) {
                         stage('CD: Tag and Push') {
                             print "Generating New Version"
                             def versionFile = ".version"
-//                            version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
 
                             print "Pushing Tag ${version} to DockerHub"
 

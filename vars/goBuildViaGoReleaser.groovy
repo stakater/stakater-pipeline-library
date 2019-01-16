@@ -6,7 +6,7 @@ def call(body) {
     body.delegate = config
     body()
 
-    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.10.0'
+    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.14.1'
 
     toolsNode(toolsImage: toolsImage) {
         container(name: 'tools') {
@@ -22,8 +22,6 @@ def call(body) {
                 def manifestsDir = kubernetesDir + "/manifests"
 
                 def dockerContextDir = WORKSPACE + "/build/package"
-                def dockerImage = repoOwner.toLowerCase() + "/" + repoName.toLowerCase()
-                def dockerImageVersion = ""
 
                 // Slack variables
                 def slackChannel = "${env.SLACK_CHANNEL}"
@@ -40,7 +38,23 @@ def call(body) {
                 def slack = new io.stakater.notifications.Slack()
                 def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
 
+                def imageName = repoName.split("dockerfile-").last().toLowerCase()                
+                def dockerImage = ""
+                def version = ""
+                def prNumber = "${env.REPO_BRANCH}"                        
+                def dockerRepositoryURL = config.dockerRepositoryURL ?: "docker.io"
+
                 try {
+                    stage('Create Version'){
+                        dockerImage = "${repoOwner.toLowerCase()}/${imageName}"
+                        // If image Prefix is passed, use it, else pass empty string to create versions
+                        def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
+                        version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
+                        echo "Version: ${version}"                       
+                        fullAppNameWithVersion = imageName + '-'+ version
+                        echo "Full App name: ${fullAppNameWithVersion}"
+                    }
+            
                     stage('Download Dependencies') {
                         sh """
                             cd ${goProjectDir}
@@ -58,11 +72,10 @@ def call(body) {
 
                     if (utils.isCI()) {
                         stage('CI: Publish Dev Image') {
-                            dockerImageVersion = stakaterCommands.getBranchedVersion("${env.BUILD_NUMBER}")
-                            def builder = "docker.io/" + "${dockerImage}:${dockerImageVersion}"
+                            def builder = "${dockerRepositoryURL}/${dockerImage}:${version}"
                             sh """
                               cd ${goProjectDir}
-                              export DOCKER_TAG=${dockerImageVersion}
+                              export DOCKER_TAG=${version}
                               export BUILDER=${builder}
                               make binary-image
                               make push
@@ -70,7 +83,7 @@ def call(body) {
                         }
 
                         stage('Notify') {
-                            def dockerImageWithTag = "${dockerImage}:${dockerImageVersion}"
+                            def dockerImageWithTag = "${dockerImage}:${version}"
                             slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
 
                             def commentMessage = "Image is available for testing. ``docker pull ${dockerImageWithTag}``"
@@ -83,8 +96,6 @@ def call(body) {
                         stage('CD: Tag and Push') {
                             print "Generating New Version"
                             def versionFile = ".version"
-                            def version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
-                            dockerImageVersion = version
 
                             print "Pushing Tag ${version} to DockerHub"
 
@@ -149,7 +160,7 @@ def call(body) {
                         }
 
                         stage('Notify') {
-                            def dockerImageWithTag = "${dockerImage}:${dockerImageVersion}"
+                            def dockerImageWithTag = "${dockerImage}:${version}"
                             slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
 
                             def commentMessage = "Image is available for testing. ``docker pull ${dockerImageWithTag}``"
