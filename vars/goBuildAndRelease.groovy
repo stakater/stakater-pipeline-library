@@ -125,7 +125,7 @@ def call(body) {
 
                             print "Pushing Tag ${version} to Git"
                             git.createTagAndPush(WORKSPACE, version)
-                            git.createRelease(version)
+                            stakaterCommands.createGitHubRelease(version)
                         }
 
                         stage('Chart: Init Helm') {

@@ -80,7 +80,7 @@ def call(body) {
                         stage("Create Git Tag"){
                             print "Pushing Tag ${version} to Git"
                             git.createTagAndPush(WORKSPACE, version)
-                            git.createRelease(version)
+                            stakaterCommands.createGitHubRelease(version)
                         }                        
                     }                    
                 }

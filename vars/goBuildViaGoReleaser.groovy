@@ -125,7 +125,7 @@ def call(body) {
                             git.commitChanges(WORKSPACE, "Bump Version to ${version}")
 
                             print "Pushing Tag ${version} to Git"
-                            git.generateVersionAndPush(versionFile, version, repoName, repoOwner)
+                            git.createTagAndPush(WORKSPACE, version)
                             git.runGoReleaser(goProjectDir)
                         }
 

@@ -364,7 +364,7 @@ def createImageVersionForCiAndCd(String repoUrl, String imagePrefix, String prNu
         version = 'v' + version
         git.createTagAndPush(WORKSPACE, version)
         if("github".equalsIgnoreCase(getProvider(repoUrl))) {
-            git.createRelease(version)
+            createGitHubRelease(version)
         }
 
         imageVersion = imagePrefix + version

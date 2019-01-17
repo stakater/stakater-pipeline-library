@@ -122,28 +122,6 @@ def push(def repoDir, String branchName) {
     """
 }
 
-def createRelease(def version) {
-    def flow = new io.stakater.StakaterCommands()
-    flow.createGitHubRelease(version)
-}
-
-def generateVersionAndPush(def versionFile, def version, def repoName, def repoOwner){
-  def common = new io.stakater.Common()
-  
-  sh """
-      echo -n "${version}" > ${versionFile}
-  """
-  commitChanges(WORKSPACE, "Bump Version to ${version}")
-  echo "Pushing Tag ${version} to Git"
-  createTagAndPush(WORKSPACE, version)
-  return version
-}
-
-def tagAndRelease(def versionFile, def version, def repoName, def repoOwner){
-  def version = generateVersionAndPush(versionFile, version, repoName, repoOwner)
-  createRelease(version)
-}
-
 def runGoReleaser(String repoDir){
   sh """
     cd ${repoDir}

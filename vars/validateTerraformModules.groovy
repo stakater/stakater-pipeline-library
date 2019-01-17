@@ -19,6 +19,7 @@ def call(body) {
         def slack = new io.stakater.notifications.Slack()
         def git = new io.stakater.vc.Git()
         def terraform = new io.stakater.automation.Terraform()
+        def stakaterCommands = new io.stakater.StakaterCommands()
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
@@ -74,7 +75,7 @@ def call(body) {
 
               print "Pushing Tag ${version} to Git"
               git.createTagAndPush(WORKSPACE, version)
-              git.createRelease(version)
+              stakaterCommands.createGitHubRelease(version)
             }
           }
 

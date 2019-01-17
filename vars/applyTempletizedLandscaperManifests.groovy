@@ -34,6 +34,7 @@ def call(body) {
                 def helm = new io.stakater.charts.Helm()
                 def landscaper = new io.stakater.charts.Landscaper()
                 def common = new io.stakater.Common()
+                def flow = new io.stakater.StakaterCommands()
 
                 def imageName = repoName.split("dockerfile-").last().toLowerCase()                
                 def dockerImage = ""
@@ -96,9 +97,8 @@ def call(body) {
                     stage('Install Charts') {
                         landscaper.apply(outputDir, false)
                     }
-
-                    def versionFile = ".version"
-                    git.tagAndRelease(versionFile, version, repoName, repoOwner)
+                
+                    flow.createGitHubRelease(version)
                 }
             }
         }

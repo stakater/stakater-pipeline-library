@@ -82,7 +82,7 @@ def call(body) {
                             git.commitChanges(repoDir, "Bump Version to ${version}")
                             print "Pushing Tag ${version} to Git"
                             git.createTagAndPush(repoDir, version)
-                            git.createRelease(version)
+                            stakaterCommands.createGitHubRelease(version)
                         }
                     } else {
                         stage('Dry Run Chart') {
