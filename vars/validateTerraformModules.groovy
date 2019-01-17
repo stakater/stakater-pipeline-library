@@ -19,6 +19,7 @@ def call(body) {
         def slack = new io.stakater.notifications.Slack()
         def git = new io.stakater.vc.Git()
         def terraform = new io.stakater.automation.Terraform()
+        def stakaterCommands = new io.stakater.StakaterCommands()
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
@@ -39,14 +40,26 @@ def call(body) {
             """
           }
 
-          def version
+          def imageName = repoName.split("dockerfile-").last().toLowerCase()                
+          def dockerImage = ""
+          def version = ""
+          def prNumber = "${env.REPO_BRANCH}"  
 
           if(utils.isCD()) {
+            stage('Create Version') {
+              dockerImage = "${repoOwner.toLowerCase()}/${imageName}"
+              // If image Prefix is passed, use it, else pass empty string to create versions
+              def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
+              version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
+              echo "Version: ${version}"                       
+              fullAppNameWithVersion = imageName + '-'+ version
+              echo "Full App name: ${fullAppNameWithVersion}"
+            }
+
             stage('Tag and Release') {
               print "Generating New Version"
               
               def versionFile = ".version"
-              version = common.shOutput("jx-release-version --gh-owner=${repoOwner} --gh-repository=${repoName} --version-file ${versionFile}")
 
               // Save new version
               sh """
@@ -62,7 +75,7 @@ def call(body) {
 
               print "Pushing Tag ${version} to Git"
               git.createTagAndPush(WORKSPACE, version)
-              git.createRelease(version)
+              stakaterCommands.createGitHubRelease(version)
             }
           }
 
