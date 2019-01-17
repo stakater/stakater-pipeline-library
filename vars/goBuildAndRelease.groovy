@@ -85,7 +85,7 @@ def call(body) {
                             def dockerImageWithTag = "${dockerImage}:${version}"
                             slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
 
-                            def commentMessage = "Image is available for testing. ``docker pull ${version}``"
+                            def commentMessage = "Image is available for testing. ``docker pull ${dockerImageWithTag}``"
                             git.addCommentToPullRequest(commentMessage)
                             sh """
                                 stk notify jira --comment "${commentMessage}"
