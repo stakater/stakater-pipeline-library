@@ -20,7 +20,6 @@ def call(body) {
 
     def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
     def chartName = config.chartName
-    def isPublic = config.isPublic ?: false
     def packageName
 
     if(chartName == '') {

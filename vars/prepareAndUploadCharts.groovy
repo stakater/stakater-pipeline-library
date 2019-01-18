@@ -43,6 +43,9 @@ def call(body) {
                     prepareAndUploadChart {
                         chartName = chart
                         isPublic = makePublic
+                        chartRepositoryURL = config.chartRepositoryURL
+                        publicChartRepositoryURL = config.publicChartRepositoryURL
+                        publicChartGitURL = config.publicChartGitURL
                     }
                     echo "Removing packaged chart"
                     sh """
