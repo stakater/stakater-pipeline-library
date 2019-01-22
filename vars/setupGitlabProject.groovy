@@ -5,14 +5,6 @@ def call(body) {
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = config
     body()
-    /*
-        config.gitUserName = carbook.bot
-        config.gitEmail = carbook.bot@gmail.com
-        config.jobFolderName = carbook
-        config.jobFolderDisplayName = carbook
-        config.jobFolderDescription = Folder for projects in CarBook Group
-        config.tfFilesPrefix = project- 
-    */
 
     toolsNode(toolsImage: "stakater/pipeline-tools:1.13.2") {
         container(name: "tools") {
