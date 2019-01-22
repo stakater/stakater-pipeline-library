@@ -47,7 +47,7 @@ def call(body) {
                     }
 
                     stage('Create Jenkins Jobs') {
-                        // Create carbook folder
+                        // Create job folder
                         jobDsl scriptText: """
                         folder("${config.jobFolderName}") {
                             displayName("${config.jobFolderDisplayName}")
