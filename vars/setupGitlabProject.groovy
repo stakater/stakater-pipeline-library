@@ -57,9 +57,9 @@ def call(body) {
                     stage('Create Jenkins Jobs') {
                         // Create carbook folder
                         jobDsl scriptText: """
-                        folder(${config.jobFolderName}) {
-                            displayName(${config.jobFolderDisplayName})
-                            description(${config.jobFolderDescription})
+                        folder("${config.jobFolderName}") {
+                            displayName("${config.jobFolderDisplayName}")
+                            description("${config.jobFolderDescription}")
                         }
                         """
 
@@ -67,7 +67,8 @@ def call(body) {
 
                         for(int ii = 0; ii < files.size(); ii++) {
                         projectName = (files[ii].name.split("${config.tfFilesPrefix}")[1]).split('\\.')[0]
-
+                        
+                        echo "Project Name: ${projectName}"
                         // Create pipeline job for current project for automatic triggering
                         jobDsl scriptText: """
                             pipelineJob("${config.jobFolderName}/${projectName}") {
