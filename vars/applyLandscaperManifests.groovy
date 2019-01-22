@@ -33,7 +33,6 @@ def call(body) {
                   def slack = new io.stakater.notifications.Slack()
                   def landscaper = new io.stakater.charts.Landscaper()
                   def helm = new io.stakater.charts.Helm()
-                  def common = new io.stakater.Common()
                   def flow = new io.stakater.StakaterCommands()
 
                   def imageName = repoName.split("dockerfile-").last().toLowerCase()                
@@ -112,7 +111,7 @@ def call(body) {
                   stage('Notify') {
                       def message
                       def versionFile = ".version"
-                      def version = common.shOutput("cat ${versionFile}")
+                      version = common.shOutput("cat ${versionFile}")
                       if (utils.isCD()) {
                           message = "Release ${repoName} ${version}"
                       }
@@ -145,7 +144,6 @@ def call(body) {
                   def slack = new io.stakater.notifications.Slack()
                   def landscaper = new io.stakater.charts.Landscaper()
                   def helm = new io.stakater.charts.Helm()
-                  def common = new io.stakater.Common()
 
                   def imageName = repoName.split("dockerfile-").last().toLowerCase()                
                   def dockerImage = ""
@@ -222,7 +220,7 @@ def call(body) {
                   stage('Notify') {
                       def message
                       def versionFile = ".version"
-                      def version = common.shOutput("cat ${versionFile}")
+                      version = common.shOutput("cat ${versionFile}")
                       if (utils.isCD()) {
                           message = "Release ${repoName} ${version}"
                       }
