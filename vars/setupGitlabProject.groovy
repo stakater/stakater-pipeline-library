@@ -8,7 +8,7 @@ def call(body) {
 
     toolsNode(toolsImage: "stakater/pipeline-tools:1.13.2") {
         container(name: "tools") {
-            withCurrentRepo(gitUsername: config.gitUserName, gitEmail: config.gitEmail) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+            withCurrentRepo(gitUsername: config.gitUsername, gitEmail: config.gitEmail) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def utils = new io.fabric8.Utils()
                 def slack = new io.stakater.notifications.Slack()
                 def git = new io.stakater.vc.Git()
@@ -72,7 +72,7 @@ def call(body) {
                                     remote {
                                         name("origin")
                                         url("https://gitlab.com/${config.jobFolderName}/${projectName}.git")
-                                        credentials("${config.gitUserName}")
+                                        credentials("${config.gitUsername}")
                                         refspec("+refs/heads/*:refs/remotes/origin/* +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*")
                                     }
                                     }
@@ -97,7 +97,7 @@ def call(body) {
                                 git {
                                 id("${projectName}-manual")
                                 remote("https://gitlab.com/${config.jobFolderName}/${projectName}.git")
-                                credentialsId("${config.gitUserName}")
+                                credentialsId("${config.gitUsername}")
                                 includes("*")
                                 }
                             }
@@ -114,7 +114,7 @@ def call(body) {
                                     remote {
                                         name("origin")
                                         url("https://gitlab.com/${config.jobFolderName}/${projectName}.git")
-                                        credentials("${config.gitUserName}")
+                                        credentials("${config.gitUsername}")
                                         refspec("+refs/heads/*:refs/remotes/origin/*")
                                     }
                                     }
