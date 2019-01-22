@@ -8,7 +8,7 @@ def call(body) {
 
     toolsNode(toolsImage: "stakater/pipeline-tools:1.13.2") {
         container(name: "tools") {
-            withCurrentRepo(gitUsername: config.gitUsername, gitEmail: config.gitEmail) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+            withCurrentRepo(gitUsername: config.gitUserName, gitEmail: config.gitEmail) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def utils = new io.fabric8.Utils()
                 def slack = new io.stakater.notifications.Slack()
                 def git = new io.stakater.vc.Git()
