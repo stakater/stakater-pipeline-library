@@ -72,7 +72,7 @@ def call(body) {
                                     remote {
                                         name("origin")
                                         url("https://gitlab.com/${config.jobFolderName}/${projectName}.git")
-                                        credentials("${config.gitUserName}")
+                                        credentials("${config.gitUsername}")
                                         refspec("+refs/heads/*:refs/remotes/origin/* +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*")
                                     }
                                     }
@@ -97,7 +97,7 @@ def call(body) {
                                 git {
                                 id("${projectName}-manual")
                                 remote("https://gitlab.com/${config.jobFolderName}/${projectName}.git")
-                                credentialsId("${config.gitUserName}")
+                                credentialsId("${config.gitUsername}")
                                 includes("*")
                                 }
                             }
@@ -114,7 +114,7 @@ def call(body) {
                                     remote {
                                         name("origin")
                                         url("https://gitlab.com/${config.jobFolderName}/${projectName}.git")
-                                        credentials("${config.gitUserName}")
+                                        credentials("${config.gitUsername}")
                                         refspec("+refs/heads/*:refs/remotes/origin/*")
                                     }
                                     }
