@@ -63,7 +63,7 @@ def call(body) {
                         }
                         """
 
-                        files = findFiles(glob: "${config.tfFilesPrefix}"*.tf)
+                        files = findFiles(glob: "${config.tfFilesPrefix}*.tf")
 
                         for(int ii = 0; ii < files.size(); ii++) {
                         projectName = (files[ii].name.split("${config.tfFilesPrefix}")[1]).split('\\.')[0]
