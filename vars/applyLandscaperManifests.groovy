@@ -73,7 +73,7 @@ def call(body) {
                               dockerImage = "${repoOwner.toLowerCase()}/${imageName}"
                               // If image Prefix is passed, use it, else pass empty string to create versions
                               def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
-                              version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
+                              version = flow.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
                               echo "Version: ${version}"                       
                               fullAppNameWithVersion = imageName + '-'+ version
                               echo "Full App name: ${fullAppNameWithVersion}"
@@ -183,7 +183,7 @@ def call(body) {
                               dockerImage = "${repoOwner.toLowerCase()}/${imageName}"
                               // If image Prefix is passed, use it, else pass empty string to create versions
                               def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
-                              version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
+                              version = flow.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
                               echo "Version: ${version}"                       
                               fullAppNameWithVersion = imageName + '-'+ version
                               echo "Full App name: ${fullAppNameWithVersion}"
