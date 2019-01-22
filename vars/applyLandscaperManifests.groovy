@@ -15,7 +15,7 @@ def call(body) {
     def utils = new io.fabric8.Utils()
 
     if(cluster.equals('external')){
-      toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.8.1') {
+      toolsWithExternalKubeNode(toolsImage: 'stakater/pipeline-tools:1.14.1') {
           container(name: 'tools') {
               withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                   String workspaceDir = WORKSPACE
