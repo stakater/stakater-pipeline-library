@@ -102,7 +102,7 @@ def call(body) {
 
                             echo "user: ${cmUsername}"
                             echo "pass: ${cmPassword}"
-                            chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
+//                            chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
                         }
                         // If master
                         if (utils.isCD()) {
