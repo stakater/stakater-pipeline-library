@@ -32,10 +32,6 @@ def call(body) {
 
             def dockerRepositoryURL = config.dockerRepositoryURL ?: common.getEnvValue('DOCKER_REPOSITORY_URL')
             def appName = config.appName ?: ""
-            def e2eTestJob = config.e2eTestJob ?: ""
-            def performanceTestsJob = config.performanceTestsJob ?: "carbook/performance-tests-manual/add-initial-implementation"
-            def mockAppsJobName = config.mockAppsJobName ?: ""
-            def devAppsJobName = config.devAppsJobName ?: ""
             def gitUser = config.gitUser ?: "stakater-user"
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
 
@@ -80,32 +76,29 @@ def call(body) {
                             docker.buildImageWithTagCustom(dockerImage, version)
                             docker.pushTagCustom(dockerImage, version)
                         }
-                        stage('Publish & Upload Helm Chart'){
-                            echo "Rendering Chart & generating manifests"
-                            helm.init(true)
-                            helm.lint(chartDir, repoName.toLowerCase())
-                            
-                            if (version.contains("SNAPSHOT")) {
-                                helmVersion = "0.0.0"
-                            }else{
-                                helmVersion = version.substring(1)
-                            }
-                            echo "Helm Version: ${helmVersion}"
-                            // Render chart from templates
-                            templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
-                            // Generate manifests from chart
-                            templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
-                            chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)                        
-                            
-                            String cmUsername = "${env.CHARTMUSEUM_USERNAME}"
-                            String cmPassword = "${env.CHARTMUSEUM_PASSWORD}"
-
-                            echo "user: ${cmUsername}"
-                            echo "pass: ${cmPassword}"
-//                            chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
-                        }
-                        // If master
+                           // If master
                         if (utils.isCD()) {
+                            stage('Publish & Upload Helm Chart'){
+                                echo "Rendering Chart & generating manifests"
+                                helm.init(true)
+                                helm.lint(chartDir, repoName.toLowerCase())
+                                
+                                if (version.contains("SNAPSHOT")) {
+                                    helmVersion = "0.0.0"
+                                }else{
+                                    helmVersion = version.substring(1)
+                                }
+                                echo "Helm Version: ${helmVersion}"
+                                // Render chart from templates
+                                templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
+                                // Generate manifests from chart
+                                templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
+                                chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)                        
+                                
+                                String cmUsername = "${env.CHARTMUSEUM_USERNAME}"
+                                String cmPassword = "${env.CHARTMUSEUM_PASSWORD}"
+                                chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
+                            }
                             stage('Push Jar') {
                                 nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      
                             }
