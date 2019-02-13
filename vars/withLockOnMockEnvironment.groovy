@@ -5,8 +5,9 @@ import groovy.json.JsonOutput
 def call(Map parameters = [:], body) {
     int defaultLifetimeInSeconds = 25 * 60
     int defaultWaitInSeconds = 5
-    URL url = new URL("http://restful-distributed-lock-manager.release:8080/locks/mock")
-
+    URL url = new URL(parameters.get('rdlmURL') ?: "http://restful-distributed-lock-manager.release:8080/locks/mock")
+    echo "rdlmURL: ${url}"
+    
     String lockName = parameters.get('lockName')
     String lockJson = JsonOutput.toJson(
             [
