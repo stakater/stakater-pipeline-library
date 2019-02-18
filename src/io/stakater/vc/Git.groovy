@@ -18,11 +18,17 @@ Host github.com
 
 Host gitlab.com
     StrictHostKeyChecking no
+
+Host bitbucket.org
+    StrictHostKeyChecking no
 EOF
 
         ssh-keyscan github.com > /root/.ssh/known_hosts
         echo "\n" >> /root/.ssh/known_hosts
         ssh-keyscan gitlab.com >> /root/.ssh/known_hosts
+        echo "\n" >> /root/.ssh/known_hosts
+        ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
+        echo "\n" >> /root/.ssh/known_hosts
     """
 }
 
