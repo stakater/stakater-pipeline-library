@@ -240,7 +240,7 @@ def postPRComment(comment, pr, project, provider, token) {
             break
 
         case "bitbucket":
-            postPRCommentToBitbucket()
+            postPRCommentToBitbucket(comment, pr, project, token)
         default: 
             error "${provider} is not supported"
             break
@@ -293,20 +293,43 @@ def getGitLabMergeRequestsByBranchName(project, branchName, token){
     }
 }
 
-def postPRCommentToBitbucket() {
+def postPRCommentToBitbucket(comment, pr, project, token) {
     def changeAuthor = env.CHANGE_AUTHOR
     if (!changeAuthor){
         echo "no commit author found so cannot comment on PR"
         return
     }
-    // if (!pr){
-    //     echo "no pull request number found so cannot comment on PR"
-    //     return
-    // }
+    if (!pr){
+        echo "no pull request number found so cannot comment on PR"
+        return
+    }
 
-    def comment = "@${changeAuthor} " + comment
+    comment = "@${changeAuthor} " + comment
+    def apiUrl = new URL("https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments")
+    echo "adding ${comment} to ${apiUrl}"
 
-    echo "Comment: ${comment}"
+    try {
+        def HttpURLConnection connection = apiUrl.openConnection()
+        if (githubToken.length() > 0) {
+            connection.setRequestProperty("Authorization", "Basic ${token}")
+        }
+        connection.setRequestMethod("POST")
+        connection.setDoOutput(true)
+        connection.connect()
+
+        def body = "{\"content\":{\"raw\":\"${comment}\"}}"
+
+        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
+        writer.write(body)
+        writer.flush()
+
+        // execute the POST request
+        new InputStreamReader(connection.getInputStream())
+
+        connection.disconnect()
+    } catch (err) {
+        error "ERROR  ${err}"
+    }
 }
 
 def postPRCommentToGithub(comment, pr, project, githubToken) {

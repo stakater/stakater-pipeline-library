@@ -87,8 +87,9 @@ def addCommentToPullRequest(String message) {
             break
 
         case "bitbucket":
-            def result = flow.postPRComment('as', 'as', 'sa', provider, providerToken)
-
+            def result = flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken)
+            break
+            
         default:
             error "${provider} is not supported" 
             break   
