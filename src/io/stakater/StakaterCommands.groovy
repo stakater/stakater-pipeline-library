@@ -84,6 +84,9 @@ def getProviderToken(provider) {
         case "gitlab":
             tokenPath = '/home/jenkins/.apitoken/gitlab.hub'
             break
+        
+        case "bitbucket":
+            tokenPath = '/home/jenkins/.apitoken/bitbucket'
 
         default: 
             error "${provider} is not supported"
@@ -162,6 +165,8 @@ def getProvider(url) {
         return 'github'
     } else if (url.contains("gitlab.com")){
         return 'gitlab'
+    } else if (url.contains("bitbucket.org")){
+        return 'bitbucket'
     } else {
          error "${url} is not a GitHub URL, neither a Gitlab URL"
     }
@@ -177,6 +182,9 @@ def extractOrganizationAndProjectFromUrl(url, provider) {
         case "gitlab":
             result = formatGitlabUrl(url)
             break
+
+        case "bitbucket":
+            result = formatBitbucketUrl(url)
 
         default:
             error "${provider} is not supported"
@@ -210,6 +218,16 @@ def formatGitlabUrl(url) {
     return url.trim()
 }
 
+def formatBitbucketUrl(url) {
+    if (url.contains("https://bitbucket.org/")){
+        url = url.replaceAll("https://bitbucket.org/", '')
+    } else if (url.contains("git@bitbucket.org:")){
+        url = url.replaceAll("git@bitbucket.org:", '')
+    }
+
+    return url.trim()
+}
+
 def postPRComment(comment, pr, project, provider, token) {
     switch(provider){
         case "github":
@@ -220,6 +238,8 @@ def postPRComment(comment, pr, project, provider, token) {
             postPRCommentToGitlab(comment, pr, project, token)
             break
 
+        case "bitbucket":
+            postPRCommentToBitbucket()
         default: 
             error "${provider} is not supported"
             break
@@ -231,7 +251,7 @@ def postPRCommentToGitlab(comment, pr, project, token) {
     
     echo "adding ${comment} to ${apiUrl}"
         try {
-        def HttpURLConnection connection = apiUrl.openConnection()
+        def HttpURLConnection connection = apiUrl.openConnection
         if (token.length() > 0) {
             connection.setRequestProperty("PRIVATE-TOKEN", "${token}")
         }
@@ -270,6 +290,22 @@ def getGitLabMergeRequestsByBranchName(project, branchName, token){
     } catch (err) {
         error "ERROR  ${err}"
     }
+}
+
+def postPRCommentToBitbucket() {
+    def changeAuthor = env.CHANGE_AUTHOR
+    if (!changeAuthor){
+        echo "no commit author found so cannot comment on PR"
+        return
+    }
+    // if (!pr){
+    //     echo "no pull request number found so cannot comment on PR"
+    //     return
+    // }
+
+    comment = "@${changeAuthor} " + comment
+
+    echo "Comment: ${comment}"
 }
 
 def postPRCommentToGithub(comment, pr, project, githubToken) {

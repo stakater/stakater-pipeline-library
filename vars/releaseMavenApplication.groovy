@@ -101,19 +101,6 @@ def call(body) {
                             String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                             chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
                         }
-                        // stage('Run Synthetic/E2E Tests') {                        
-                        //     echo "Running synthetic tests for Maven application:  ${e2eTestJob}"   
-                        //     if (!e2eTestJob.equals("")){                     
-                        //         e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestsJob, chartName: repoName.toLowerCase(), chartVersion: helmVersion, repoUrl: repoUrl, repoBranch: repoBranch, chartRepositoryURL: chartRepositoryURL, mockAppsJobName: mockAppsJobName, rdlmURL: rdlmURL, [
-                        //             microservice: [
-                        //                     name   : repoName.toLowerCase(),
-                        //                     version: helmVersion
-                        //             ]
-                        //         ])
-                        //     }else{
-                        //         echo "No Job Name passed."
-                        //     }
-                        // }
                         // // If master
                         // if (utils.isCD()) {
                         //     stage('Push Jar') {
@@ -126,9 +113,6 @@ def call(body) {
                         //     stage("Create Git Tag"){                          
                         //         print "Pushing Tag ${version} to Git"
                         //         git.createTagAndPush(WORKSPACE, version)
-                        //     }
-                        //     stage("Push to Dev-Apps Repo"){
-                        //         build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: chartRepositoryURL ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
                         //     }
                         // }
                     }
