@@ -304,7 +304,7 @@ def postPRCommentToBitbucket() {
     //     return
     // }
 
-    comment = "@${changeAuthor} " + comment
+    def comment = "@${changeAuthor} " + comment
 
     echo "Comment: ${comment}"
 }
