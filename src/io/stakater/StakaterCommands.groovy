@@ -94,6 +94,7 @@ def getProviderToken(provider) {
     }
 
     def githubToken = readFile tokenPath
+    echo "Token: ${githubToken}"
     if (!githubToken?.trim()) {
         error "No GitHub token found in ${tokenPath}"
     }
