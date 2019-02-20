@@ -328,6 +328,7 @@ def postPRCommentToBitbucket(comment, pr, project, token) {
 
         connection.disconnect()
     } catch (err) {
+        echo "ERROR: ${err}"
         error "ERROR  ${err}"
     }
 }

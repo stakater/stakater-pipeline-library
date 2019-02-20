@@ -72,35 +72,35 @@ def call(body) {
                             echo "Building Maven application"   
                             builder.buildMavenApplication(version)
                         }                    
-                        stage('Image build & push') {
-                            sh """
-                                export DOCKER_IMAGE=${dockerImage}
-                                export DOCKER_TAG=${version}
-                            """
-                            docker.buildImageWithTagCustom(dockerImage, version)
-                            docker.pushTagCustom(dockerImage, version)
-                        }
-                        stage('Publish & Upload Helm Chart'){
-                            echo "Rendering Chart & generating manifests"
-                            helm.init(true)
-                            helm.lint(chartDir, repoName.toLowerCase())
+                        // stage('Image build & push') {
+                        //     sh """
+                        //         export DOCKER_IMAGE=${dockerImage}
+                        //         export DOCKER_TAG=${version}
+                        //     """
+                        //     docker.buildImageWithTagCustom(dockerImage, version)
+                        //     docker.pushTagCustom(dockerImage, version)
+                        // }
+                        // stage('Publish & Upload Helm Chart'){
+                        //     echo "Rendering Chart & generating manifests"
+                        //     helm.init(true)
+                        //     helm.lint(chartDir, repoName.toLowerCase())
 
-                            if (version.contains("SNAPSHOT")) {
-                                helmVersion = "0.0.0"
-                            }else{
-                                helmVersion = version.substring(1)
-                            }
-                            echo "Helm Version: ${helmVersion}"
-                            // Render chart from templates
-                            templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
-                            // Generate manifests from chart
-                            templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
-                            chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)                        
+                        //     if (version.contains("SNAPSHOT")) {
+                        //         helmVersion = "0.0.0"
+                        //     }else{
+                        //         helmVersion = version.substring(1)
+                        //     }
+                        //     echo "Helm Version: ${helmVersion}"
+                        //     // Render chart from templates
+                        //     templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
+                        //     // Generate manifests from chart
+                        //     templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
+                        //     chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)                        
 
-                            String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
-                            String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
-                            chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
-                        }
+                        //     String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
+                        //     String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
+                        //     chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
+                        // }
                         // // If master
                         // if (utils.isCD()) {
                         //     stage('Push Jar') {
