@@ -313,6 +313,7 @@ def postPRCommentToBitbucket(comment, pr, project, token) {
         if (token.length() > 0) {
             connection.setRequestProperty("Authorization", "Basic ${token}")
         }
+        connection.setRequestProperty("Content-Type", "application/json")
         connection.setRequestMethod("POST")
         connection.setDoOutput(true)
         connection.connect()
