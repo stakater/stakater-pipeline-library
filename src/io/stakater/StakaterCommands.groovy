@@ -310,7 +310,7 @@ def postPRCommentToBitbucket(comment, pr, project, token) {
 
     try {
         def HttpURLConnection connection = apiUrl.openConnection()
-        if (githubToken.length() > 0) {
+        if (token.length() > 0) {
             connection.setRequestProperty("Authorization", "Basic ${token}")
         }
         connection.setRequestMethod("POST")
