@@ -307,39 +307,41 @@ def postPRCommentToBitbucket(comment, pr, project, token) {
     def apiUrl = new URL("https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments")
     echo "adding ${comment} to ${apiUrl}"
 
-    try {
-        def HttpURLConnection connection = apiUrl.openConnection()
-        if (token.length() > 0) {
-            connection.setRequestProperty("Authorization", "Basic ${token}")
-        }
-        connection.setRequestProperty("Content-Type", "application/json")
-        connection.setRequestMethod("POST")
-        connection.setDoOutput(true)
-        connection.connect()
+    sh " curl -u stakater-user:nANtd5ggzaVgqshMarsG -X POST -H \"Content-Type: application/json\" https://api.bitbucket.org/2.0/repositories/ahsanstormtest/pipeline-test/pullrequests/8/comments -d \'{\"content\":{\"raw\":\"Commenting\"}}\'"
 
-        def body = "{\"content\":{\"raw\": \"message\"}}"
-        echo "body ${body}"
+    // try {
+    //     def HttpURLConnection connection = apiUrl.openConnection()
+    //     if (token.length() > 0) {
+    //         connection.setRequestProperty("Authorization", "Basic ${token}")
+    //     }
+    //     connection.setRequestProperty("Content-Type", "application/json")
+    //     connection.setRequestMethod("POST")
+    //     connection.setDoOutput(true)
+    //     connection.connect()
 
-        def payload = JsonOutput.toJson([
-            content: {
-                raw: "messaage"
-            }
-        ])
+    //     def body = "{\"content\":{\"raw\": \"message\"}}"
+    //     echo "body ${body}"
 
-        echo "payload: ${payload}"
+    //     def payload = JsonOutput.toJson([
+    //         content: {
+    //             raw: "messaage"
+    //         }
+    //     ])
 
-        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-        writer.write(payload)
-        writer.flush()
+    //     echo "payload: ${payload}"
 
-        // execute the POST request
-        new InputStreamReader(connection.getInputStream())
+    //     OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
+    //     writer.write(payload)
+    //     writer.flush()
 
-        connection.disconnect()
-    } catch (err) {
-        echo "ERROR: ${err}"
-        error "ERROR  ${err}"
-    }
+    //     // execute the POST request
+    //     new InputStreamReader(connection.getInputStream())
+
+    //     connection.disconnect()
+    // } catch (err) {
+    //     echo "ERROR: ${err}"
+    //     error "ERROR  ${err}"
+    // }
 }
 
 def postPRCommentToGithub(comment, pr, project, githubToken) {
