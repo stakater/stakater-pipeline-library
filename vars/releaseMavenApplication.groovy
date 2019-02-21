@@ -68,10 +68,10 @@ def call(body) {
                             echo "Version: ${version}"                       
                             fullAppNameWithVersion = imageName + '-'+ version
                         }
-                        stage('Build Maven Application') {
-                            echo "Building Maven application"   
-                            builder.buildMavenApplication(version)
-                        }                    
+                        // stage('Build Maven Application') {
+                        //     echo "Building Maven application"   
+                        //     builder.buildMavenApplication(version)
+                        // }                    
                         // stage('Image build & push') {
                         //     sh """
                         //         export DOCKER_IMAGE=${dockerImage}
