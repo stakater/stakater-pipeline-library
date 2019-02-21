@@ -1,8 +1,6 @@
 #!/usr/bin/groovy
 package io.stakater
-import groovy.json.JsonSlurperClassic
-import groovy.json.JsonSlurper
-import groovy.json.JsonOutput
+import groovy.json.*
 
 def setupWorkspaceForRelease(String project, String useGitTagOrBranchForNextVersion = "", String mvnExtraArgs = "", String currentVersion = "") {
     def flow = new io.fabric8.Fabric8Commands()
@@ -319,13 +317,20 @@ def postPRCommentToBitbucket(comment, pr, project, token) {
         connection.setDoOutput(true)
         connection.connect()
 
-        def out = JsonOutput.toJson({content: {raw: {"${comment}"}}})
-
-        echo "Content: ${out.toString()}"
         def body = "{\"content\":{\"raw\":\"${comment}\"}}"
+        def jsonBuilder = new JsonBuilder()
+        jsonBuilder.content {
+            raw 'Message'
+        }
+
+        def pretty = jsonBuilder.toPrettyString()
+        def slurped = new JsonSlurper().parseText(pretty)
+
+        echo "Pretty ${pretty}"
+        echo "Slurped ${slurped}"
 
         OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-        writer.write(JsonOutput.toJson({content: {raw: {"${comment}"}}}))
+        writer.write(pretty)
         writer.flush()
 
         // execute the POST request
