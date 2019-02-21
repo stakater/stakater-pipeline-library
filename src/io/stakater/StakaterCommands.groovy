@@ -306,7 +306,7 @@ def postPRCommentToBitbucket(comment, pr, project, token) {
     comment = "@${changeAuthor} " + comment
     def apiUrl = new URL("https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments")
     echo "adding ${comment} to https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments"
-
+    echo "curl -u stakater-user:${token} -X POST -H \"Content-Type: application/json\" https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments -d '{\"content\":{\"raw\":\"${comment}\"}}'"
     sh "curl -u stakater-user:${token} -X POST -H \"Content-Type: application/json\" https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments -d '{\"content\":{\"raw\":\"${comment}\"}}'"
 }
 
