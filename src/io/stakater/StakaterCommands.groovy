@@ -306,9 +306,10 @@ def postPRCommentToBitbucket(comment, pr, project, token) {
     comment = "@${changeAuthor} " + comment
     def apiUrl = new URL("https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments")
     echo "adding ${comment} to ${apiUrl}"
+    echo "Curling: curl -u stakater-user:nANtd5ggzaVgqshMarsG -X POST -H \"Content-Type: application/json\" https://api.bitbucket.org/2.0/repositories/ahsanstormtest/pipeline-test/pullrequests/8/comments -d \'{\"content\":{\"raw\":\"Commenting\"}}\'"
+    sh "curl -u stakater-user:nANtd5ggzaVgqshMarsG -X POST -H \"Content-Type: application/json\" https://api.bitbucket.org/2.0/repositories/ahsanstormtest/pipeline-test/pullrequests/8/comments -d \'{\"content\":{\"raw\":\"Commenting\"}}\'"
 
-    sh " curl -u stakater-user:nANtd5ggzaVgqshMarsG -X POST -H \"Content-Type: application/json\" https://api.bitbucket.org/2.0/repositories/ahsanstormtest/pipeline-test/pullrequests/8/comments -d \'{\"content\":{\"raw\":\"Commenting\"}}\'"
-
+    
     // try {
     //     def HttpURLConnection connection = apiUrl.openConnection()
     //     if (token.length() > 0) {
