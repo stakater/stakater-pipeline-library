@@ -317,7 +317,7 @@ def postPRCommentToBitbucket(comment, pr, project, token) {
         connection.setDoOutput(true)
         connection.connect()
 
-        def body = "{\"content\":{\"raw\": message}}"
+        def body = "[{\"content\":{\"raw\": message}}]"
         // def jsonBuilder = new JsonBuilder()
         // jsonBuilder.content {
         //     raw 'Message'
