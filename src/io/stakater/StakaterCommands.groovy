@@ -306,43 +306,8 @@ def postPRCommentToBitbucket(comment, pr, project, token) {
     comment = "@${changeAuthor} " + comment
     def apiUrl = new URL("https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments")
     echo "adding ${comment} to ${apiUrl}"
-    echo "Curling: curl -u stakater-user:nANtd5ggzaVgqshMarsG -X POST -H \"Content-Type: application/json\" https://api.bitbucket.org/2.0/repositories/ahsanstormtest/pipeline-test/pullrequests/8/comments -d \'{\"content\":{\"raw\":\"Commenting\"}}\'"
-    sh "curl -u stakater-user:nANtd5ggzaVgqshMarsG -X POST -H \"Content-Type: application/json\" https://api.bitbucket.org/2.0/repositories/ahsanstormtest/pipeline-test/pullrequests/8/comments -d \'{\"content\":{\"raw\":\"Commenting\"}}\'"
 
-    
-    // try {
-    //     def HttpURLConnection connection = apiUrl.openConnection()
-    //     if (token.length() > 0) {
-    //         connection.setRequestProperty("Authorization", "Basic ${token}")
-    //     }
-    //     connection.setRequestProperty("Content-Type", "application/json")
-    //     connection.setRequestMethod("POST")
-    //     connection.setDoOutput(true)
-    //     connection.connect()
-
-    //     def body = "{\"content\":{\"raw\": \"message\"}}"
-    //     echo "body ${body}"
-
-    //     def payload = JsonOutput.toJson([
-    //         content: {
-    //             raw: "messaage"
-    //         }
-    //     ])
-
-    //     echo "payload: ${payload}"
-
-    //     OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-    //     writer.write(payload)
-    //     writer.flush()
-
-    //     // execute the POST request
-    //     new InputStreamReader(connection.getInputStream())
-
-    //     connection.disconnect()
-    // } catch (err) {
-    //     echo "ERROR: ${err}"
-    //     error "ERROR  ${err}"
-    // }
+    sh "curl -u stakater-user:${token} -X POST -H \"Content-Type: application/json\" ${apiUrl} -d \'{\"content\":{\"raw\":\"${comment}\"}}\'"
 }
 
 def postPRCommentToGithub(comment, pr, project, githubToken) {
