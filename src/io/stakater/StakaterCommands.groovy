@@ -307,7 +307,7 @@ def postPRCommentToBitbucket(comment, pr, project, token) {
     def apiUrl = new URL("https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments")
     echo "adding ${comment} to https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments"
 
-    sh "curl -u stakater-user:${token} -X POST -H \"Content-Type: application/json\" https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments -d \'{\"content\":{\"raw\":\"${comment}\"}}\'"
+    sh "curl -u stakater-user:${token} -X POST -H \"Content-Type: application/json\" https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments -d '{\"content\":{\"raw\":\"${comment}\"}}'"
 }
 
 def postPRCommentToGithub(comment, pr, project, githubToken) {
