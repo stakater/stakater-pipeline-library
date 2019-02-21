@@ -2,6 +2,7 @@
 package io.stakater
 import groovy.json.JsonSlurperClassic
 import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 
 def setupWorkspaceForRelease(String project, String useGitTagOrBranchForNextVersion = "", String mvnExtraArgs = "", String currentVersion = "") {
     def flow = new io.fabric8.Fabric8Commands()
