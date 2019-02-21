@@ -319,19 +319,17 @@ def postPRCommentToBitbucket(comment, pr, project, token) {
 
         def body = "{\"content\":{\"raw\": \"message\"}}"
         echo "body ${body}"
-        // def jsonBuilder = new JsonBuilder()
-        // jsonBuilder.content {
-        //     raw 'Message'
-        // }
 
-        // def pretty = jsonBuilder.toPrettyString()
-        // def slurped = new JsonSlurper().parseText(pretty)
+        def payload = JsonOutput.toJson([
+            content: {
+                raw: "messaage"
+            }
+        ])
 
-        // echo "Pretty ${pretty}"
-        // echo "Slurped ${slurped}"
+        echo "payload: ${payload}"
 
         OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-        writer.write(body)
+        writer.write(payload)
         writer.flush()
 
         // execute the POST request
