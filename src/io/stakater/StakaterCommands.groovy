@@ -318,17 +318,12 @@ def postPRCommentToBitbucket(comment, pr, project, token) {
         connection.setDoOutput(true)
         connection.connect()
 
-        JSONObject content=new JSONObject();
-        JSONObject raw=new JSONObject();
-        raw.put("raw", comment)
-        content.put("content", raw.toString())
 
-        echo "Raw: ${raw.toString()}"
-        echo "Content: ${content.toString()}"
+        echo "Content: ${JsonOutput.toJson({content: {raw: {"${comment}"}}})}"
         def body = "{\"content\":{\"raw\":\"${comment}\"}}"
 
         OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-        writer.write(content)
+        writer.write(JsonOutput.toJson({content: {raw: {"${comment}"}}}))
         writer.flush()
 
         // execute the POST request
