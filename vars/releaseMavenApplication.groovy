@@ -60,14 +60,14 @@ def call(body) {
                     }
                     echo "Repo Owner: ${repoOwner}"
                     try {
-                        stage('Create Version'){
-                            dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
-                            // If image Prefix is passed, use it, else pass empty string to create versions
-                            def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
-                            version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
-                            echo "Version: ${version}"                       
-                            fullAppNameWithVersion = imageName + '-'+ version
-                        }
+                        // stage('Create Version'){
+                        //     dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
+                        //     // If image Prefix is passed, use it, else pass empty string to create versions
+                        //     def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
+                        //     version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
+                        //     echo "Version: ${version}"                       
+                        //     fullAppNameWithVersion = imageName + '-'+ version
+                        // }
                         // stage('Build Maven Application') {
                         //     echo "Building Maven application"   
                         //     builder.buildMavenApplication(version)
