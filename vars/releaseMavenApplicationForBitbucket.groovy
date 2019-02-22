@@ -20,7 +20,6 @@ def call(body) {
             def chartManager = new io.stakater.charts.ChartManager()
             def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
             def javaRepositoryURL = config.javaRepositoryURL ?: common.getEnvValue('JAVA_REPOSITORY_URL')
-            def rdlmURL = config.rdlmURL ?: "http://restful-distributed-lock-manager.release:8080/locks/mock"
 
             def helm = new io.stakater.charts.Helm()
             String chartPackageName = ""
@@ -31,11 +30,6 @@ def call(body) {
             def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
             def dockerRepositoryURL = config.dockerRepositoryURL ?: common.getEnvValue('DOCKER_REPOSITORY_URL')
-            def appName = config.appName ?: ""
-            def e2eTestJob = config.e2eTestJob ?: ""
-            def performanceTestsJob = config.performanceTestsJob ?: "carbook/performance-tests-manual/add-initial-implementation"
-            def mockAppsJobName = config.mockAppsJobName ?: ""
-            def devAppsJobName = config.devAppsJobName ?: ""
             def gitUser = config.gitUser ?: "stakater-user"
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
 
@@ -58,7 +52,7 @@ def call(body) {
                     if (repoOwner.startsWith('stakater-')){
                         repoOwner = 'stakater'
                     }
-                    echo "Repo Owner: ${repoOwner}" 
+                    echo "Repo Owner: ${repoOwner}"
                     try {
                         stage('Create Version'){
                             dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
@@ -84,7 +78,7 @@ def call(body) {
                             echo "Rendering Chart & generating manifests"
                             helm.init(true)
                             helm.lint(chartDir, repoName.toLowerCase())
-                            
+
                             if (version.contains("SNAPSHOT")) {
                                 helmVersion = "0.0.0"
                             }else{
@@ -96,23 +90,10 @@ def call(body) {
                             // Generate manifests from chart
                             templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
                             chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)                        
-                            
+
                             String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
                             String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                             chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
-                        }
-                        stage('Run Synthetic/E2E Tests') {                        
-                            echo "Running synthetic tests for Maven application:  ${e2eTestJob}"   
-                            if (!e2eTestJob.equals("")){                     
-                                e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestsJob, chartName: repoName.toLowerCase(), chartVersion: helmVersion, repoUrl: repoUrl, repoBranch: repoBranch, chartRepositoryURL: chartRepositoryURL, mockAppsJobName: mockAppsJobName, rdlmURL: rdlmURL, [
-                                    microservice: [
-                                            name   : repoName.toLowerCase(),
-                                            version: helmVersion
-                                    ]
-                                ])
-                            }else{
-                                echo "No Job Name passed."
-                            }
                         }
                         // If master
                         if (utils.isCD()) {
@@ -126,9 +107,6 @@ def call(body) {
                             stage("Create Git Tag"){                          
                                 print "Pushing Tag ${version} to Git"
                                 git.createTagAndPush(WORKSPACE, version)
-                            }
-                            stage("Push to Dev-Apps Repo"){
-                                build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: chartRepositoryURL ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
                             }
                         }
                         stage('Notify') {
