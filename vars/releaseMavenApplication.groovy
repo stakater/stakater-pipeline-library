@@ -60,27 +60,26 @@ def call(body) {
                     }
                     echo "Repo Owner: ${repoOwner}" 
                     try {
-                        stage('Create Version'){
+                        stage('Build'){
+                            echo "Creating Version"
                             dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
                             // If image Prefix is passed, use it, else pass empty string to create versions
                             def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
                             version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
                             echo "Version: ${version}"                       
-                            fullAppNameWithVersion = imageName + '-'+ version
-                        }
-                        stage('Build Maven Application') {
+                            fullAppNameWithVersion = imageName + '-'+ version                        
                             echo "Building Maven application"   
                             builder.buildMavenApplication(version)
-                        }                    
-                        stage('Image build & push') {
+                            echo "Building Docker Image"   
                             sh """
                                 export DOCKER_IMAGE=${dockerImage}
                                 export DOCKER_TAG=${version}
                             """
                             docker.buildImageWithTagCustom(dockerImage, version)
-                            docker.pushTagCustom(dockerImage, version)
                         }
-                        stage('Publish & Upload Helm Chart'){
+                        stage('Publish'){
+                            echo "Publishing Docker Image"   
+                            docker.pushTagCustom(dockerImage, version)
                             echo "Rendering Chart & generating manifests"
                             helm.init(true)
                             helm.lint(chartDir, repoName.toLowerCase())
@@ -120,14 +119,14 @@ def call(body) {
                         }
                         // If master
                         if (utils.isCD()) {
-                            stage('Push Jar') {
-                                nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      
+                            if (!javaRepositoryURL.equals("")){
+                                stage('Publish Jar') {
+                                    nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      
+                                }
                             }
-                            stage("Push Changes") {
+                            stage("Tag") {
                                 print "Pushing changes to Git"
-                                git.commitChanges(WORKSPACE, "Update chart and version")
-                            }
-                            stage("Create Git Tag"){                          
+                                git.commitChanges(WORKSPACE, "Update chart and version")                       
                                 print "Pushing Tag ${version} to Git"
                                 git.createTagAndPush(WORKSPACE, version)
                             }
