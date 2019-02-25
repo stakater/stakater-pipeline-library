@@ -21,8 +21,7 @@ def call(body) {
             def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
             def javaRepositoryURL = config.javaRepositoryURL ?: common.getEnvValue('JAVA_REPOSITORY_URL')
             def rdlmURL = config.rdlmURL ?: "http://restful-distributed-lock-manager.release:8080/locks/mock"
-            def runE2ETests = config.runE2ETests ?: true
-            def deployDevApps = config.deployDevApps ?: true
+            def deployUsingMakeTarget = config.deployUsingMakeTarget ?: true
             def helm = new io.stakater.charts.Helm()
             String chartPackageName = ""
             String helmVersion = ""
@@ -102,27 +101,21 @@ def call(body) {
                             String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
                             chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
                         }
-                        if (runE2ETests) {
+                        if (!e2eTestJob.equals("")){
                             stage('Run Synthetic/E2E Tests') {                        
-                                echo "Running synthetic tests for Maven application:  ${e2eTestJob}"   
-                                if (!e2eTestJob.equals("")){                     
-                                    e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestsJob, chartName: repoName.toLowerCase(), chartVersion: helmVersion, repoUrl: repoUrl, repoBranch: repoBranch, chartRepositoryURL: chartRepositoryURL, mockAppsJobName: mockAppsJobName, rdlmURL: rdlmURL, [
-                                        microservice: [
-                                                name   : repoName.toLowerCase(),
-                                                version: helmVersion
-                                        ]
-                                    ])
-                                }else{
-                                    echo "No Job Name passed."
-                                }
+                                echo "Running synthetic tests for Maven application:  ${e2eTestJob}"                                   
+                                e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestsJob, chartName: repoName.toLowerCase(), chartVersion: helmVersion, repoUrl: repoUrl, repoBranch: repoBranch, chartRepositoryURL: chartRepositoryURL, mockAppsJobName: mockAppsJobName, rdlmURL: rdlmURL, [
+                                    microservice: [
+                                            name   : repoName.toLowerCase(),
+                                            version: helmVersion
+                                    ]
+                                ])                                
                             }
+                        }else{                            
+                            echo "No E2E Job Name passed, so skipping e2e tests"
                         }
                         // If master
                         if (utils.isCD()) {
-                            if (deployUsingMakeTarget){
-                                echo "Deploying Chart using make target"   
-                                builder.deployHelmChart(chartDir)
-                            }
                             stage('Push Jar') {
                                 nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      
                             }
@@ -134,10 +127,13 @@ def call(body) {
                                 print "Pushing Tag ${version} to Git"
                                 git.createTagAndPush(WORKSPACE, version)
                             }
-                            if (deployDevApps){
+                            if (!devAppsJobName.equals("")){
                                 stage("Push to Dev-Apps Repo"){
                                     build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: chartRepositoryURL ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
                                 }
+                            }else if (deployUsingMakeTarget == true) {
+                                echo "Deploying Chart using make target"   
+                                builder.deployHelmChart(chartDir)
                             }
                         }
                         stage('Notify') {
