@@ -114,6 +114,10 @@ def call(body) {
                         }else{                            
                             echo "No E2E Job Name passed, so skipping e2e tests"
                         }
+                        if (deployUsingMakeTarget == true) {
+                            echo "Deploying Chart using make target"   
+                            builder.deployHelmChart(chartDir)
+                        }
                         // If master
                         if (utils.isCD()) {
                             stage('Push Jar') {
@@ -131,9 +135,6 @@ def call(body) {
                                 stage("Push to Dev-Apps Repo"){
                                     build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: chartRepositoryURL ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
                                 }
-                            }else if (deployUsingMakeTarget == true) {
-                                echo "Deploying Chart using make target"   
-                                builder.deployHelmChart(chartDir)
                             }
                         }
                         stage('Notify') {
