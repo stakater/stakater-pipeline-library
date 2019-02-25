@@ -18,11 +18,17 @@ Host github.com
 
 Host gitlab.com
     StrictHostKeyChecking no
+
+Host bitbucket.org
+    StrictHostKeyChecking no
 EOF
 
         ssh-keyscan github.com > /root/.ssh/known_hosts
         echo "\n" >> /root/.ssh/known_hosts
         ssh-keyscan gitlab.com >> /root/.ssh/known_hosts
+        echo "\n" >> /root/.ssh/known_hosts
+        ssh-keyscan bitbucket.org >> /root/.ssh/known_hosts
+        echo "\n" >> /root/.ssh/known_hosts
     """
 }
 
@@ -80,6 +86,10 @@ def addCommentToPullRequest(String message) {
             }
             break
 
+        case "bitbucket":
+            def result = flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken)
+            break
+            
         default:
             error "${provider} is not supported" 
             break   
