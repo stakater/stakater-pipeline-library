@@ -8,6 +8,13 @@ def buildMavenApplication(String version){
     """
 }
 
+def buildAspNetApplication(String version){
+    sh """
+        dotnet restore
+        dotnet publish -c Release -o out
+    """
+}
+
 def buildNodeApplication(String version) {
     sh """
         npm --no-git-tag-version --allow-same-version version ${version}
