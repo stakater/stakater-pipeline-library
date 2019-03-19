@@ -7,6 +7,7 @@ def call(Map parameters = [:], body) {
 
         def gitUsername = parameters.get('gitUsername', 'stakater-user')
         def gitEmail = parameters.get('gitEmail', 'stakater@gmail.com')
+        def cloneUsingToken = parameters.get('useToken', false)
         
         def workspaceDir = "/home/jenkins/" + repoName
         sh "mkdir -p ${workspaceDir}"
@@ -27,11 +28,14 @@ def call(Map parameters = [:], body) {
             break
         }
 
-        def git = new io.stakater.vc.Git()
-
-        git.setUserInfo(gitUsername, gitEmail)
-        git.addHostsToKnownHosts()
-        git.checkoutRepo(repoUrl, repoBranch, workspaceDir)
+        def git = new io.stakater.vc.Git()        
+        if(cloneUsingToken){
+            git.checkoutRepoUsingToken(repoUrl, repoBranch, workspaceDir)
+        }else {            
+            git.setUserInfo(gitUsername, gitEmail)
+            git.addHostsToKnownHosts()
+            git.checkoutRepo(repoUrl, repoBranch, workspaceDir)
+        }
 
         ws(workspaceDir) {
             body(repoUrl, repoName, repoOwner, repoBranch)            
