@@ -49,6 +49,18 @@ def commitChanges(String repoDir, String commitMessage) {
     """
 }
 
+def checkoutRepoUsingToken(String repoUrl, String branch, String dir) {
+    def gitlabTokenSecret
+    withCredentials([string(credentialsId: 'gitlab-token', variable: 'tokenSecret')]) {
+        gitlabTokenSecret = env.tokenSecret
+    }
+   
+    echo "My secret: ${gitlabTokenSecret}"
+    sh """
+        git clone -b ${branch} https://oauth2:${gitlabTokenSecret}@gitlab.com/test-carbook/aspnetapp.git ${dir}
+    """
+}
+
 def checkoutRepo(String repoUrl, String branch, String dir) {
     sh """
         chmod 600 /root/.ssh-git/ssh-key
