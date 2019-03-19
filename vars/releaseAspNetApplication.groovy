@@ -39,6 +39,7 @@ def call(body) {
             def gitUser = config.gitUser ?: "stakater-user"
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
             def cloneUsingToken = config.cloneUsingToken ?: false
+            echo "Clone using token:  ${cloneUsingToken}"
 
             def dockerImage = ""
             def version = ""
