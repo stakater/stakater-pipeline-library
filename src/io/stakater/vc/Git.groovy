@@ -57,7 +57,7 @@ def checkoutRepoUsingToken(String repoUrl, String branch, String dir) {
    
     echo "My secret: ${gitlabTokenSecret}"
     sh """
-        git clone -b ${branch} https://oauth2:${gitlabTokenSecret}@gitlab.com/test-carbook/aspnetapp.git ${dir}
+        git clone -b ${branch} https://oauth2:${gitlabTokenSecret}@gitlab.com/stakater/aspnetapp.git ${dir}
     """
 }
 
