@@ -37,9 +37,7 @@ def call(body) {
             
             // Slack variables
             def slackChannel = "${env.SLACK_CHANNEL}"
-            def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"  
-
-            
+            def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"          
 
             container(name: 'tools') {
                 withCurrentRepo(gitUsername: gitUser, gitEmail: gitEmailID, useToken: cloneUsingToken, credentialSecretName: credentialSecretID ) { def repoUrl, def repoName, def repoOwner, def repoBranch ->                  
