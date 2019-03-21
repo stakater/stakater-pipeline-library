@@ -206,19 +206,19 @@ def extractOrganizationAndProjectFromUrl(url, provider) {
 }
 
 def formatGithubUrl(url) {
-    if (url.contains("https://github.com/")){
-        url = url.replaceAll("https://github.com/", '')
-    } else if (url.contains("git@github.com:")){
-        url = url.replaceAll("git@github.com:", '')
+    if (url.contains("github.com/")){
+        url = url.replaceAll(".*github.com/", '')
+    } else if (url.contains("github.com:")){
+        url = url.replaceAll(".*github.com:", '')
     }
 
     return url.trim()
 }
 
 def formatGitlabUrl(url) {
-    if (url.contains("https://gitlab.com/")){
+    if (url.contains("gitlab.com/")){
         url = url.replaceAll(".*gitlab.com/", '')
-    } else if (url.contains("git@gitlab.com:")){
+    } else if (url.contains("gitlab.com:")){
         url = url.replaceAll(".*gitlab.com:", '')
     }
 
@@ -226,10 +226,10 @@ def formatGitlabUrl(url) {
 }
 
 def formatBitbucketUrl(url) {
-    if (url.contains("https://bitbucket.org/")){
-        url = url.replaceAll("https://bitbucket.org/", '')
-    } else if (url.contains("git@bitbucket.org:")){
-        url = url.replaceAll("git@bitbucket.org:", '')
+    if (url.contains("bitbucket.org/")){
+        url = url.replaceAll(".*bitbucket.org/", '')
+    } else if (url.contains("bitbucket.org:")){
+        url = url.replaceAll(".*bitbucket.org:", '')
     }
 
     return url.trim()
