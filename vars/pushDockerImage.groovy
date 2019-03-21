@@ -46,9 +46,8 @@ def call(body) {
 
                 echo "Items: ${responseJSON.items}"
 
-                responseJSON.items.each{key, values -> 
-                    echo "key: ${key.path}"
-                    echo "value: ${values.path}"
+                responseJSON.items.each{item -> 
+                    echo "PATH: ${item.path}"
                 }
 
                 def dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
