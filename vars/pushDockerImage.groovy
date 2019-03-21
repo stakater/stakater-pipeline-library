@@ -44,9 +44,16 @@ def call(body) {
 
                 echo "Response JSON: ${responseJSON}"
 
-                responseJSON.each{key, value -> 
+                responseJSON.each{key, items -> 
                     echo "key: ${key}"
-                    echo "value: ${value}"
+                    echo "Items: ${items}"
+
+                    items.each{innerKey, innerItem -> 
+                        echo "Inner key: ${innerKey}"
+                        echo "Inner item: ${innerItem}"
+                    }
+
+
                 }
 
                 def dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
