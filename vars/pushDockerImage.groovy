@@ -37,12 +37,12 @@ def call(body) {
                 echo "User: ${username}"
                 echo "Pass: ${password}"
 
-                // def response = sh(script: "curl -u ${username}:${password} -X GET ${config.nexusURL}/service/rest/v1/assets?repository=test-raw -v", returnStdout: true)
-                // echo "Response: ${response}"
+                def response = sh(script: "curl -u ${username}:${password} -X GET ${config.nexusURL}/service/rest/v1/assets?repository=test-raw -v", returnStdout: true)
+                echo "Response: ${response}"
 
-                // def responseJSON = new JsonSlurper().parseText(response)
+                def responseJSON = new JsonSlurper().parseText(response)
 
-                // echo "Response JSON: ${responseJSON}"
+                echo "Response JSON: ${responseJSON}"
 
                 // echo "Items: ${responseJSON.items}"
 
