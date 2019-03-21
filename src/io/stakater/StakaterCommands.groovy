@@ -217,9 +217,9 @@ def formatGithubUrl(url) {
 
 def formatGitlabUrl(url) {
     if (url.contains("https://gitlab.com/")){
-        url = url.replaceAll("https://gitlab.com/", '')
+        url = url.replaceAll(".*gitlab.com/", '')
     } else if (url.contains("git@gitlab.com:")){
-        url = url.replaceAll("git@gitlab.com:", '')
+        url = url.replaceAll(".*gitlab.com:", '')
     }
 
     return url.trim()
