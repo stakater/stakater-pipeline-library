@@ -44,7 +44,8 @@ def call(body) {
 
                 echo "Response JSON: ${responseJSON}"
 
-                responseJSON.items.each{key, value -> 
+                responseJSON.each{key, value -> 
+                    echo "key: ${key}"
                     echo "value: ${value}"
                 }
 
