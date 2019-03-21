@@ -40,7 +40,7 @@ def call(body) {
                 def response = sh(script: "curl -u ${username}:${password} -X GET ${config.nexusURL}/service/rest/v1/assets?repository=test-raw -v", returnStdout: true)
                 echo "Response: ${response}"
 
-                def responseJSON = new JsonSlurper().parse(response)
+                def responseJSON = new JsonSlurper().parseText(response)
 
                 responseJSON.items.each{key, value -> 
                     echo "id: ${value.path}"
