@@ -54,8 +54,8 @@ def checkoutRepoUsingToken(String credentialSecretName, String repoUrl, String b
     withCredentials([string(credentialsId: credentialSecretName, variable: 'tokenSecret')]) {
         gitlabTokenSecret = env.tokenSecret
     }
-    echo "RepoURl: ${repoUrl}"
-    String result = repoUrl.substring(names.indexOf('@'))
+    echo "RepoURL: ${repoUrl}"
+    String result = repoUrl.substring(repoUrl.indexOf('@'))
     result = result.replaceAll(":", '/')
     echo "resulting string: ${result}"
     echo "My secret: ${gitlabTokenSecret}"
