@@ -1,4 +1,5 @@
 #!/usr/bin/groovy
+import groovy.json.*
 
 def call(body) {
     def config = [:]
@@ -37,10 +38,11 @@ def call(body) {
                 echo "Pass: ${password}"
 
                 def response = sh(script: "curl -u ${username}:${password} -X GET ${config.nexusURL}/service/rest/v1/assets?repository=test-raw -v", returnStdout: true)
-
                 echo "Response: ${response}"
 
-                response.items.each{key, value -> 
+                def responseJSON = new JsonSlurper().parse(response)
+
+                responseJSON.items.each{key, value -> 
                     echo "id: ${value.path}"
                 }
 
