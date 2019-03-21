@@ -1,14 +1,14 @@
 #!/usr/bin/groovy
 package io.stakater.containers
 
-def buildImageWithTag(def buildContext, def imageName, def tag) {
+def buildImage(def buildContext, def imageName, def tag) {
     sh """
-        docker build -t docker.io/${imageName}:${tag} ${buildContext}
+        docker build -t ${imageName}:${tag} ${buildContext} --network=host
     """
 }
 
-def buildImageWithTag(def imageName, def tag) {
-    buildImageWithTag(".", imageName, tag)
+def buildImage(def imageName, def tag) {
+    buildImage(".", imageName, tag)
 }
 
 def buildImageWithTagCustom(def imageName, def tag) {
@@ -52,9 +52,9 @@ def pushTagCustom(def imageName, def tag) {
     """
 }
 
-def pushTag(def imageName, def tag) {
+def pushImage(def imageName, def tag) {
     sh """
-        docker push docker.io/${imageName}:${tag}
+        docker push ${imageName}:${tag}
     """
 }
 

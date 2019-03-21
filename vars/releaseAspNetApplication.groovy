@@ -18,18 +18,12 @@ def call(body) {
             def templates = new io.stakater.charts.Templates()
             def nexus = new io.stakater.repository.Nexus()   
             def chartManager = new io.stakater.charts.ChartManager()
-            def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
-            def javaRepositoryURL = config.javaRepositoryURL ?: common.getEnvValue('JAVA_REPOSITORY_URL')
+            def helm = new io.stakater.charts.Helm()            
+
+            //Variables from Jenkinsfile config
+            def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')    
             def rdlmURL = config.rdlmURL ?: "http://restful-distributed-lock-manager.release:8080/locks/mock"
-            def deployUsingMakeTarget = config.deployUsingMakeTarget ?: true
-            def helm = new io.stakater.charts.Helm()
-            String chartPackageName = ""
-            String helmVersion = ""
-
-            // Slack variables
-            def slackChannel = "${env.SLACK_CHANNEL}"
-            def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
-
+            def deployUsingMakeTarget = config.deployUsingMakeTarget ?: false
             def dockerRepositoryURL = config.dockerRepositoryURL ?: common.getEnvValue('DOCKER_REPOSITORY_URL')
             def appName = config.appName ?: ""
             def e2eTestJob = config.e2eTestJob ?: ""
@@ -38,93 +32,95 @@ def call(body) {
             def devAppsJobName = config.devAppsJobName ?: ""
             def gitUser = config.gitUser ?: "stakater-user"
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
-            def cloneUsingToken = config.cloneUsingToken ?: false
-            echo "Clone using token:  ${cloneUsingToken}"
+            def cloneUsingToken = config.usePersonalAccessToken ?: false
+            def jenkinsSecretForToken = config.tokenCredential ?: "git-token"
+            
+            // Slack variables
+            def slackChannel = "${env.SLACK_CHANNEL}"
+            def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"  
 
-            def dockerImage = ""
-            def version = ""
+            
 
             container(name: 'tools') {
-                withCurrentRepo(gitUsername: gitUser, gitEmail: gitEmailID, useToken: cloneUsingToken ) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+                withCurrentRepo(gitUsername: gitUser, gitEmail: gitEmailID, useToken: cloneUsingToken ) { def repoUrl, def repoName, def repoOwner, def repoBranch ->                  
+                    // Variables used in multiple stages                  
+                    def dockerImage = ""
+                    def version = ""
+                    String helmVersion = ""
                     def kubernetesDir = WORKSPACE + "/deployments/kubernetes"
                     def chartTemplatesDir = kubernetesDir + "/templates/chart"
                     def chartDir = kubernetesDir + "/chart"
                     def manifestsDir = kubernetesDir + "/manifests"
-
-                    def imageName = repoName.split("dockerfile-").last().toLowerCase()
-                    def fullAppNameWithVersion = ""
-                    
                     def prNumber = "${env.REPO_BRANCH}"                        
-
-                    echo "Image NAME: ${imageName}"
+                    def imageName = repoName.split("dockerfile-").last().toLowerCase()
+                    def repoNameLowerCase = repoName.toLowerCase()
+                                        
                     if (repoOwner.startsWith('stakater-')){
                         repoOwner = 'stakater'
                     }
+                    echo "Image NAME: ${imageName}"
                     echo "Repo Owner: ${repoOwner}" 
                     try {
-                        stage('Build'){
+                        stage('Build'){   
+
                             echo "Creating Version"
-                            dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
+                            dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"                            
                             // If image Prefix is passed, use it, else pass empty string to create versions
                             def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
-                            version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
-                            echo "Version: ${version}"                       
-                            fullAppNameWithVersion = imageName + '-'+ version                        
+                            version = stakaterCommands.getImageVersionForCiAndCd(imagePrefix, prNumber, "${env.BUILD_NUMBER}")
+                            echo "Version: ${version}" 
+
                             echo "Building Asp.Net application"   
-                            builder.buildAspNetApplication(version)
+                            builder.buildAspNetApplication()                                                                         
+                            
                             echo "Building Docker Image"   
                             sh """
                                 export DOCKER_IMAGE=${dockerImage}
                                 export DOCKER_TAG=${version}
                             """
-                            docker.buildImageWithTagCustom(dockerImage, version)
+                            docker.buildImage(dockerImage, version)
                         }
                         stage('Publish'){
                             echo "Publishing Docker Image"   
-                            docker.pushTagCustom(dockerImage, version)
+                            docker.pushImage(dockerImage, version)
                             echo "Rendering Chart & generating manifests"
                             helm.init(true)
-                            helm.lint(chartDir, repoName.toLowerCase())
+                            helm.lint(chartDir, repoNameLowerCase)
                             
                             if (version.contains("SNAPSHOT")) {
                                 helmVersion = "0.0.0"
                             }else{
                                 helmVersion = version.substring(1)
                             }
-                            echo "Helm Version: ${helmVersion}"
+                            echo "Helm Version: ${helmVersion}"                            
                             // Render chart from templates
-                            templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
+                            templates.renderChart(chartTemplatesDir, chartDir, repoNameLowerCase, version, helmVersion, dockerImage)
                             // Generate manifests from chart
-                            templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
-                            chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)                        
+                            templates.generateManifests(chartDir, repoNameLowerCase, manifestsDir)
+                            String chartPackageName = helm.package(chartDir, repoNameLowerCase, helmVersion)                        
                             
                             String cmUsername = "${env.CHARTMUSEUM_USERNAME}"
                             String cmPassword = "${env.CHARTMUSEUM_PASSWORD}"
-                            chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
+                            chartManager.uploadToChartMuseum(chartDir, repoNameLowerCase, chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
                         }
                         if (!e2eTestJob.equals("")){
                             stage('Run Synthetic/E2E Tests') {                        
                                 echo "Running synthetic tests for Maven application:  ${e2eTestJob}"                                   
-                                e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestsJob, chartName: repoName.toLowerCase(), chartVersion: helmVersion, repoUrl: repoUrl, repoBranch: repoBranch, chartRepositoryURL: chartRepositoryURL, mockAppsJobName: mockAppsJobName, rdlmURL: rdlmURL, [
+                                e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestsJob, chartName: repoNameLowerCase, chartVersion: helmVersion, repoUrl: repoUrl, repoBranch: repoBranch, chartRepositoryURL: chartRepositoryURL, mockAppsJobName: mockAppsJobName, rdlmURL: rdlmURL, [
                                     microservice: [
-                                            name   : repoName.toLowerCase(),
+                                            name   : repoNameLowerCase,
                                             version: helmVersion
                                     ]
                                 ])                                
                             }
                         }else{                            
                             echo "No E2E Job Name passed, so skipping e2e tests"
-                        }
-                        if (deployUsingMakeTarget == true) {
-                            echo "Deploying Chart using make target"   
-                            builder.deployHelmChart(chartDir)
-                        }
+                        }                        
                         // If master
                         if (utils.isCD()) {
-                            if (!javaRepositoryURL.equals("")){
-                                stage('Publish Jar') {
-                                    nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      
-                                }
+                            if (deployUsingMakeTarget == true) {
+                                echo "Deploying Chart using make target"   
+                                builder.deployHelmChart(chartDir)
                             }
                             stage("Tag") {
                                 print "Pushing changes to Git"
@@ -134,7 +130,7 @@ def call(body) {
                             }
                             if (!devAppsJobName.equals("")){
                                 stage("Push to Dev-Apps Repo"){
-                                    build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: chartRepositoryURL ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
+                                    build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoNameLowerCase ], [$class: 'StringParameterValue', name: 'chartUrl', value: chartRepositoryURL ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoNameLowerCase ]]
                                 }
                             }
                         }

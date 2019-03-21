@@ -413,6 +413,38 @@ def createImageVersionForCiAndCd(String repoUrl, String imagePrefix, String prNu
     return imageVersion
 }
 
+/**
+ * Only returns the complete tagged string for CI (PRs) or CD(Master-Branch).
+ *
+ * @param imagePrefix - passed from Jenkins file
+ * @param prNumber - Used only in case of CI
+ * @param buildNumber - Used only in case of CI
+ * @return
+ */
+ // Doesn't create release for CD
+ // This method is an overloaded method of below method.
+def getImageVersionForCiAndCd(String imagePrefix, String prNumber, String buildNumber) {
+    def utils = new io.fabric8.Utils()
+    def branchName = utils.getBranch()
+    def git = new io.stakater.vc.Git()
+    def imageVersion = ''
+
+    // For CD
+    if (branchName.equalsIgnoreCase("master")) {
+        sh "stk generate version > commandResult"
+        def version = readFile('commandResult').trim()
+        sh "rm commandResult .VERSION"
+        version = 'v' + version        
+        imageVersion = imagePrefix + version
+    }
+    // For CI
+    else {
+        imageVersion = imagePrefix + 'SNAPSHOT-' + prNumber + '-' + buildNumber
+    }
+
+    return imageVersion
+}
+
 
 /**
  * Only returns the complete tagged string for CI (PRs) or CD(Master-Branch).
