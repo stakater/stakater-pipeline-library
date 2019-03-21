@@ -37,14 +37,10 @@ def call(body) {
                 echo "User: ${username}"
                 echo "Pass: ${password}"
 
-                def response = sh(script: """
-                    mkdir nexus-charts
-                    cd nexus-charts
-                    curl -u ${username}:${password} -X GET ${config.nexusURL}/service/rest/v1/assets?repository=test-raw -v
-                    """, returnStdout: true)
-                echo "Response: ${response}"
+                sh "mkdir nexus-charts"
 
-                sh "sleep 3000s"
+                def response = sh(script: "curl -u ${username}:${password} -X GET ${config.nexusURL}/service/rest/v1/assets?repository=test-raw -v", returnStdout: true)
+                echo "Response: ${response}"
 
                 def responseJSON = new JsonSlurperClassic().parseText(response)
 
@@ -53,8 +49,14 @@ def call(body) {
                 echo "Items: ${responseJSON.items}"
 
                 responseJSON.items.each{item -> 
-                    echo "PATH: ${item.path}"
+                    echo "URL: ${item.downloadUrl}"
+                    sh """
+                        cd nexus-charts
+                        curl -u ${username}:${password} --remote-name ${item.downloadUrl} -v
+                    """
                 }
+
+                sh "sleep 3000s"
 
                 def dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
                 // If image Prefix is passed, use it, else pass empty string to create versions
