@@ -26,6 +26,20 @@ def call(body) {
                     repoOwner = 'stakater'
                 }
                 echo "Repo Owner: ${repoOwner}" 
+
+                def username, password
+                withCredentials([usernamePassword(credentialsId: 'nexus-stackator-cluster', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                    username = env.USER
+                    password = env.PASS
+                }
+
+                echo "User: ${username}"
+                echo "Pass: ${password}"
+
+                def response = sh(script: "curl -u ${username}:${password} -X GET https://nexus.global.stakater.com/service/rest/v1/assets?repository=tst-raw -v", returnStdout: true)
+
+                echo "Response: ${response}"
+
                 def dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
                 // If image Prefix is passed, use it, else pass empty string to create versions
                 def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
