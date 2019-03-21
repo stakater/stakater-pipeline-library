@@ -37,8 +37,14 @@ def call(body) {
                 echo "User: ${username}"
                 echo "Pass: ${password}"
 
-                def response = sh(script: "curl -u ${username}:${password} -X GET ${config.nexusURL}/service/rest/v1/assets?repository=test-raw -v", returnStdout: true)
+                def response = sh(script: """
+                    mkdir nexus-charts
+                    cd /nexus-charts
+                    curl -u ${username}:${password} -X GET ${config.nexusURL}/service/rest/v1/assets?repository=test-raw -v
+                    """, returnStdout: true)
                 echo "Response: ${response}"
+
+                sh "sleep 3000s"
 
                 def responseJSON = new JsonSlurperClassic().parseText(response)
 
