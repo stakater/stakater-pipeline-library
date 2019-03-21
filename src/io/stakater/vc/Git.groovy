@@ -50,17 +50,15 @@ def commitChanges(String repoDir, String commitMessage) {
 }
 
 def checkoutRepoUsingToken(String credentialSecretName, String repoUrl, String branch, String dir) {
-    def gitlabTokenSecret
-    withCredentials([string(credentialsId: credentialSecretName, variable: 'tokenSecret')]) {
-        gitlabTokenSecret = env.tokenSecret
-    }
+    def flow = new StakaterCommands()
+    def tokenSecret = flow.getProviderTokenFromJenkinsSecret(credentialSecretName)    
     echo "RepoURL: ${repoUrl}"
     String result = repoUrl.substring(repoUrl.indexOf('@')+1)
     result = result.replaceAll(":", '/')
     echo "resulting string: ${result}"
-    echo "My secret: ${gitlabTokenSecret}"
+    echo "My secret: ${tokenSecret}"
     sh """
-        git clone -b ${branch} https://oauth2:${gitlabTokenSecret}@${result}.git ${dir}
+        git clone -b ${branch} https://oauth2:${tokenSecret}@${result}.git ${dir}
     """
 }
 
@@ -86,6 +84,43 @@ def addCommentToPullRequest(String message) {
     echo "project name with organization: ${project}"
 
     def providerToken = flow.getProviderToken(provider)
+
+    switch(provider) {
+        case "github":
+            flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken)
+            break
+
+        case "gitlab":
+            def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME == null ? env.REPO_CLONE_BRANCH : env.BRANCH_NAME, providerToken)
+            result.each{value -> 
+                def prMessage = "@${value.author.username} " + message
+                echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
+                flow.postPRComment(prMessage, value.iid, project, provider, providerToken)
+            }
+            break
+
+        case "bitbucket":
+            def result = flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken)
+            break
+            
+        default:
+            error "${provider} is not supported" 
+            break   
+    }
+}
+
+//Overloaded function to send the token if already got that
+def addCommentToPullRequest(String message, String token) {
+    def flow = new StakaterCommands()
+    def url = flow.getScmPushUrl()
+
+    def provider = flow.getProvider(url)
+    echo "provider: ${provider}"
+
+    def project = flow.getProject(provider)
+    echo "project name with organization: ${project}"
+
+    def providerToken = token
 
     switch(provider) {
         case "github":

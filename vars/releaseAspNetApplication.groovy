@@ -33,7 +33,7 @@ def call(body) {
             def gitUser = config.gitUser ?: "stakater-user"
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
             def cloneUsingToken = config.usePersonalAccessToken ?: false
-            def credentialSecretID = config.tokenCredentialID ?: "git-token"
+            def credentialSecretID = config.tokenCredentialID ?: ""
             
             // Slack variables
             def slackChannel = "${env.SLACK_CHANNEL}"
@@ -54,6 +54,7 @@ def call(body) {
                     def prNumber = "${env.REPO_BRANCH}"                        
                     def imageName = repoName.split("dockerfile-").last().toLowerCase()
                     def repoNameLowerCase = repoName.toLowerCase()
+                    def token = ""
                                         
                     if (repoOwner.startsWith('stakater-')){
                         repoOwner = 'stakater'
@@ -136,8 +137,12 @@ def call(body) {
                         }
                         stage('Notify') {
                             def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
-                            git.addCommentToPullRequest(commentMessage)
-
+                            if(!credentialSecretID == ""){
+                                def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretName)    
+                                git.addCommentToPullRequest(commentMessage,tokenSecret)
+                            }else{
+                                git.addCommentToPullRequest(commentMessage)
+                            }
                             slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")], prNumber)
                         }
                     }
@@ -145,7 +150,12 @@ def call(body) {
                         slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)], prNumber)
 
                         def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
-                        git.addCommentToPullRequest(commentMessage)
+                        if(!credentialSecretID == ""){
+                            def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretName)    
+                            git.addCommentToPullRequest(commentMessage,tokenSecret)
+                        }else{
+                            git.addCommentToPullRequest(commentMessage)
+                        }
 
                         throw e
                     }
