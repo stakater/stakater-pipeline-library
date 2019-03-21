@@ -258,7 +258,9 @@ def postPRCommentToGitlab(comment, pr, project, token) {
     echo "Token: ${token}"
     echo "adding ${comment} to ${apiUrl}"
 
-    sh "curl -X POST -H 'PRIVATE-TOKEN:1KxFniQie8wWhotMayfu' ${apiUrl} -v"
+    sh """
+        curl -X POST -H PRIVATE-TOKEN:1KxFniQie8wWhotMayfu ${apiUrl} -v
+    """
 
 
     //     try {
