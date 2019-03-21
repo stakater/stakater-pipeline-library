@@ -44,17 +44,13 @@ def call(body) {
 
                 echo "Response JSON: ${responseJSON}"
 
-                responseJSON.each{key, items -> 
-                    echo "key: ${key}"
-                    echo "Items: ${items}"
+                echo "Items: ${responseJSON.items}"
+                // responseJSON.each{key, items -> 
+                //     echo "key: ${key}"
+                //     echo "Items: ${items}"
 
-                    items.each{innerKey, innerItem -> 
-                        echo "Inner key: ${innerKey}"
-                        echo "Inner item: ${innerItem}"
-                    }
-
-
-                }
+                //     echo "Download URL: "
+                // }
 
                 def dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
                 // If image Prefix is passed, use it, else pass empty string to create versions
