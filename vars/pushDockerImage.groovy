@@ -40,6 +40,10 @@ def call(body) {
 
                 echo "Response: ${response}"
 
+                response.items.each{key, value -> 
+                    echo "id: ${value.path}"
+                }
+
                 def dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
                 // If image Prefix is passed, use it, else pass empty string to create versions
                 def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
