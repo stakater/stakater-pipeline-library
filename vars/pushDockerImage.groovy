@@ -39,7 +39,7 @@ def call(body) {
 
                 def response = sh(script: """
                     mkdir nexus-charts
-                    cd /nexus-charts
+                    cd nexus-charts
                     curl -u ${username}:${password} -X GET ${config.nexusURL}/service/rest/v1/assets?repository=test-raw -v
                     """, returnStdout: true)
                 echo "Response: ${response}"
