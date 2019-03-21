@@ -136,7 +136,7 @@ def call(body) {
                         stage('Notify') {
                             def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
                             if(!credentialSecretID.equals("")){
-                                def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretName)    
+                                def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretID)    
                                 git.addCommentToPullRequest(commentMessage,tokenSecret)
                             }else{
                                 git.addCommentToPullRequest(commentMessage)
@@ -149,7 +149,7 @@ def call(body) {
 
                         def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
                         if(!credentialSecretID.equals("")){
-                            def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretName)    
+                            def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretID)    
                             git.addCommentToPullRequest(commentMessage,tokenSecret)
                         }else{
                             git.addCommentToPullRequest(commentMessage)
