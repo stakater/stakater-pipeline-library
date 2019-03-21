@@ -49,15 +49,18 @@ def commitChanges(String repoDir, String commitMessage) {
     """
 }
 
-def checkoutRepoUsingToken(String repoUrl, String branch, String dir) {
+def checkoutRepoUsingToken(String credentialSecretName, String repoUrl, String branch, String dir) {
     def gitlabTokenSecret
-    withCredentials([string(credentialsId: 'gitlab-token', variable: 'tokenSecret')]) {
+    withCredentials([string(credentialsId: credentialSecretName, variable: 'tokenSecret')]) {
         gitlabTokenSecret = env.tokenSecret
     }
-   
+    echo "RepoURl: ${repoUrl}"
+    String result = repoUrl.substring(names.indexOf('@'))
+    result = result.replaceAll(":", '/')
+    echo "resulting string: ${result}"
     echo "My secret: ${gitlabTokenSecret}"
     sh """
-        git clone -b ${branch} https://oauth2:${gitlabTokenSecret}@gitlab.com/stakater/aspnetapp.git ${dir}
+        git clone -b ${branch} https://oauth2:${gitlabTokenSecret}@${result}.git ${dir}
     """
 }
 

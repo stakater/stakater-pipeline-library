@@ -33,7 +33,7 @@ def call(body) {
             def gitUser = config.gitUser ?: "stakater-user"
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
             def cloneUsingToken = config.usePersonalAccessToken ?: false
-            def jenkinsSecretForToken = config.tokenCredential ?: "git-token"
+            def credentialSecretID = config.tokenCredentialID ?: "git-token"
             
             // Slack variables
             def slackChannel = "${env.SLACK_CHANNEL}"
@@ -42,7 +42,7 @@ def call(body) {
             
 
             container(name: 'tools') {
-                withCurrentRepo(gitUsername: gitUser, gitEmail: gitEmailID, useToken: cloneUsingToken ) { def repoUrl, def repoName, def repoOwner, def repoBranch ->                  
+                withCurrentRepo(gitUsername: gitUser, gitEmail: gitEmailID, useToken: cloneUsingToken, credentialSecretName: credentialSecretID ) { def repoUrl, def repoName, def repoOwner, def repoBranch ->                  
                     // Variables used in multiple stages                  
                     def dockerImage = ""
                     def version = ""
