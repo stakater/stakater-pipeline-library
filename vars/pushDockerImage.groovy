@@ -42,6 +42,8 @@ def call(body) {
 
                 def responseJSON = new JsonSlurper().parseText(response)
 
+                echo "Response JSON: ${responseJSON}"
+                
                 responseJSON.items.each{key, value -> 
                     echo "id: ${value.path}"
                 }
