@@ -258,7 +258,7 @@ def postPRCommentToGitlab(comment, pr, project, token) {
     echo "Token: ${token}"
     echo "adding ${comment} to ${apiUrl}"
 
-    sh "curl -X POST -H PRIVATE-TOKEN:${token} ${slackURL} -v"
+    sh "curl -X POST -H PRIVATE-TOKEN:${token} ${apiUrl} -v"
 
     //     try {
     //     def HttpURLConnection connection = apiUrl.openConnection
