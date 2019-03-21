@@ -36,7 +36,7 @@ def call(body) {
                 echo "User: ${username}"
                 echo "Pass: ${password}"
 
-                def response = sh(script: "curl -u ${username}:${password} -X GET https://nexus.global.stakater.com/service/rest/v1/assets?repository=tst-raw -v", returnStdout: true)
+                def response = sh(script: "curl -u ${username}:${password} -X GET ${config.nexusURL}/service/rest/v1/assets?repository=test-raw -v", returnStdout: true)
 
                 echo "Response: ${response}"
 
