@@ -135,7 +135,7 @@ def call(body) {
                         }
                         stage('Notify') {
                             def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
-                            if(!credentialSecretID == ""){
+                            if(!credentialSecretID.equals("")){
                                 def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretName)    
                                 git.addCommentToPullRequest(commentMessage,tokenSecret)
                             }else{
@@ -148,7 +148,7 @@ def call(body) {
                         slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)], prNumber)
 
                         def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
-                        if(!credentialSecretID == ""){
+                        if(!credentialSecretID.equals("")){
                             def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretName)    
                             git.addCommentToPullRequest(commentMessage,tokenSecret)
                         }else{
