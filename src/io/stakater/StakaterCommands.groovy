@@ -254,7 +254,8 @@ def postPRComment(comment, pr, project, provider, token) {
 }
 
 def postPRCommentToGitlab(comment, pr, project, token) {
-    def apiUrl = new URL("https://gitlab.com/api/v4/projects/${java.net.URLEncoder.encode(project, 'UTF-8')}/merge_requests/${pr}/notes?body=${java.net.URLEncoder.encode(comment, 'UTF-8')}")
+    comment = "Hello"
+    def apiUrl = new URL("https://gitlab.com/api/v4/projects/${java.net.URLEncoder.encode(project, 'UTF-8')}/merge_requests/${pr}/notes?body=${java.net.URLEncoder.encode(project, 'UTF-8')}")
     echo "Token: ${token}"
     echo "adding ${comment} to ${apiUrl}"
 
@@ -267,10 +268,14 @@ def postPRCommentToGitlab(comment, pr, project, token) {
         }
         connection.setRequestMethod("POST")
         connection.setDoOutput(true)
+        OutputStream os = connection.getOutputStream()
+        os.write(comment.getBytes())
+        os.flush()
+        os.close()
         connection.connect()
 
-        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-        writer.flush()
+        // OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
+        // writer.flush()
 
         // execute the POST request
         new InputStreamReader(connection.getInputStream())
