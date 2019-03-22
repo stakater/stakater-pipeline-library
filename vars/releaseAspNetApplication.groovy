@@ -134,26 +134,26 @@ def call(body) {
                             }
                         }
                         stage('Notify') {
-                            def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
-                            if(!credentialSecretID.equals("")){
-                                def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretID)    
-                                git.addCommentToPullRequest(commentMessage)
-                            }else{
-                                git.addCommentToPullRequest(commentMessage)
-                            }
+                            // def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
+                            // if(!credentialSecretID.equals("")){
+                            //     def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretID)    
+                            //     git.addCommentToPullRequest(commentMessage)
+                            // }else{
+                            //     git.addCommentToPullRequest(commentMessage)
+                            // }
                             slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")], prNumber)
                         }
                     }
                     catch (e) {
                         slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)], prNumber)
 
-                        def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
-                        if(!credentialSecretID.equals("")){
-                            def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretID)    
-                            git.addCommentToPullRequest(commentMessage)
-                        }else{
-                            git.addCommentToPullRequest(commentMessage)
-                        }
+                        // def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
+                        // if(!credentialSecretID.equals("")){
+                        //     def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretID)    
+                        //     git.addCommentToPullRequest(commentMessage)
+                        // }else{
+                        //     git.addCommentToPullRequest(commentMessage)
+                        // }
 
                         throw e
                     }
