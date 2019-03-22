@@ -133,16 +133,15 @@ def call(body) {
                                 }
                             }
                         }
-                        stage('Notify') {
-                            sh "sleep 10"
+                        stage('Notify') {                            
                             def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
                             if(!credentialSecretID.equals("")){
                                 def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretID)    
                                 echo "Credentials secret set: ${tokenSecret}"
-                                
-                                //git.addCommentToPullRequest(commentMessage)
+                                sh "sleep 10"
+                                git.addCommentToPullRequest(commentMessage)
                             }else{
-                                //git.addCommentToPullRequest(commentMessage)
+                                git.addCommentToPullRequest(commentMessage)
                             }
                             slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")], prNumber)
                         }
@@ -154,9 +153,9 @@ def call(body) {
                         if(!credentialSecretID.equals("")){
                             def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretID)    
                             echo "Credentials secret set: ${tokenSecret}"
-                            //git.addCommentToPullRequest(commentMessage)
+                            git.addCommentToPullRequest(commentMessage)
                         }else{
-                            //git.addCommentToPullRequest(commentMessage)
+                            git.addCommentToPullRequest(commentMessage)
                         }
 
                         throw e
