@@ -7,6 +7,7 @@ def call(Map parameters = [:], body) {
     toolsTemplate(parameters) {
         echo "inside tools template"
         node(label) {
+            echo "inside node"
             body()
         }
     }

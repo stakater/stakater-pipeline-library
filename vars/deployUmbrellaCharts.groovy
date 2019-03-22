@@ -12,7 +12,9 @@ def call(body) {
     notifyOnSlack = !config.notifyOnSlack ? config.notifyOnSlack : true
 
     toolsNode(toolsImage: toolsImage) {
+        echo "inside tools node"
         container(name: 'tools') {
+            echo "inside tools container"
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def slackChannel = "${env.SLACK_CHANNEL}"
                 def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
