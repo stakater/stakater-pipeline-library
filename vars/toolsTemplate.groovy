@@ -15,10 +15,7 @@ def call(Map parameters = [:], body) {
     echo 'using cloud: ' + cloud
     echo 'Using toolsImage : ' + toolsImage
     echo 'Mounting docker socket to build docker images'
-    podTemplate(cloud: cloud, label: label, serviceAccount: 'jenkins',
-            annotations: [
-                podAnnotation(key: "scheduler.alpha.kubernetes.io/critical-pod", value: "true")
-            ],
+    podTemplate(cloud: cloud, serviceAccount: 'jenkins',
             envVars: [
                 
             ],
@@ -40,6 +37,7 @@ def call(Map parameters = [:], body) {
                     )],
             volumes: [
                     hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')]) {
+        echo "inside pod template"
         body()
     }
 }

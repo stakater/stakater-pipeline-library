@@ -5,6 +5,7 @@ def call(Map parameters = [:], body) {
     def label = parameters.get('label', defaultLabel)
 
     toolsTemplate(parameters) {
+        echo "inside tools template"
         node(label) {
             body()
         }
