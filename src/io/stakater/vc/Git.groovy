@@ -106,7 +106,7 @@ def addCommentToPullRequest(String message) {
     //     default:
     //         error "${provider} is not supported" 
     //         break   
-    }
+    // }
 }
 
 //Overloaded function to send the token if already got that
