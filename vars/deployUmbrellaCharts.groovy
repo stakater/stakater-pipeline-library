@@ -11,7 +11,7 @@ def call(body) {
     runPreInstall = config.runPreInstall ?: false
     notifyOnSlack = !config.notifyOnSlack ? config.notifyOnSlack : true
 
-    toolsNode(toolsImage: toolsImage) {
+    toolsWithCurrentKubeNode(toolsImage: toolsImage) {
         echo "inside tools node"
         container(name: 'tools') {
             echo "inside tools container"
