@@ -138,16 +138,17 @@ def call(body) {
                             if(!credentialSecretID.equals("")){
                                 def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(credentialSecretID)    
                                 echo "Credentials secret set: ${tokenSecret}"
-                                sh "sleep 10"
+                                
                                 git.addCommentToPullRequest(commentMessage)
                             }else{
                                 git.addCommentToPullRequest(commentMessage)
                             }
-                            slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")], prNumber)
+                            sh "sleep 10"
+                            //slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")], prNumber)
                         }
                     }
                     catch (e) {
-                        slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)], prNumber)
+                        //slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)], prNumber)
 
                         def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
                         if(!credentialSecretID.equals("")){

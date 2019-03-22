@@ -92,11 +92,11 @@ def addCommentToPullRequest(String message) {
 
         case "gitlab":
             def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME == null ? env.REPO_CLONE_BRANCH : env.BRANCH_NAME, providerToken)
-            // result.each{value -> 
-            //     def prMessage = "@${value.author.username} " + message
-            //     echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
-            //     flow.postPRComment(prMessage, value.iid, project, provider, providerToken)
-            // }
+            result.each{value -> 
+                def prMessage = "@${value.author.username} " + message
+                echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
+                //flow.postPRComment(prMessage, value.iid, project, provider, providerToken)
+            }
             break
 
         case "bitbucket":
