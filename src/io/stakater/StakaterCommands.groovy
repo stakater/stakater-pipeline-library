@@ -258,27 +258,27 @@ def postPRCommentToGitlab(comment, pr, project, token) {
     echo "Token: ${token}"
     echo "adding ${comment} to ${apiUrl}"
 
-    sh "curl -X POST -H PRIVATE-TOKEN:${token} \'${apiUrl}\' -v"
+    //sh "curl -X POST -H PRIVATE-TOKEN:${token} \'${apiUrl}\' -v"
 
-    //     try {
-    //     def HttpURLConnection connection = apiUrl.openConnection
-    //     if (token.length() > 0) {
-    //         connection.setRequestProperty("PRIVATE-TOKEN", "${token}")
-    //     }
-    //     connection.setRequestMethod("POST")
-    //     connection.setDoOutput(true)
-    //     connection.connect()
+    try {
+        def HttpURLConnection connection = apiUrl.openConnection
+        if (token.length() > 0) {
+            connection.setRequestProperty("PRIVATE-TOKEN", "${token}")
+        }
+        connection.setRequestMethod("POST")
+        connection.setDoOutput(true)
+        connection.connect()
 
-    //     OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-    //     writer.flush()
+        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
+        writer.flush()
 
-    //     // execute the POST request
-    //     new InputStreamReader(connection.getInputStream())
+        // execute the POST request
+        new InputStreamReader(connection.getInputStream())
 
-    //     connection.disconnect()
-    // } catch (err) {
-    //     error "ERROR  ${err}"
-    // }
+        connection.disconnect()
+    } catch (err) {
+        error "ERROR  ${err}"
+    }
 }
 
 def getGitLabMergeRequestsByBranchName(project, branchName, token){

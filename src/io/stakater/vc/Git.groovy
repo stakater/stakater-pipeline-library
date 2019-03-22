@@ -95,7 +95,7 @@ def addCommentToPullRequest(String message) {
             result.each{value -> 
                 def prMessage = "@${value.author.username} " + message
                 echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
-                //flow.postPRComment(prMessage, value.iid, project, provider, providerToken)
+                flow.postPRComment(prMessage, value.iid, project, provider, providerToken)
             }
             break
 
