@@ -11,7 +11,7 @@ def call(body) {
     runPreInstall = config.runPreInstall ?: false
     notifyOnSlack = !config.notifyOnSlack ? config.notifyOnSlack : true
 
-    toolsWithCurrentKubeNode(toolsImage: toolsImage) {
+    toolsNode(toolsImage: toolsImage) {
         container(name: 'tools') {
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def slackChannel = "${env.SLACK_CHANNEL}"
