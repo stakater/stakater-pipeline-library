@@ -76,59 +76,14 @@ def call(body) {
                             }
                             if (config.nexusChartRepoURL) {
                                 def username, password
+                                def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
 
                                 withCredentials([usernamePassword(credentialsId: 'nexus-stackator-admin', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
                                     username = env.USER
                                     password = env.PASS
                                 }
-
-                                echo "User: ${username}"
-                                echo "Pass: ${password}"
-
-                                //////////////////////////////////////////////////////////////////////////////////
-                                // 1st step: Upload new chart to nexus
-                                //////////////////////////////////////////////////////////////////////////////////
-                                echo "1st step: Upload new chart to nexus"
-
-                                def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
-                                echo "Packaged Chart Location: ${packagedChartLocation}"
-
-                                sh "curl -u ${username}:${password} --upload-file ${packagedChartLocation} ${config.nexusChartRepoURL}/repository/${config.nexusChartRepoName}/ -v"
-
-                                //////////////////////////////////////////////////////////////////////////////////
-                                // 2nd step: Fetch all the assets from nexus repo to generate new index.yaml file
-                                /////////////////////////////////////////////////////////////////////////////////
-                                echo "2nd step: Fetch all the assets from nexus repo to generate new index.yaml file"
-
-                                def response = sh(script: "curl -u ${username}:${password} -X GET ${config.nexusChartRepoURL}/service/rest/v1/assets?repository=${config.nexusChartRepoName} -v", returnStdout: true)
-                                echo "Response: ${response}"
-
-                                def responseJSON = new JsonSlurperClassic().parseText(response)
-
-                                echo "Response JSON: ${responseJSON}"
-
-                                echo "Items: ${responseJSON.items}"
-
-                                sh "mkdir nexus-charts"
-
-                                responseJSON.items.each{item -> 
-                                    echo "URL: ${item.downloadUrl}"
-                                    sh """
-                                        cd nexus-charts
-                                        curl -u ${username}:${password} --remote-name ${item.downloadUrl} -v
-                                    """
-                                }
-
-                                //////////////////////////////////////////////////////////////////////////////////
-                                // 3rd step: Generate new index.yaml file, and push to nexus chart repo
-                                /////////////////////////////////////////////////////////////////////////////////
-                                echo "3rd step: Generate new index.yaml file, and push to nexus chart repo"
-
-                                sh """
-                                    cd nexus-charts
-                                    helm repo index . --url ${config.nexusChartRepoURL}/repository/${config.nexusChartRepoName}
-                                    curl -u ${username}:${password} --upload-file index.yaml ${config.nexusChartRepoURL}/repository/${config.nexusChartRepoName}/ -v 
-                                """
+                                
+                                chartManager.uploadToHostedNexusRawRepository(username, password, packagedChartLocation, config.nexusChartRepoURL, config.nexusChartRepoName)
                             }
                         }
 

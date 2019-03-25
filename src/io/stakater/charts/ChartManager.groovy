@@ -31,4 +31,43 @@ def uploadToStakaterCharts(String packagedChart, String publicChartRepositryURL,
     git.commitChanges(chartRepoName, "Update charts")
 }
 
+def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword, string packagedChartLocation, String nexusChartRepoURL, String nexusChartRepoName) {
+    //////////////////////////////////////////////////////////////////////////////////
+    // 1st step: Upload new chart to nexus
+    //////////////////////////////////////////////////////////////////////////////////
+    echo "1st step: Upload new chart to nexus"
+    echo "Packaged Chart Location: ${packagedChartLocation}"
+
+    sh "curl -u ${nexusUsername}:${nexusPassword} --upload-file ${packagedChartLocation} ${nexusChartRepoURL}/repository/${nexusChartRepoName}/ -v"
+
+    //////////////////////////////////////////////////////////////////////////////////
+    // 2nd step: Fetch all the assets from nexus repo to generate new index.yaml file
+    /////////////////////////////////////////////////////////////////////////////////
+    echo "2nd step: Fetch all the assets from nexus repo to generate new index.yaml file"
+
+    def response = sh(script: "curl -u ${nexusUsername}:${nexusPassword} -X GET ${nexusChartRepoURL}/service/rest/v1/assets?repository=${nexusChartRepoName} -v", returnStdout: true)
+    def responseJSON = new JsonSlurperClassic().parseText(response)
+
+    sh "mkdir nexus-charts"
+
+    responseJSON.items.each{item -> 
+        echo "URL: ${item.downloadUrl}"
+        sh """
+            cd nexus-charts
+            curl -u ${nexusUsername}:${nexusPassword} --remote-name ${item.downloadUrl} -v
+        """
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    // 3rd step: Generate new index.yaml file, and push to nexus chart repo
+    /////////////////////////////////////////////////////////////////////////////////
+    echo "3rd step: Generate new index.yaml file, and push to nexus chart repo"
+
+    sh """
+        cd nexus-charts
+        helm repo index . --url ${nexusChartRepoURL}/repository/${nexusChartRepoName}
+        curl -u ${nexusUsername}:${nexusPassword} --upload-file index.yaml ${nexusChartRepoURL}/repository/${nexusChartRepoName}/ -v 
+    """
+}
+
 return this
