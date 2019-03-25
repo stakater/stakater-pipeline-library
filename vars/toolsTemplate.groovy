@@ -15,10 +15,7 @@ def call(Map parameters = [:], body) {
     echo 'using cloud: ' + cloud
     echo 'Using toolsImage : ' + toolsImage
     echo 'Mounting docker socket to build docker images'
-    podTemplate(cloud: cloud, serviceAccount: 'jenkins', inheritFrom: "${inheritFrom}",
-            envVars: [
-                
-            ],
+    podTemplate(cloud: cloud, serviceAccount: 'jenkins',
             containers: [
                     containerTemplate(
                             name: 'tools',
