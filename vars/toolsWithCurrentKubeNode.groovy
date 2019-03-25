@@ -6,8 +6,7 @@ def call(Map parameters = [:], body) {
     def label = parameters.get('label', defaultLabel)
     def flow = new Fabric8Commands()
     def cloud = flow.getCloudConfig()
-    podTemplate(name: 'sa-secret', cloud: cloud,
-        volumes: [secretVolume(secretName: "k8s-current-cluster-kubeconfig", mountPath: '/home/jenkins/.kube')]) {
+    podTemplate(name: 'sa-secret', cloud: cloud) {
         toolsTemplate(parameters) {
             node(label) {
                 body()
