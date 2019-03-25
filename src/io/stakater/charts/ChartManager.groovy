@@ -31,7 +31,7 @@ def uploadToStakaterCharts(String packagedChart, String publicChartRepositryURL,
     git.commitChanges(chartRepoName, "Update charts")
 }
 
-def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword, string packagedChartLocation, String nexusChartRepoURL, String nexusChartRepoName) {
+def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword, String packagedChartLocation, String nexusChartRepoURL, String nexusChartRepoName) {
     //////////////////////////////////////////////////////////////////////////////////
     // 1st step: Upload new chart to nexus
     //////////////////////////////////////////////////////////////////////////////////
