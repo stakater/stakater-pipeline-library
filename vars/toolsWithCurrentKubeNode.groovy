@@ -7,7 +7,8 @@ def call(Map parameters = [:], body) {
     def flow = new Fabric8Commands()
     def cloud = flow.getCloudConfig()
     echo "using cloud : " + cloud
-    podTemplate(name: label, serviceAccount: 'jenkins', namespace: 'qa-1', cloud: cloud,
+    echo "using label:" + label
+    podTemplate(label: label, serviceAccount: 'jenkins', namespace: 'qa-1', cloud: cloud,
     containers: [containerTemplate(name: 'maven', image: 'maven:3.3.9-jdk-8-alpine', ttyEnabled: true, command: 'cat')
     ]) {
         body.call(label)

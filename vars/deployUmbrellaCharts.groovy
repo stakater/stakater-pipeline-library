@@ -12,6 +12,8 @@ def call(body) {
     notifyOnSlack = !config.notifyOnSlack ? config.notifyOnSlack : true
 
     toolsWithCurrentKubeNode(toolsImage: toolsImage) { label ->
+    echo "using label for node:" + label
+    
         node(label) {
             container ("maven") {
                 sh """echo 'hello'"""
