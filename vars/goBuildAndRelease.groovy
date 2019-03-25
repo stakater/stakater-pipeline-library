@@ -127,7 +127,6 @@ def call(body) {
                             git.addCommentToPullRequest(commentMessage)
                         }
                     }
-                }
                 catch(e) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
 
