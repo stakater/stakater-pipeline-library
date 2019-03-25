@@ -1,4 +1,5 @@
 #!/usr/bin/groovy
+import groovy.json.*
 
 def call(body) {
     def config = [:]
