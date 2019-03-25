@@ -92,13 +92,13 @@ def call(body) {
                                 def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
                                 echo "Packaged Chart Location: ${packagedChartLocation}"
 
-                                sh "curl -u ${username}:${password} --upload-file ${packagedChartLocation} ${config.nexusURL}/repository/${config.nexusChartRepoName} -v"
+                                sh "curl -u ${username}:${password} --upload-file ${packagedChartLocation} ${config.nexusChartRepoURL}/repository/${config.nexusChartRepoName} -v"
 
                                 ////////////////////////////////////////////////////////////////
                                 // 2nd step: 
                                 ////////////////////////////////////////////////////////////////
 
-                                def response = sh(script: "curl -u ${username}:${password} -X GET ${config.nexusURL}/service/rest/v1/assets?repository=${config.nexusChartRepoName} -v", returnStdout: true)
+                                def response = sh(script: "curl -u ${username}:${password} -X GET ${config.nexusChartRepoURL}/service/rest/v1/assets?repository=${config.nexusChartRepoName} -v", returnStdout: true)
                                 echo "Response: ${response}"
 
                                 def responseJSON = new JsonSlurperClassic().parseText(response)
