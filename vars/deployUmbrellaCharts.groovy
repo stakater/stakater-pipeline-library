@@ -11,8 +11,12 @@ def call(body) {
     runPreInstall = config.runPreInstall ?: false
     notifyOnSlack = !config.notifyOnSlack ? config.notifyOnSlack : true
 
-    toolsWithCurrentKubeNode(toolsImage: toolsImage) {
-        echo "inside tools node"
+    podTemplate(label: 'builder', cloud: 'openshift', serviceAccount: 'jenkins', containers: [
+            containerTemplate(name: 'pipeline-tools', image: 'stakater/pipeline-tools:1.13.2', ttyEnabled: true, command: 'cat'),
+            ],
+            ) {
+            node('builder') {
+              echo "inside tools node"
         container(name: 'tools') {
             echo "inside tools container"
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
@@ -130,4 +134,5 @@ def call(body) {
             }
         }
     }
+}
 }
