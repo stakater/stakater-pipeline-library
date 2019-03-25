@@ -12,12 +12,19 @@ def call(Map parameters = [:], body) {
 
     def cloud = flow.getCloudConfig()
 
-    echo 'using cloud: ' + cloud
     echo 'Using toolsImage : ' + toolsImage
     echo 'Mounting docker socket to build docker images'
-    podTemplate(cloud: cloud, serviceAccount: 'jenkins',
-) {
-        echo "inside pod template"
-        body()
+    podTemplate(cloud: cloud, label: label, serviceAccount: 'jenkins',
+            containers: [
+                    containerTemplate(
+                            name: 'tools',
+                            image: "${toolsImage}",
+                            command: '/bin/sh -c',
+                            args: 'cat',
+                            privileged: false,
+                            workingDir: '/home/jenkins/',
+                            ttyEnabled: true
+                    )]) {
+        body.call(label)
     }
 }
