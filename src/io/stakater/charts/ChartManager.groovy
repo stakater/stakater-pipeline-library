@@ -1,5 +1,6 @@
 #!/usr/bin/groovy
 package io.stakater.charts
+import groovy.json.*
 
 def uploadToChartMuseum(String location, String chartName, String fileName, String chartRepositoryURL) {
     def chartMuseum = new io.stakater.charts.ChartMuseum()
