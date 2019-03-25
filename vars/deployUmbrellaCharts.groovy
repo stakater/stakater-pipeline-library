@@ -15,6 +15,10 @@ def call(body) {
             containerTemplate(name: 'pipeline-tools', image: 'stakater/pipeline-tools:1.13.2', ttyEnabled: true, command: 'cat'),
             ],
             ) {
+                    podTemplate(label: 'builder', cloud: 'openshift', serviceAccount: 'jenkins', containers: [
+            containerTemplate(name: 'pipeline-tools', image: 'stakater/pipeline-tools:1.13.2', ttyEnabled: true, command: 'cat'),
+            ],
+            ) {
             node('builder') {
               echo "inside tools node"
         container(name: 'tools') {
@@ -135,4 +139,5 @@ def call(body) {
         }
     }
 }
+            }
 }
