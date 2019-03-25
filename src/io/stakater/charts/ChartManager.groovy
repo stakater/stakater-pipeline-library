@@ -32,21 +32,29 @@ def uploadToStakaterCharts(String packagedChart, String publicChartRepositryURL,
     git.commitChanges(chartRepoName, "Update charts")
 }
 
-def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword, String packagedChartLocation, String nexusChartRepoURL, String nexusChartRepoName) {
+/**
+* @nexusUsername = Username for nexus repo
+* @nexusPassword = Password for nexus repo
+* @packagedChartLocation = Path for the newly created chart to push to nexus including file name. Must end with .tgz
+* @nexusURL = Base URL of the nexus
+* @nexusChartRepoName = Name of the nexus repository where we want to push our charts
+**/
+
+def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword, String packagedChartLocation, String nexusURL, String nexusChartRepoName) {
     //////////////////////////////////////////////////////////////////////////////////
     // 1st step: Upload new chart to nexus
     //////////////////////////////////////////////////////////////////////////////////
     echo "1st step: Upload new chart to nexus"
     echo "Packaged Chart Location: ${packagedChartLocation}"
 
-    sh "curl -u ${nexusUsername}:${nexusPassword} --upload-file ${packagedChartLocation} ${nexusChartRepoURL}/repository/${nexusChartRepoName}/ -v"
+    sh "curl -u ${nexusUsername}:${nexusPassword} --upload-file ${packagedChartLocation} ${nexusURL}/repository/${nexusChartRepoName}/ -v"
 
     //////////////////////////////////////////////////////////////////////////////////
     // 2nd step: Fetch all the assets from nexus repo to generate new index.yaml file
     /////////////////////////////////////////////////////////////////////////////////
     echo "2nd step: Fetch all the assets from nexus repo to generate new index.yaml file"
 
-    def response = sh(script: "curl -u ${nexusUsername}:${nexusPassword} -X GET ${nexusChartRepoURL}/service/rest/v1/assets?repository=${nexusChartRepoName} -v", returnStdout: true)
+    def response = sh(script: "curl -u ${nexusUsername}:${nexusPassword} -X GET ${nexusURL}/service/rest/v1/assets?repository=${nexusChartRepoName} -v", returnStdout: true)
     def responseJSON = new JsonSlurperClassic().parseText(response)
 
     sh "mkdir nexus-charts"
@@ -66,8 +74,8 @@ def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword,
 
     sh """
         cd nexus-charts
-        helm repo index . --url ${nexusChartRepoURL}/repository/${nexusChartRepoName}
-        curl -u ${nexusUsername}:${nexusPassword} --upload-file index.yaml ${nexusChartRepoURL}/repository/${nexusChartRepoName}/ -v 
+        helm repo index . --url ${nexusURL}/repository/${nexusChartRepoName}
+        curl -u ${nexusUsername}:${nexusPassword} --upload-file index.yaml ${nexusURL}/repository/${nexusChartRepoName}/ -v 
     """
 }
 

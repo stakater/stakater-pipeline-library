@@ -1,5 +1,4 @@
 #!/usr/bin/groovy
-import groovy.json.*
 
 def call(body) {
     def config = [:]
@@ -155,17 +154,6 @@ def call(body) {
 
                                 def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
                                 chartManager.uploadToStakaterCharts(packagedChartLocation, publicChartRepositoryURL, publicChartGitURL)
-                            }
-                            if (config.nexusChartRepoURL) {
-                                def username, password
-                                def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
-
-                                withCredentials([usernamePassword(credentialsId: 'nexus-stackator-admin', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                                    username = env.USER
-                                    password = env.PASS
-                                }
-
-                                chartManager.uploadToHostedNexusRawRepository(username, password, packagedChartLocation, config.nexusChartRepoURL, config.nexusChartRepoName)
                             }
                         }
 
