@@ -29,7 +29,7 @@ def call(body) {
                 echo "Repo Owner: ${repoOwner}" 
 
                 def username, password
-                withCredentials([usernamePassword(credentialsId: 'nexus-stackator-cluster', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                withCredentials([usernamePassword(credentialsId: 'nexus-stackator-admin', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
                     username = env.USER
                     password = env.PASS
                 }
@@ -37,24 +37,14 @@ def call(body) {
                 echo "User: ${username}"
                 echo "Pass: ${password}"
 
-                sh "mkdir nexus-charts"
+                ////////////////////////////////////////////////////////////////
+                // 1st step: Upload new chart to nexus
+                ////////////////////////////////////////////////////////////////
 
-                def response = sh(script: "curl -u ${username}:${password} -X GET ${config.nexusURL}/service/rest/v1/assets?repository=test-raw -v", returnStdout: true)
-                echo "Response: ${response}"
+                def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
+                echo "Packaged Chart Location: ${packagedChartLocation}"
 
-                def responseJSON = new JsonSlurperClassic().parseText(response)
-
-                echo "Response JSON: ${responseJSON}"
-
-                echo "Items: ${responseJSON.items}"
-
-                responseJSON.items.each{item -> 
-                    echo "URL: ${item.downloadUrl}"
-                    sh """
-                        cd nexus-charts
-                        curl -u ${username}:${password} --remote-name ${item.downloadUrl} -v
-                    """
-                }
+                sh "curl -u ${username}:${password} --upload-file ${packagedChartLocation} ${config.nexusURL}/repository/${config.nexusChartRepoName} -v"
 
                 sh "sleep 3000s"
 

@@ -155,6 +155,50 @@ def call(body) {
                                 def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
                                 chartManager.uploadToStakaterCharts(packagedChartLocation, publicChartRepositoryURL, publicChartGitURL)
                             }
+                            if (config.nexusChartRepoURL) {
+                                def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
+                                def username, password
+
+                                withCredentials([usernamePassword(credentialsId: 'nexus-stackator-admin', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                                    username = env.USER
+                                    password = env.PASS
+                                }
+
+                                echo "User: ${username}"
+                                echo "Pass: ${password}"
+
+                                ////////////////////////////////////////////////////////////////
+                                // 1st step: Upload new chart to nexus
+                                ////////////////////////////////////////////////////////////////
+
+                                def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
+                                echo "Packaged Chart Location: ${packagedChartLocation}"
+
+                                sh "curl -u ${username}:${password} --upload-file ${packagedChartLocation} ${config.nexusURL}/repository/${config.nexusChartRepoName} -v"
+
+                                ////////////////////////////////////////////////////////////////
+                                // 2nd step: 
+                                ////////////////////////////////////////////////////////////////
+
+                                def response = sh(script: "curl -u ${username}:${password} -X GET ${config.nexusURL}/service/rest/v1/assets?repository=${config.nexusChartRepoName} -v", returnStdout: true)
+                                echo "Response: ${response}"
+
+                                def responseJSON = new JsonSlurperClassic().parseText(response)
+
+                                echo "Response JSON: ${responseJSON}"
+
+                                echo "Items: ${responseJSON.items}"
+
+                                sh "mkdir nexus-charts"
+
+                                responseJSON.items.each{item -> 
+                                    echo "URL: ${item.downloadUrl}"
+                                    sh """
+                                        cd nexus-charts
+                                        curl -u ${username}:${password} --remote-name ${item.downloadUrl} -v
+                                    """
+                                }
+                            }
                         }
 
                         stage('Notify') {
