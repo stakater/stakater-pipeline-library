@@ -92,7 +92,7 @@ def call(body) {
                                 def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
                                 echo "Packaged Chart Location: ${packagedChartLocation}"
 
-                                sh "curl -u ${username}:${password} --upload-file ${packagedChartLocation} ${config.nexusChartRepoURL}/repository/${config.nexusChartRepoName} -v"
+                                sh "curl -u ${username}:${password} --upload-file ${packagedChartLocation} ${config.nexusChartRepoURL}/repository/${config.nexusChartRepoName}/ -v"
 
                                 ////////////////////////////////////////////////////////////////
                                 // 2nd step: 
