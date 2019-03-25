@@ -11,18 +11,8 @@ def call(body) {
     runPreInstall = config.runPreInstall ?: false
     notifyOnSlack = !config.notifyOnSlack ? config.notifyOnSlack : true
 
-    podTemplate(label: 'builder', cloud: 'openshift', serviceAccount: 'jenkins', containers: [
-            containerTemplate(name: 'pipeline-tools', image: 'stakater/pipeline-tools:1.13.2', ttyEnabled: true, command: 'cat'),
-            ],
-            ) {
-                    podTemplate(label: 'builder', cloud: 'openshift', serviceAccount: 'jenkins', containers: [
-            containerTemplate(name: 'pipeline-tools', image: 'stakater/pipeline-tools:1.13.2', ttyEnabled: true, command: 'cat'),
-            ],
-            ) {
-            node('builder') {
-              echo "inside tools node"
+    toolsWithCurrentKubeNode(toolsImage: toolsImage) {
         container(name: 'tools') {
-            echo "inside tools container"
             withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def slackChannel = "${env.SLACK_CHANNEL}"
                 def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
@@ -138,6 +128,4 @@ def call(body) {
             }
         }
     }
-}
-            }
 }
