@@ -13,7 +13,9 @@ def call(body) {
 
     toolsWithCurrentKubeNode(toolsImage: toolsImage) { label ->
         node(label) {
-            sh """echo 'hello'"""
+            container ("maven") {
+                sh """echo 'hello'"""
+            }
         }
     }
 }
