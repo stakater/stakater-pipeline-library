@@ -1,5 +1,4 @@
 #!/usr/bin/groovy
-import groovy.json.*
 
 def call(body) {
     def config = [:]
@@ -27,27 +26,6 @@ def call(body) {
                     repoOwner = 'stakater'
                 }
                 echo "Repo Owner: ${repoOwner}" 
-
-                def username, password
-                withCredentials([usernamePassword(credentialsId: 'nexus-stackator-admin', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                    username = env.USER
-                    password = env.PASS
-                }
-
-                echo "User: ${username}"
-                echo "Pass: ${password}"
-
-                ////////////////////////////////////////////////////////////////
-                // 1st step: Upload new chart to nexus
-                ////////////////////////////////////////////////////////////////
-
-                def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
-                echo "Packaged Chart Location: ${packagedChartLocation}"
-
-                sh "curl -u ${username}:${password} --upload-file ${packagedChartLocation} ${config.nexusURL}/repository/${config.nexusChartRepoName} -v"
-
-                sh "sleep 3000s"
-
                 def dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
                 // If image Prefix is passed, use it, else pass empty string to create versions
                 def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''

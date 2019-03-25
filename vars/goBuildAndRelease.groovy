@@ -47,6 +47,88 @@ def call(body) {
                 def dockerRepositoryURL = config.dockerRepositoryURL ?: "docker.io"
 
                 try {
+                    stage('Create Version'){
+                        dockerImage = "${repoOwner.toLowerCase()}/${imageName}"
+                        // If image Prefix is passed, use it, else pass empty string to create versions
+                        def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
+                        version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
+                        echo "Version: ${version}"                       
+                        fullAppNameWithVersion = imageName + '-'+ version
+                        echo "Full App name: ${fullAppNameWithVersion}"
+                    }
+                    stage('Download Dependencies') {
+                        sh """
+                            cd ${goProjectDir}
+                            export DOCKER_IMAGE=${dockerImage}
+                            make install
+                        """
+                    }
+
+                    stage('Run Tests') {
+                        sh """
+                            cd ${goProjectDir}
+                            make test
+                        """
+                    }
+                    if (utils.isCI()) {
+                        stage('CI: Publish Dev Image') {
+                            def builder = "${dockerRepositoryURL}/${dockerImage}:${version}"
+                            sh """
+                              cd ${goProjectDir}
+                              export DOCKER_TAG=${version}
+                              export BUILDER=${builder}
+                              make binary-image
+                              make push
+                            """
+                        }
+
+                        stage('Notify') {
+                            def dockerImageWithTag = "${dockerImage}:${version}"
+                            slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
+
+                            def commentMessage = "Image is available for testing. ``docker pull ${dockerImageWithTag}``"
+                            git.addCommentToPullRequest(commentMessage)
+                            sh """
+                                stk notify jira --comment "${commentMessage}"
+                            """
+                        }
+                    } else if (utils.isCD()) {
+                        stage('CD: Tag and Push') {
+                            print "Generating New Version"
+                            def versionFile = ".version"
+
+                            print "Pushing Tag ${version} to DockerHub"
+
+                            sh """
+                                echo "${version}" > ${versionFile}
+                                cd ${goProjectDir}
+                                export DOCKER_TAG=${version}
+                                make binary-image
+                                make push
+                            """
+
+                            sh """
+                                stk notify jira --comment "Version ${version} of ${repoName} has been successfully built and released."
+                            """
+
+                            // Render chart from templates
+                            templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, dockerImage)
+                            // Generate manifests from chart
+                            templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
+                            
+                            // Generate combined manifest
+                            sh """
+                                cd ${manifestsDir}
+                                find . -type f -name '*.yaml' -exec cat {} + > ${kubernetesDir}/${repoName.toLowerCase()}.yaml
+                            """
+
+                            git.commitChanges(WORKSPACE, "Bump Version to ${version}")
+
+                            print "Pushing Tag ${version} to Git"
+                            git.createTagAndPush(WORKSPACE, version)
+                            stakaterCommands.createGitHubRelease(version)
+                        }
+
                         stage('Chart: Init Helm') {
                             helm.init(true)
                         }
@@ -82,7 +164,7 @@ def call(body) {
                                     username = env.USER
                                     password = env.PASS
                                 }
-                                
+
                                 chartManager.uploadToHostedNexusRawRepository(username, password, packagedChartLocation, config.nexusChartRepoURL, config.nexusChartRepoName)
                             }
                         }
@@ -95,6 +177,7 @@ def call(body) {
                             git.addCommentToPullRequest(commentMessage)
                         }
                     }
+                }
                 catch(e) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
 
