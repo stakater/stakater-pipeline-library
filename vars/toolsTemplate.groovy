@@ -29,7 +29,6 @@ def call(Map parameters = [:], body) {
             ttyEnabled: true
           )],
         volumes: [
-          secretVolume(secretName: 'jenkins-git-ssh', mountPath: '/root/.ssh-git'),
           hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
         ]) {
       body.call(label)
