@@ -14,17 +14,21 @@ def call(Map parameters = [:], body) {
 
     echo 'Using toolsImage : ' + toolsImage
     echo 'Mounting docker socket to build docker images'
-    podTemplate(cloud: cloud, label: label, serviceAccount: 'jenkins',
-            containers: [
-                    containerTemplate(
-                            name: 'tools',
-                            image: "${toolsImage}",
-                            command: '/bin/sh -c',
-                            args: 'cat',
-                            privileged: false,
-                            workingDir: '/home/jenkins/',
-                            ttyEnabled: true
-                    )]) {
-        body.call(label)
+    podTemplate(cloud: cloud, label: label, serviceAccount: 'jenkins', inheritFrom: "${inheritFrom}",
+        annotations: [
+          podAnnotation(key: "scheduler.alpha.kubernetes.io/critical-pod", value: "true")
+        ],
+        containers: [
+          containerTemplate(
+            name: 'tools',
+            image: "${toolsImage}",
+            command: '/bin/sh -c',
+            args: 'cat',
+            privileged: true,
+            workingDir: '/home/jenkins/',
+            ttyEnabled: true
+          )],
+        volumes: [hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')]) {
+      body.call(label)
     }
 }
