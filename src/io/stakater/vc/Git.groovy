@@ -60,6 +60,19 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
     """
 }
 
+def checkoutRepoUsingToken(String credentialSecretName, String repoUrl, String branch, String dir) {
+    def flow = new StakaterCommands()
+    def tokenSecret = flow.getProviderTokenFromJenkinsSecret(credentialSecretName)    
+    echo "RepoURL: ${repoUrl}"
+    String result = repoUrl.substring(repoUrl.indexOf('@')+1)
+    result = result.replaceAll(":", '/')
+    echo "resulting string: ${result}"
+    echo "My secret: ${tokenSecret}"
+    sh """
+        git clone -b ${branch} https://oauth2:${tokenSecret}@${result}.git ${dir}
+    """
+}
+
 def addCommentToPullRequest(String message) {
     def flow = new StakaterCommands()
     def url = flow.getScmPushUrl()
