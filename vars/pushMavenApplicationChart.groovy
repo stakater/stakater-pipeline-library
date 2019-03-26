@@ -35,14 +35,14 @@ def call(body) {
             def gitUser = config.gitUser ?: "stakater-user"
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
             def cloneUsingToken = config.usePersonalAccessToken ?: false
-            def credentialSecretID = config.tokenCredentialID ?: ""
+            def tokenSecretName = config.tokenCredentialID ?: ""
 
             def dockerImage = ""
             def version = ""
 
             container(name: 'tools') {
                 withCurrentRepo(gitUsername: gitUser, gitEmail: gitEmailID, useToken: cloneUsingToken,
-                        credentialSecretName: credentialSecretID) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+                        tokenSecretName: tokenSecretName) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                     def kubernetesDir = WORKSPACE + "/deployments/kubernetes"
                     def chartTemplatesDir = kubernetesDir + "/templates/chart"
                     def chartDir = kubernetesDir + "/chart"
