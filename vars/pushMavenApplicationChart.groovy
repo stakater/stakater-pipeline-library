@@ -132,7 +132,15 @@ def call(body) {
                             slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")], prNumber)
                         }
                         def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
-                        git.addCommentToPullRequest(commentMessage)
+
+                        if(cloneUsingToken){
+                            def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(tokenSecretName)    
+                            echo "Credentials secret set: ${tokenSecret}"
+
+                            git.addCommentToPullRequest(commentMessage, tokenSecret)
+                        }else{
+                            git.addCommentToPullRequest(commentMessage)
+                        }
                     }
                 }
             }
