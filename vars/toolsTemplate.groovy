@@ -28,6 +28,10 @@ def call(Map parameters = [:], body) {
             workingDir: '/home/jenkins/',
             ttyEnabled: true
           )],
+        envVars: [
+          secretEnvVar(key: 'NEXUS_USERNAME', secretName: 'nexus-auth', secretKey: 'username'),
+          secretEnvVar(key: 'NEXUS_PASSWORD', secretName: 'nexus-auth', secretKey: 'password'),
+        ],
         volumes: [
           secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/jenkins/.docker'),
           hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')

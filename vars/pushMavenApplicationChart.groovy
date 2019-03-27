@@ -36,6 +36,7 @@ def call(body) {
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
             def cloneUsingToken = config.usePersonalAccessToken ?: false
             def tokenSecretName = config.tokenCredentialID ?: ""
+            def nexusChartRepoName = config.nexusChartRepoName ?: "helm-charts"
 
             def dockerImage = ""
             def version = ""
@@ -98,9 +99,10 @@ def call(body) {
                                 templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
                                 chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)                        
                                 
-                                String cmUsername = "${env.CHARTMUSEUM_USERNAME}"
-                                String cmPassword = "${env.CHARTMUSEUM_PASSWORD}"
-                                chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
+                                String nexusUsername = "${env.NEXUS_USERNAME}"
+                                String nexusPassword = "${env.NEXUS_PASSWORD}"
+
+                                chartManager.uploadToHostedNexusRawRepository(nexusUsername, nexusPassword, chartDir + "/" + chartPackageName, chartRepositoryURL, nexusChartRepoName)                        
                             }
                             stage('Push Jar') {
                                 nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      

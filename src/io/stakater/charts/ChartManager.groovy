@@ -44,7 +44,7 @@ def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword,
     //////////////////////////////////////////////////////////////////////////////////
     // 1st step: Upload new chart to nexus
     //////////////////////////////////////////////////////////////////////////////////
-    echo "1st step: Upload new chart to nexus"
+    echo "Upload new chart to nexus"
     echo "Packaged Chart Location: ${packagedChartLocation}"
 
     sh "curl -u ${nexusUsername}:${nexusPassword} --upload-file ${packagedChartLocation} ${nexusURL}/repository/${nexusChartRepoName}/ -v"
@@ -52,7 +52,7 @@ def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword,
     //////////////////////////////////////////////////////////////////////////////////
     // 2nd step: Fetch all the assets from nexus repo to generate new index.yaml file
     /////////////////////////////////////////////////////////////////////////////////
-    echo "2nd step: Fetch all the assets from nexus repo to generate new index.yaml file"
+    echo "Fetch all the assets from nexus repo to generate new index.yaml file"
 
     def response = sh(script: "curl -u ${nexusUsername}:${nexusPassword} -X GET ${nexusURL}/service/rest/v1/assets?repository=${nexusChartRepoName} -v", returnStdout: true)
     def responseJSON = new JsonSlurperClassic().parseText(response)
@@ -70,7 +70,7 @@ def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword,
     //////////////////////////////////////////////////////////////////////////////////
     // 3rd step: Generate new index.yaml file, and push to nexus chart repo
     /////////////////////////////////////////////////////////////////////////////////
-    echo "3rd step: Generate new index.yaml file, and push to nexus chart repo"
+    echo "Generate new index.yaml file, and push to nexus chart repo"
 
     sh """
         cd nexus-charts
