@@ -103,7 +103,9 @@ def call(body) {
                                 String nexusUsername = "${env.NEXUS_USERNAME}"
                                 String nexusPassword = "${env.NEXUS_PASSWORD}"
 
-                                chartManager.uploadToHostedNexusRawRepository(nexusUsername, nexusPassword, chartDir + "/" + chartPackageName, chartRepositoryURL, nexusChartRepoName)                        
+                                def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
+
+                                chartManager.uploadToHostedNexusRawRepository(nexusUsername, nexusPassword, packagedChartLocation, chartRepositoryURL, nexusChartRepoName)                        
                             }
                             stage('Push Jar') {
                                 nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      
