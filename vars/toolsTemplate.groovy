@@ -29,6 +29,7 @@ def call(Map parameters = [:], body) {
             ttyEnabled: true
           )],
         volumes: [
+          secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/jenkins/.docker'),
           hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
         ]) {
       body.call(label)
