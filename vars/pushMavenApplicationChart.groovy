@@ -37,6 +37,7 @@ def call(body) {
             def cloneUsingToken = config.usePersonalAccessToken ?: false
             def tokenSecretName = config.tokenCredentialID ?: ""
             def nexusChartRepoName = config.nexusChartRepoName ?: "helm-charts"
+            def notifySlack = config.notifySlack == false ? false : true
 
             def dockerImage = ""
             def version = ""
@@ -118,16 +119,18 @@ def call(body) {
                         }
                     }
                     catch (e) {
-                        slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)], prNumber)
-
+                        if (notifySlack) {
+                            slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)], prNumber)
+                        }
                         def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
                         git.addCommentToPullRequest(commentMessage)
 
                         throw e
                     }
                     stage('Notify') {
-                        slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")], prNumber)
-
+                        if (notifySlack) {
+                            slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")], prNumber)
+                        }
                         def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
                         git.addCommentToPullRequest(commentMessage)
                     }
