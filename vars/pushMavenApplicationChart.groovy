@@ -107,14 +107,17 @@ def call(body) {
 
                                 chartManager.uploadToHostedNexusRawRepository(nexusUsername, nexusPassword, packagedChartLocation, chartRepositoryURL, nexusChartRepoName)                        
                             }
-
-                            stage("Push Changes") {
+                            stage("Tag") {
                                 print "Pushing changes to Git"
-                                git.commitChanges(WORKSPACE, "Update chart and version")
-                            }
-                            stage("Create Git Tag"){                          
-                                print "Pushing Tag ${version} to Git"
-                                git.createTagAndPush(WORKSPACE, version)
+                                if(cloneUsingToken){
+                                    git.commitChangesUsingToken(WORKSPACE, "Update chart and version")
+                                    print "Pushing Tag ${version} to Git"
+                                    git.createTagAndPushUsingToken(WORKSPACE, version)
+                                }else {
+                                    git.commitChanges(WORKSPACE, "Update chart and version")
+                                    print "Pushing Tag ${version} to Git"
+                                    git.createTagAndPush(WORKSPACE, version)
+                                }
                             }
                         }
                     }
