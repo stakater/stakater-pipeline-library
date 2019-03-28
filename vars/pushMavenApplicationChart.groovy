@@ -107,9 +107,7 @@ def call(body) {
 
                                 chartManager.uploadToHostedNexusRawRepository(nexusUsername, nexusPassword, packagedChartLocation, chartRepositoryURL, nexusChartRepoName)                        
                             }
-                            stage('Push Jar') {
-                                nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      
-                            }
+
                             stage("Push Changes") {
                                 print "Pushing changes to Git"
                                 git.commitChanges(WORKSPACE, "Update chart and version")
