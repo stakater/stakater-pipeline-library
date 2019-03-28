@@ -54,7 +54,7 @@ def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword,
     echo "Fetch all the assets from nexus repo to generate new index.yaml file"
 
     def response = sh(script: "curl -u ${nexusUsername}:${nexusPassword} -X GET ${nexusURL}/service/rest/v1/assets?repository=${nexusChartRepoName} -v", returnStdout: true)
-    sh "mkdir nexus-charts"
+    sh "mkdir -p nexus-charts"
 
     sh """
         cd nexus-charts
