@@ -1,6 +1,5 @@
 #!/usr/bin/groovy
 package io.stakater.charts
-import groovy.json.*
 
 def uploadToChartMuseum(String location, String chartName, String fileName, String chartRepositoryURL) {
     def chartMuseum = new io.stakater.charts.ChartMuseum()
@@ -55,17 +54,13 @@ def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword,
     echo "Fetch all the assets from nexus repo to generate new index.yaml file"
 
     def response = sh(script: "curl -u ${nexusUsername}:${nexusPassword} -X GET ${nexusURL}/service/rest/v1/assets?repository=${nexusChartRepoName} -v", returnStdout: true)
-    def responseJSON = new JsonSlurperClassic().parseText(response)
-
     sh "mkdir nexus-charts"
 
-    responseJSON.items.each{item -> 
-        echo "URL: ${item.downloadUrl}"
-        sh """
-            cd nexus-charts
-            curl -u ${nexusUsername}:${nexusPassword} --remote-name ${item.downloadUrl} -v
-        """
-    }
+    sh """
+        cd nexus-charts
+        curl -u ${nexusUsername}:${nexusPassword} -X GET '${nexusURL}/service/rest/v1/assets?repository=${nexusChartRepoName}' -v | jq -r '.items[].downloadUrl' | xargs -I % curl -u '${nexusUsername}:${nexusPassword}' --remote-name % -v
+    """
+
 
     //////////////////////////////////////////////////////////////////////////////////
     // 3rd step: Generate new index.yaml file, and push to nexus chart repo
