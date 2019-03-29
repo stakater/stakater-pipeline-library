@@ -128,7 +128,6 @@ def call(body) {
                         def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
                          if(cloneUsingToken){
                             def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(tokenSecretName)    
-                            echo "Credentials secret set: ${tokenSecret}"
 
                             git.addCommentToPullRequest(commentMessage, tokenSecret)
                         }else{
@@ -144,7 +143,6 @@ def call(body) {
 
                         if(cloneUsingToken){
                             def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(tokenSecretName)    
-                            echo "Credentials secret set: ${tokenSecret}"
 
                             git.addCommentToPullRequest(commentMessage, tokenSecret)
                         }else{
