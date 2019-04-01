@@ -91,7 +91,7 @@ def call(body) {
                                 
                                 echo "Running Integration tests for Maven application"                                   
                                 sh """
-                                    make run-integration-test BASE_MOCK_URL=""
+                                    make run-integration-tests BASE_MOCK_URL=""
                                 """
                                 
                             }
