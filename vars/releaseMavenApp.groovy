@@ -22,6 +22,7 @@ def call(body) {
             def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
             def javaRepositoryURL = config.javaRepositoryURL ?: common.getEnvValue('JAVA_REPOSITORY_URL')
             Boolean runIntegrationTest = config.runIntegrationTest ? config.runIntegrationTest : false
+            String domainName = config.domainName ?: "stakater.com"
             def helm = new io.stakater.charts.Helm()
             String chartPackageName = ""
             String helmVersion = ""
@@ -84,7 +85,10 @@ def call(body) {
                         if (runIntegrationTest){                                                        
                             stage('Run Integration Tests') {      
                                 echo "Installing in mock environment" 
-                                make install-mock
+                                sh """
+                                    make install-mock IMAGE_NAME=${dockerImage} IMAGE_TAG=${version} DOMAIN=${domainName}
+                                """
+                                
                                 echo "Running Integration tests for Maven application"                                   
                                 make integrationTest
                             }
