@@ -80,8 +80,6 @@ def checkoutRepoUsingToken(String username, String tokenSecretName, String repoU
     echo "RepoURL: ${repoUrl}"
     String result = repoUrl.substring(repoUrl.indexOf('@')+1)
     result = result.replaceAll(":", '/')
-    echo "resulting string: ${result}"
-    echo "My secret: ${tokenSecret}"
     sh """
         git clone -b ${branch} https://${username}:${tokenSecret}@${result} ${dir}
     """
