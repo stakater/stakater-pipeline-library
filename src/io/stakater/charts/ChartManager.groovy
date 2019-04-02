@@ -79,12 +79,12 @@ def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword,
 
         mkdir -p nexus-charts
         cd nexus-charts
-        
+
         while : ; do
             getItemList
             downloadItems
             getContinuationToken
-            
+
             [[ ! -z "\$continuation_token" ]] || break
         done
     """

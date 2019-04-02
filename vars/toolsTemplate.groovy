@@ -34,6 +34,7 @@ def call(Map parameters = [:], body) {
         ],
         volumes: [
           secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/jenkins/.docker'),
+          secretVolume(secretName: 'jenkins-maven-settings', mountPath: '/root/.m2'),
           hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
         ]) {
       body.call(label)
