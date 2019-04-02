@@ -195,6 +195,34 @@ def createTagAndPushUsingToken(def repoDir, String version, String message) {
     """
 }
 
+def createAndPushTag(def repoDir, String version) {
+    createTagAndPush(repoDir, version, "By ${env.JOB_NAME}")
+}
+
+def createAndPushTag(def repoDir, String version, String message) {
+    sh """
+        chmod 600 /root/.ssh-git/ssh-key
+        eval `ssh-agent -s`
+        ssh-add /root/.ssh-git/ssh-key
+
+        cd ${repoDir}
+        git tag -am "${message}" ${version}
+        git push --tags
+    """
+}
+
+def createAndPushTagUsingToken(def repoDir, String version) {
+    createTagAndPushUsingToken(repoDir, version, "By ${env.JOB_NAME}")
+}
+
+def createAndPushTagUsingToken(def repoDir, String version, String message) {
+    sh """
+        cd ${repoDir}
+        git tag -am "${message}" ${version}
+        git push --tags
+    """
+}
+
 def push(def repoDir, String branchName) {
     sh """
         chmod 600 /root/.ssh-git/ssh-key

@@ -130,13 +130,13 @@ def call(body) {
                             stage("Tag") {
                                 print "Pushing changes to Git"
                                 if(cloneUsingToken){
-                                    git.commitChangesUsingToken(WORKSPACE, "Update chart and version")
+                                    // git.commitChangesUsingToken(WORKSPACE, "Update chart and version")
                                     print "Pushing Tag ${version} to Git"
-                                    git.createTagAndPushUsingToken(WORKSPACE, version)
+                                    git.createAndPushTagUsingToken(WORKSPACE, version)
                                 }else {
-                                    git.commitChanges(WORKSPACE, "Update chart and version")
+                                    // git.commitChanges(WORKSPACE, "Update chart and version")
                                     print "Pushing Tag ${version} to Git"
-                                    git.createTagAndPush(WORKSPACE, version)
+                                    git.createAndPushTag(WORKSPACE, version)
                                 }
                             }
                         }
