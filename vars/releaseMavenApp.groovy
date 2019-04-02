@@ -98,6 +98,11 @@ def call(body) {
                         }                        
                            // If master
                         if (utils.isCD()) {
+                            if (!javaRepositoryURL.equals("")){
+                                stage('Publish Jar') {
+                                    nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      
+                                }
+                            }
                             stage('Publish & Upload Helm Chart'){
                                 echo "Rendering Chart & generating manifests"
                                 helm.init(true)
