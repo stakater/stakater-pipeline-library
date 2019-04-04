@@ -82,6 +82,24 @@ def call(body) {
                             docker.buildImageWithTagCustom(dockerImage, version)
                             docker.pushTagCustom(dockerImage, version)
                         }
+                        stage('Package chart') {
+                            echo "Rendering Chart & generating manifests"
+                            helm.init(true)
+                            helm.lint(chartDir, repoName.toLowerCase())
+
+                            if (version.contains("SNAPSHOT")) {
+                                helmVersion = "0.0.0"
+                            }else{
+                                helmVersion = version.substring(1)
+                            }
+                            echo "Helm Version: ${helmVersion}"
+                            // Render chart from templates
+                            templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
+                            // Generate manifests from chart
+                            templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
+                            chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)
+                        }
+
                         if (runIntegrationTest){                                                        
                             stage('Run Integration Tests') {      
                                 echo "Installing in mock environment" 
@@ -103,23 +121,7 @@ def call(body) {
                                     nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      
                                 }
                             }
-                            stage('Publish & Upload Helm Chart'){
-                                echo "Rendering Chart & generating manifests"
-                                helm.init(true)
-                                helm.lint(chartDir, repoName.toLowerCase())
-                                
-                                if (version.contains("SNAPSHOT")) {
-                                    helmVersion = "0.0.0"
-                                }else{
-                                    helmVersion = version.substring(1)
-                                }
-                                echo "Helm Version: ${helmVersion}"
-                                // Render chart from templates
-                                templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
-                                // Generate manifests from chart
-                                templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
-                                chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)                        
-                                
+                            stage('Upload Helm Chart'){
                                 String nexusUsername = "${env.NEXUS_USERNAME}"
                                 String nexusPassword = "${env.NEXUS_PASSWORD}"
 
