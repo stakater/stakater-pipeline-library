@@ -6,9 +6,17 @@ def call(Map parameters = [:], body) {
     def cloud = flow.getCloudConfig()
 
     podTemplate(name: 'sa-secret', serviceAccount: 'jenkins', cloud: cloud) {
-        toolsTemplate(parameters) { label ->
-            node(label) {
-                body()
+        if ( cloud == "openshift") {
+            toolsTemplateOpenshift(parameters) { label ->
+                node(label) {
+                    body()
+                }
+            }
+        } else {
+            toolsTemplate(parameters) { label ->
+                node(label) {
+                    body()
+                }
             }
         }
     }
