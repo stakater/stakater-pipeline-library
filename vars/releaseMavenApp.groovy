@@ -113,7 +113,7 @@ def call(body) {
                                 """
                                 
                             }
-                        }                        
+                        }
                            // If master
                         if (utils.isCD()) {
                             if (!javaRepositoryURL.equals("")){
@@ -141,6 +141,11 @@ def call(body) {
                                     git.createAndPushTag(WORKSPACE, version)
                                 }
                             }
+                        }else{
+                            echo "As PR, so rolling back to stable version" 
+                            sh """
+                                make rollback
+                            """
                         }
                     }
                     catch (e) {
