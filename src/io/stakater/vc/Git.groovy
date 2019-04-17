@@ -148,7 +148,7 @@ def ifOnlyDocFilesChanged() {
     def files = raw.split()
     echo "Files Changed: "
     for (s in files){
-        echo "${s}"
+        println "${files}"
         for (ext in ignoreFiles){
             if (s.contains(ext)){
                 result = true
