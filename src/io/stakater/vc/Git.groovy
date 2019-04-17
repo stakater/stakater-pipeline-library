@@ -139,4 +139,27 @@ def runGoReleaser(String repoDir){
   """
 }
 
+def ifOnlyDocFilesChanged() {
+    
+    def ignoreFiles = [".md", ".txt"]  //Expand the extension list to ignore the extension files
+    def result = true
+
+    def raw = new ProcessBuilder('sh','-c',' git diff --name-only HEAD $(git describe --tags --abbrev=0)').redirectErrorStream(true).start().text
+    def files = raw.split()
+    for (s in files){
+        for (ext in ignoreFiles){
+            if (s.contains(ext)){
+                result = true
+                break
+            }else{
+                result = false
+            }
+        }
+        if (!result) {
+            return false
+        }
+    }
+    return true
+}
+
 return this
