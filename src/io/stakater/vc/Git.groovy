@@ -139,7 +139,7 @@ def runGoReleaser(String repoDir){
   """
 }
 
-def ifOnlyDocFilesChanged(list<String> ignoreFiles) {
+def ifOnlyDocFilesChanged(List<String> ignoreFiles) {
     
     def result = true
     def raw = sh(returnStdout: true, script: 'git diff --name-only HEAD $(git describe --tags --abbrev=0)').trim()
