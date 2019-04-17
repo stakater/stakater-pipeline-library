@@ -21,7 +21,7 @@ def call(body) {
             def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
             def javaRepositoryURL = config.javaRepositoryURL ?: common.getEnvValue('JAVA_REPOSITORY_URL')
             def rdlmURL = config.rdlmURL ?: "http://restful-distributed-lock-manager.release:8080/locks/mock"
-            def deployUsingMakeTarget = config.deployUsingMakeTarget ?: true
+            def deployUsingMakeTarget = config.deployUsingMakeTarget ?: false
             def helm = new io.stakater.charts.Helm()
             String chartPackageName = ""
             String helmVersion = ""
