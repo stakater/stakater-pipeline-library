@@ -146,7 +146,9 @@ def ifOnlyDocFilesChanged() {
 
     def raw = new ProcessBuilder('sh','-c',' git diff --name-only HEAD $(git describe --tags --abbrev=0)').redirectErrorStream(true).start().text
     def files = raw.split()
+    echo "Files Changed: "
     for (s in files){
+        echo "${s}"
         for (ext in ignoreFiles){
             if (s.contains(ext)){
                 result = true
