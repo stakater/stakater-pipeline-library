@@ -147,10 +147,10 @@ def ignoredFilesChanged(List<String> ignoreFiles) {
     def raw = sh(returnStdout: true, script: 'git diff --name-only HEAD $(git describe --tags --abbrev=0)').trim()
     def files = raw.split()
     echo "Files Changed: "
-    for (s in files){
-        echo "${files}"
+    for (f in files){
+        echo "${f}"
         for (ext in ignoreFiles){
-            if (s.toLowerCase().contains(ext)){
+            if (f.toLowerCase().contains(ext.trim())){
                 result = true
                 break
             }else{
