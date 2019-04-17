@@ -2,6 +2,8 @@
 package io.stakater.vc
 import io.stakater.StakaterCommands
 
+def ignoreFilesDefault = [".md", ".txt"]
+
 def setUserInfo(String gitUserName, String gitUserEmail) {
     sh """
         git config --global user.name "${gitUserName}"
@@ -139,16 +141,16 @@ def runGoReleaser(String repoDir){
   """
 }
 
-def ifOnlyDocFilesChanged(List<String> ignoreFiles) {
+def ignoredFilesChanged(List<String> ignoreFiles) {
     
     def result = true
     def raw = sh(returnStdout: true, script: 'git diff --name-only HEAD $(git describe --tags --abbrev=0)').trim()
     def files = raw.split()
     echo "Files Changed: "
     for (s in files){
-        println "${files}"
+        echo "${files}"
         for (ext in ignoreFiles){
-            if (s.contains(ext)){
+            if (s.toLowerCase().contains(ext)){
                 result = true
                 break
             }else{

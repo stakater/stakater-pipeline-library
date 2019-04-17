@@ -27,7 +27,8 @@ def call(body) {
             String helmVersion = ""
 
             // Ignore Files
-            def ignoreFiles = config.ignoreFiles ?: [".md"]
+            def ignoreFiles = config.ignoreFiles ?: git.ignoreFilesDefault
+
             // Slack variables
             def slackChannel = "${env.SLACK_CHANNEL}"
             def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
@@ -46,7 +47,7 @@ def call(body) {
 
             container(name: 'tools') {
                 withCurrentRepo(gitUsername: gitUser, gitEmail: gitEmailID) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
-                    if (!git.ifOnlyDocFilesChanged(ignoreFiles)){
+                    if (!git.ignoredFilesChanged(ignoreFiles)){
                         def kubernetesDir = WORKSPACE + "/deployments/kubernetes"
                         def chartTemplatesDir = kubernetesDir + "/templates/chart"
                         def chartDir = kubernetesDir + "/chart"
