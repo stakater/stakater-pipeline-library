@@ -156,7 +156,7 @@ def call(body) {
                             throw e
                         }
                     }else{
-                        echo "Only Documentation/Text files changed. So skipping build! "
+                        echo "Only ignored files changed. So skipping build! "
                     }
                 }
             }
