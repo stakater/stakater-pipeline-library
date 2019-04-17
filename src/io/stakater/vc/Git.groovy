@@ -139,12 +139,10 @@ def runGoReleaser(String repoDir){
   """
 }
 
-def ifOnlyDocFilesChanged() {
+def ifOnlyDocFilesChanged(list<String> ignoreFiles) {
     
-    def ignoreFiles = [".md", ".txt"]  //Expand the extension list to ignore the extension files
     def result = true
     def raw = sh(returnStdout: true, script: 'git diff --name-only HEAD $(git describe --tags --abbrev=0)').trim()
-// def raw = new ProcessBuilder('sh','-c',' git diff --name-only HEAD $(git describe --tags --abbrev=0)').redirectErrorStream(true).start().text
     def files = raw.split()
     echo "Files Changed: "
     for (s in files){
