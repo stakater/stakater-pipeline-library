@@ -51,6 +51,20 @@ def commitChanges(String repoDir, String commitMessage) {
     """
 }
 
+def commitChangesUsingToken(String repoDir, String commitMessage) {
+    String messageToCheck = "nothing to commit, working tree clean"
+    sh """
+        cd ${repoDir}
+        git add .
+        if ! git status | grep '${messageToCheck}' ; then
+            git commit -m "${commitMessage}"
+            git push
+        else
+            echo \"nothing to do\"
+        fi
+    """
+}
+
 def checkoutRepo(String repoUrl, String branch, String dir) {
     sh """
         chmod 600 /root/.ssh-git/ssh-key
@@ -59,6 +73,17 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
 
         rm -rf ${dir}
         git clone -b ${branch} ${repoUrl} ${dir}
+    """
+}
+
+def checkoutRepoUsingToken(String username, String tokenSecretName, String repoUrl, String branch, String dir) {
+    def flow = new StakaterCommands()
+    def tokenSecret = flow.getProviderTokenFromJenkinsSecret(tokenSecretName)    
+    echo "RepoURL: ${repoUrl}"
+    String result = repoUrl.substring(repoUrl.indexOf('@')+1)
+    result = result.replaceAll(":", '/')
+    sh """
+        git clone -b ${branch} https://${username}:${tokenSecret}@${result} ${dir}
     """
 }
 
@@ -73,6 +98,43 @@ def addCommentToPullRequest(String message) {
     echo "project name with organization: ${project}"
 
     def providerToken = flow.getProviderToken(provider)
+
+    switch(provider) {
+        case "github":
+            flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken)
+            break
+
+        case "gitlab":
+            def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME == null ? env.REPO_CLONE_BRANCH : env.BRANCH_NAME, providerToken)
+            result.each{value -> 
+                def prMessage = "@${value.author.username} " + message
+                echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
+                flow.postPRComment(prMessage, value.iid, project, provider, providerToken)
+            }
+            break
+
+        case "bitbucket":
+            def result = flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken)
+            break
+            
+        default:
+            error "${provider} is not supported" 
+            break   
+    }
+}
+
+//Overloaded function to send the token if already got that
+def addCommentToPullRequest(String message, String token) {
+    def flow = new StakaterCommands()
+    def url = flow.getScmPushUrl()
+
+    def provider = flow.getProvider(url)
+    echo "provider: ${provider}"
+
+    def project = flow.getProject(provider)
+    echo "project name with organization: ${project}"
+
+    def providerToken = token
 
     switch(provider) {
         case "github":
@@ -120,6 +182,46 @@ def createTagAndPush(def repoDir, String version, String message) {
         cd ${repoDir}
         git tag -am "${message}" ${version}
         git push origin ${version}
+    """
+}
+
+def createTagAndPushUsingToken(def repoDir, String version) {
+    createTagAndPushUsingToken(repoDir, version, "By ${env.JOB_NAME}")
+}
+
+def createTagAndPushUsingToken(def repoDir, String version, String message) {
+    sh """
+        cd ${repoDir}
+        git tag -am "${message}" ${version}
+        git push origin ${version}
+    """
+}
+
+def createAndPushTag(def repoDir, String version) {
+    createTagAndPush(repoDir, version, "By ${env.JOB_NAME}")
+}
+
+def createAndPushTag(def repoDir, String version, String message) {
+    sh """
+        chmod 600 /root/.ssh-git/ssh-key
+        eval `ssh-agent -s`
+        ssh-add /root/.ssh-git/ssh-key
+
+        cd ${repoDir}
+        git tag -am "${message}" ${version}
+        git push --tags
+    """
+}
+
+def createAndPushTagUsingToken(def repoDir, String version) {
+    createTagAndPushUsingToken(repoDir, version, "By ${env.JOB_NAME}")
+}
+
+def createAndPushTagUsingToken(def repoDir, String version, String message) {
+    sh """
+        cd ${repoDir}
+        git tag -am "${message}" ${version}
+        git push --tags
     """
 }
 
