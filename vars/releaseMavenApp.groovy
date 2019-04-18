@@ -1,5 +1,5 @@
 #!/usr/bin/groovy
-// Used to create & upload private chart for common-service as we don't want to deploy it in mock & dev environments, plus we also don't need to run e2e tests
+// Used to build maven apps, then create & upload chart
 
 def call(body) {
     def config = [:]
@@ -7,7 +7,8 @@ def call(body) {
     body.delegate = config
     body()
     timestamps {
-        toolsNode(toolsImage: 'stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.3') {
+        toolsNode(toolsImage: 'stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.3',
+                    serviceAccount: config.serviceAccount) {
 
             def builder = new io.stakater.builder.Build()
             def docker = new io.stakater.containers.Docker()
@@ -21,7 +22,8 @@ def call(body) {
             def chartManager = new io.stakater.charts.ChartManager()
             def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
             def javaRepositoryURL = config.javaRepositoryURL ?: common.getEnvValue('JAVA_REPOSITORY_URL')
-            
+            Boolean runIntegrationTest = config.runIntegrationTest ? config.runIntegrationTest : false
+            String domainName = config.domainName ?: "stakater.com"
             def helm = new io.stakater.charts.Helm()
             String chartPackageName = ""
             String helmVersion = ""
@@ -73,7 +75,7 @@ def call(body) {
                             echo "Building Maven application"   
                             builder.buildMavenApplication(version)
                         }                    
-                        stage('Image build & push') {
+                        stage('Build Image') {
                             sh """
                                 export DOCKER_IMAGE=${dockerImage}
                                 export DOCKER_TAG=${version}
@@ -81,25 +83,46 @@ def call(body) {
                             docker.buildImageWithTagCustom(dockerImage, version)
                             docker.pushTagCustom(dockerImage, version)
                         }
+                        stage('Package chart') {
+                            echo "Rendering Chart & generating manifests"
+                            helm.init(true)
+                            helm.lint(chartDir, repoName.toLowerCase())
+
+                            if (version.contains("SNAPSHOT")) {
+                                helmVersion = "0.0.0"
+                            }else{
+                                helmVersion = version.substring(1)
+                            }
+                            echo "Helm Version: ${helmVersion}"
+                            // Render chart from templates
+                            templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
+                            // Generate manifests from chart
+                            templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
+                            chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)
+                        }
+
+                        if (runIntegrationTest){                                                        
+                            stage('Run Integration Tests') {      
+                                echo "Installing in mock environment" 
+                                sh """
+                                    make install-mock IMAGE_NAME=${dockerImage} IMAGE_TAG=${version} DOMAIN=${domainName}
+                                """
+                                
+                                echo "Running Integration tests for Maven application"                                   
+                                sh """
+                                    make run-integration-tests BASE_MOCK_URL="https://common-service-mock.kubehealth.com/"
+                                """
+                                
+                            }
+                        }
                            // If master
                         if (utils.isCD()) {
-                            stage('Publish & Upload Helm Chart'){
-                                echo "Rendering Chart & generating manifests"
-                                helm.init(true)
-                                helm.lint(chartDir, repoName.toLowerCase())
-                                
-                                if (version.contains("SNAPSHOT")) {
-                                    helmVersion = "0.0.0"
-                                }else{
-                                    helmVersion = version.substring(1)
+                            if (!javaRepositoryURL.equals("")){
+                                stage('Publish Jar') {
+                                    nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      
                                 }
-                                echo "Helm Version: ${helmVersion}"
-                                // Render chart from templates
-                                templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
-                                // Generate manifests from chart
-                                templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
-                                chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)                        
-                                
+                            }
+                            stage('Upload Helm Chart'){
                                 String nexusUsername = "${env.NEXUS_USERNAME}"
                                 String nexusPassword = "${env.NEXUS_PASSWORD}"
 
@@ -110,15 +133,20 @@ def call(body) {
                             stage("Tag") {
                                 print "Pushing changes to Git"
                                 if(cloneUsingToken){
-                                    git.commitChangesUsingToken(WORKSPACE, "Update chart and version")
+                                    // git.commitChangesUsingToken(WORKSPACE, "Update chart and version")
                                     print "Pushing Tag ${version} to Git"
-                                    git.createTagAndPushUsingToken(WORKSPACE, version)
+                                    git.createAndPushTagUsingToken(WORKSPACE, version)
                                 }else {
-                                    git.commitChanges(WORKSPACE, "Update chart and version")
+                                    // git.commitChanges(WORKSPACE, "Update chart and version")
                                     print "Pushing Tag ${version} to Git"
-                                    git.createTagAndPush(WORKSPACE, version)
+                                    git.createAndPushTag(WORKSPACE, version)
                                 }
                             }
+                        }else{
+                            echo "As PR, so rolling back to stable version" 
+                            sh """
+                                make rollback
+                            """
                         }
                     }
                     catch (e) {

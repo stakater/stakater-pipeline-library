@@ -1,6 +1,5 @@
 #!/usr/bin/groovy
 package io.stakater.charts
-import groovy.json.*
 
 def uploadToChartMuseum(String location, String chartName, String fileName, String chartRepositoryURL) {
     def chartMuseum = new io.stakater.charts.ChartMuseum()
@@ -44,7 +43,7 @@ def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword,
     //////////////////////////////////////////////////////////////////////////////////
     // 1st step: Upload new chart to nexus
     //////////////////////////////////////////////////////////////////////////////////
-    echo "1st step: Upload new chart to nexus"
+    echo "Upload new chart to nexus"
     echo "Packaged Chart Location: ${packagedChartLocation}"
 
     sh "curl -u ${nexusUsername}:${nexusPassword} --upload-file ${packagedChartLocation} ${nexusURL}/repository/${nexusChartRepoName}/ -v"
@@ -52,25 +51,48 @@ def uploadToHostedNexusRawRepository(String nexusUsername, String nexusPassword,
     //////////////////////////////////////////////////////////////////////////////////
     // 2nd step: Fetch all the assets from nexus repo to generate new index.yaml file
     /////////////////////////////////////////////////////////////////////////////////
-    echo "2nd step: Fetch all the assets from nexus repo to generate new index.yaml file"
+    echo "Fetch all the assets from nexus repo to generate new index.yaml file"
 
-    def response = sh(script: "curl -u ${nexusUsername}:${nexusPassword} -X GET ${nexusURL}/service/rest/v1/assets?repository=${nexusChartRepoName} -v", returnStdout: true)
-    def responseJSON = new JsonSlurperClassic().parseText(response)
+    sh """
 
-    sh "mkdir nexus-charts"
+        nexus_url=${nexusURL}/service/rest/v1/assets?repository=${nexusChartRepoName}
+        auth=${nexusUsername}:${nexusPassword}
 
-    responseJSON.items.each{item -> 
-        echo "URL: ${item.downloadUrl}"
-        sh """
-            cd nexus-charts
-            curl -u ${nexusUsername}:${nexusPassword} --remote-name ${item.downloadUrl} -v
-        """
-    }
+        getContinuationToken() {
+            continuation_token=\$(cat output.json | jq -r '.continuationToken')
+        }
+
+        downloadItems() {
+            cat output.json | jq -r '.items[].downloadUrl' | xargs -I % curl -u "\${auth}" --remote-name % -v
+        }
+
+        getItemList() {
+            paginated_url=\${nexus_url}
+
+            if [[ ! -z "\$continuation_token" ]]
+            then
+                paginated_url="\${nexus_url}&continuationToken=\${continuation_token}"
+            fi
+
+            curl -u "\${auth}" -X GET "\${paginated_url}" -v > output.json
+        }
+
+        mkdir -p nexus-charts
+        cd nexus-charts
+
+        while : ; do
+            getItemList
+            downloadItems
+            getContinuationToken
+
+            [[ ! -z "\$continuation_token" ]] || break
+        done
+    """
 
     //////////////////////////////////////////////////////////////////////////////////
     // 3rd step: Generate new index.yaml file, and push to nexus chart repo
     /////////////////////////////////////////////////////////////////////////////////
-    echo "3rd step: Generate new index.yaml file, and push to nexus chart repo"
+    echo "Generate new index.yaml file, and push to nexus chart repo"
 
     sh """
         cd nexus-charts

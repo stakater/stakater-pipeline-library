@@ -73,6 +73,14 @@ def updateGithub() {
     sh "git push origin release-v${releaseVersion}"
 }
 
+def getProviderTokenFromJenkinsSecret(credentialSecretName) {
+    def gitlabTokenSecret
+    withCredentials([string(credentialsId: credentialSecretName, variable: 'tokenSecret')]) {
+        gitlabTokenSecret = env.tokenSecret
+    }
+    return gitlabTokenSecret
+}
+
 def getProviderToken(provider) {
     def tokenPath
     switch(provider) {
