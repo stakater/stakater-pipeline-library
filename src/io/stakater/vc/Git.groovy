@@ -49,16 +49,17 @@ def commitChanges(String repoDir, String commitMessage) {
     """
 }
 
-def checkoutRepoUsingToken(String credentialSecretName, String repoUrl, String branch, String dir) {
-    def flow = new StakaterCommands()
-    def tokenSecret = flow.getProviderTokenFromJenkinsSecret(credentialSecretName)    
-    echo "RepoURL: ${repoUrl}"
-    String result = repoUrl.substring(repoUrl.indexOf('@')+1)
-    result = result.replaceAll(":", '/')
-    echo "resulting string: ${result}"
-    echo "My secret: ${tokenSecret}"
+def commitChangesUsingToken(String repoDir, String commitMessage) {
+    String messageToCheck = "nothing to commit, working tree clean"
     sh """
-        git clone -b ${branch} https://oauth2:${tokenSecret}@${result}.git ${dir}
+        cd ${repoDir}
+        git add .
+        if ! git status | grep '${messageToCheck}' ; then
+            git commit -m "${commitMessage}"
+            git push
+        else
+            echo \"nothing to do\"
+        fi
     """
 }
 
@@ -70,6 +71,17 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
 
         rm -rf ${dir}
         git clone -b ${branch} ${repoUrl} ${dir}
+    """
+}
+
+def checkoutRepoUsingToken(String username, String tokenSecretName, String repoUrl, String branch, String dir) {
+    def flow = new StakaterCommands()
+    def tokenSecret = flow.getProviderTokenFromJenkinsSecret(tokenSecretName)    
+    echo "RepoURL: ${repoUrl}"
+    String result = repoUrl.substring(repoUrl.indexOf('@')+1)
+    result = result.replaceAll(":", '/')
+    sh """
+        git clone -b ${branch} https://${username}:${tokenSecret}@${result} ${dir}
     """
 }
 
@@ -168,6 +180,46 @@ def createTagAndPush(def repoDir, String version, String message) {
         cd ${repoDir}
         git tag -am "${message}" ${version}
         git push origin ${version}
+    """
+}
+
+def createTagAndPushUsingToken(def repoDir, String version) {
+    createTagAndPushUsingToken(repoDir, version, "By ${env.JOB_NAME}")
+}
+
+def createTagAndPushUsingToken(def repoDir, String version, String message) {
+    sh """
+        cd ${repoDir}
+        git tag -am "${message}" ${version}
+        git push origin ${version}
+    """
+}
+
+def createAndPushTag(def repoDir, String version) {
+    createTagAndPush(repoDir, version, "By ${env.JOB_NAME}")
+}
+
+def createAndPushTag(def repoDir, String version, String message) {
+    sh """
+        chmod 600 /root/.ssh-git/ssh-key
+        eval `ssh-agent -s`
+        ssh-add /root/.ssh-git/ssh-key
+
+        cd ${repoDir}
+        git tag -am "${message}" ${version}
+        git push --tags
+    """
+}
+
+def createAndPushTagUsingToken(def repoDir, String version) {
+    createTagAndPushUsingToken(repoDir, version, "By ${env.JOB_NAME}")
+}
+
+def createAndPushTagUsingToken(def repoDir, String version, String message) {
+    sh """
+        cd ${repoDir}
+        git tag -am "${message}" ${version}
+        git push --tags
     """
 }
 
