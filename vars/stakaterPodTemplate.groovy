@@ -78,18 +78,6 @@ def getStakaterPodEnvVars(Map parameters = [:]) {
         envVars.add(secretEnvVar(key: 'GITLAB_AUTH_TOKEN', secretName: 'jenkins-hub-api-token', secretKey: 'gitlab.hub'))
     }
 
-    if (isDockerRepostiory) {
-        envVars.add(envVar(key: 'DOCKER_REPOSITORY_URL', value: 'docker.release.stakater.com:443'))
-    }
-
-    if (isChartRepostiory) {
-        envVars.add(envVar(key: 'CHART_REPOSITORY_URL', value: 'https://chartmuseum.release.stakater.com'))
-    }
-
-    if (isJavaRepostiory) {
-        envVars.add(envVar(key: 'JAVA_REPOSITORY_URL', value: 'http://nexus.release/repository/maven'))
-    }
-
     additionalEnvVars.each { env ->
         envVars.add(envVar(key: env.key, value: env.value))
     }
@@ -114,7 +102,7 @@ def getStakaterPodVolumes(Map parameters = [:]) {
     Boolean isHelmPgpKey = parameters.get('isHelmPgpKey', false)
     def additionalSecretVolumes = parameters.get('additionalSecretVolumes', [])
     def additionalHostPathVolumes = parameters.get('additionalHostPathVolumes', [])
-    def additionalPSVs = parameters.get('additionalPSVs', [])
+    def additionalPVCs = parameters.get('additionalPVCs', [])
 
     if (isMaven) {
         volumes.add(secretVolume(secretName: 'jenkins-maven-settings', mountPath: '/root/.m2'))
@@ -156,8 +144,8 @@ def getStakaterPodVolumes(Map parameters = [:]) {
         volumes.add(hostPathVolume(hostPath: hostPathVolume.hostPath, mountPath: hostPathVolume.mountPath))
     }
 
-    additionalPSVs.each { psv->
-        volumes.add(persistentVolumeClaim(claimName: psv.claimName, mountPath: psv.mountPath))
+    additionalPVCs.each { pvc->
+        volumes.add(persistentVolumeClaim(claimName: pvc.claimName, mountPath: pvc.mountPath))
     }
 
     return volumes
@@ -167,7 +155,7 @@ def getStakaterPodContainers(Map parameters = [:]) {
     def containers = []
 
     Map defaultContainer = parameters.get('defaultContainer', [:])
-    Boolean isDefaultContainer = defaultContainer.get('enabled', true)
+    Boolean isDefaultContainer = parameters.get('enableDefaultContainer', true)
     def additionalContainers = parameters.get('additionalContainers', [])
 
     if (isDefaultContainer) {
