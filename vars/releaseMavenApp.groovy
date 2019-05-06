@@ -21,11 +21,11 @@ def call(body) {
             def chartManager = new io.stakater.charts.ChartManager()
             def helm = new io.stakater.charts.Helm()
 
-            String chartRepositoryURL =  common.getEnvValue('CHART_REPOSITORY_URL')
-            String javaRepositoryURL = common.getEnvValue('JAVA_REPOSITORY_URL')
-            String dockerRepositoryURL = common.getEnvValue('DOCKER_REPOSITORY_URL')
-            Boolean runIntegrationTest = config.runIntegrationTest ? : false
-            String integrationTestParams = config.integrationTestParams ? : ""
+            String chartRepositoryURL =  config.chartRepositoryURL ?: ""
+            String javaRepositoryURL = config.javaRepositoryURL ?: ""
+            String dockerRepositoryURL = config.dockerRepositoryURL ?: ""
+            Boolean runIntegrationTest = config.runIntegrationTest ?: false
+            String integrationTestParams = config.integrationTestParams ?: ""
             String domainName = config.domainName ?: "stakater.com"
             String chartPackageName = ""
             String helmVersion = ""

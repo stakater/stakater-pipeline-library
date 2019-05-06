@@ -18,12 +18,12 @@ def call(Map parameters = [:], body) {
     def cloud = flow.getCloudConfig()
 
     echo 'Using serviceAccount : ' + serviceAccount
-    echo 'Inheriting pod tempalte from : ' + inheritFrom
+    echo 'Inheriting pod template from : ' + inheritFrom
 
     podTemplate(cloud: cloud, label: label, serviceAccount: serviceAccount, inheritFrom: "${inheritFrom}",
         annotations: podAnnotations,
         envVars: podEnvVars,
-        volumes: volumes,
+        volumes: podVolumes,
         containers: podContainers
     ) {
         body()
