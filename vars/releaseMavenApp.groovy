@@ -6,6 +6,10 @@ def call(body) {
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = config
     body()
+
+    def common = new io.stakater.Common()
+    common.setToolsImage(config, "stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.3")
+
     timestamps {
         stakaterNode(config) {
             withSCM { def repoUrl, def repoName, def repoOwner, def repoBranch ->
@@ -14,7 +18,6 @@ def call(body) {
                 def stakaterCommands = new io.stakater.StakaterCommands()
                 def git = new io.stakater.vc.Git()
                 def slack = new io.stakater.notifications.Slack()
-                def common = new io.stakater.Common()
                 def utils = new io.fabric8.Utils()
                 def templates = new io.stakater.charts.Templates()
                 def nexus = new io.stakater.repository.Nexus()   
