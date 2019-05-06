@@ -167,10 +167,12 @@ def call(body) {
                                 }
                             }
                         } else {
-                            echo "As PR, so rolling back to stable version"
-                            sh """
-                                make rollback
-                            """
+                            if (runIntegrationTest) {
+                                echo "As PR, so rolling back to stable version"
+                                sh """
+                                    make rollback
+                                """
+                            }
                         }
                     }
                     catch (e) {
