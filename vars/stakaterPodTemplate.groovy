@@ -174,6 +174,8 @@ def getStakaterPodContainers(Map parameters = [:]) {
             envVars: it.envVars
         ))
     }
+
+    return containers
 }
 
 def getStakaterPodDefaultContainer(Map parameters = [:]) {
