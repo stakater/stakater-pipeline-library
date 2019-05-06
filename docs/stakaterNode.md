@@ -118,7 +118,7 @@ Containers running on pods can be configured using following parameters
 |-----------------------------|-------------|------------------------------------|
 | enableDefaultContainer      | `true`      | Enables default container          |
 | defaultContainer.name       | `tools`     | Name of default container          |
-| defaultContainer.image      | `stakater/pipeline-tools:1.5.1` | Image of default container |
+| defaultContainer.image      | `stakater/pipeline-tools:v2.0.5` | Image of default container |
 | defaultContainer.command    | `/bin/sh -c` | Command of default container      |
 | defaultContainer.args       | `cat`       | Args of default container          |
 | defaultContainer.privileged | `true`      | Name of default container          |
@@ -137,7 +137,7 @@ A pod container can be defined using following parameters
 | Name          | Value                          | Description                      |
 |---------------|--------------------------------|----------------------------------|
 | name          | `tools`                        | Name of container                |
-| image         | `stakater/pipeline-tools:1.5.1`| Image of container               |
+| image         | `stakater/pipeline-tools:v2.0.5`| Image of container               |
 | command       | `/bin/sh -c`                   | Command of container             |
 | args          | `cat`                          | Args of container                |
 | privileged    | `true`                         | Name of container                |
