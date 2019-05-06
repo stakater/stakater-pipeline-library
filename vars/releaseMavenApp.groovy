@@ -7,17 +7,21 @@ def call(body) {
     body.delegate = config
     body()
 
-    def common = new io.stakater.Common()
-    common.setToolsImage(config, "stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.3")
+    def stakaterPod = new io.stakater.pods.Pod()
+    stakaterPod.setToolsImage(config, "stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.3")
+    stakaterPod.mountDockerSocket(config)
 
     timestamps {
         stakaterNode(config) {
             withSCM { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+                checkout scm
+
                 def builder = new io.stakater.builder.Build()
                 def docker = new io.stakater.containers.Docker()
                 def stakaterCommands = new io.stakater.StakaterCommands()
                 def git = new io.stakater.vc.Git()
                 def slack = new io.stakater.notifications.Slack()
+                def common = new io.stakater.Common()
                 def utils = new io.fabric8.Utils()
                 def templates = new io.stakater.charts.Templates()
                 def nexus = new io.stakater.repository.Nexus()   

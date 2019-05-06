@@ -54,9 +54,7 @@ def getStakaterPodEnvVars(Map parameters = [:]) {
     Boolean isNotifySlack = parameters.get('isNotifySlack', false)
     Boolean isGithubToken = parameters.get('isGithubToken', false)
     Boolean isGitlabToken = parameters.get('isGitlabToken', false)
-    Boolean isDockerRepostiory = parameters.get('isDockerRepostiory', false)
-    Boolean isChartRepostiory = parameters.get('isChartRepostiory', false)
-    Boolean isJavaRepostiory = parameters.get('isJavaRepostiory', false)
+
     def additionalEnvVars = parameters.get('additionalEnvVars', [])
     def additionalSecretEnvVars = parameters.get('additionalSecretEnvVars', [])
 
