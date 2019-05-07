@@ -10,6 +10,7 @@ def call(body) {
     def stakaterPod = new io.stakater.pods.Pod()
     stakaterPod.setToolsImage(config, "stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.3")
     stakaterPod.setDockerConfig(config)
+    stakaterPod.enableMavenSettings(config)
 
     timestamps {
         stakaterNode(config) {

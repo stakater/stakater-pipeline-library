@@ -9,7 +9,6 @@ def setToolsImage(Map parameters = [:], String image) {
 def mountDockerSocket(Map parameters = [:]) {
     setPodVolumes(parameters)
     parameters.podVolumes.isDockerMount = true
-
 }
 
 def setDockerConfig(Map parameters = [:]) {
@@ -18,6 +17,17 @@ def setDockerConfig(Map parameters = [:]) {
 
     parameters.podVolumes.isDockerConfig = true
     parameters.podContainers.defaultContainer.envVarsConfig.isDocker = true
+}
+
+def enableMavenSettings(Map parameters = [:]) {
+    setPodVolumes(parameters)
+    parameters.podVolumes.isMaven = true
+    parameters.podVolumes.isMavenLocalRepo = true
+}
+
+def enableChartMuseum(Map parameters = [:]) {
+    setPodEnvVars(parameters)
+    parameters.podEnvVars.isChartMuseum = true
 }
 
 def setDefaultContainerEnvVarsConfig(Map parameters) {
@@ -45,6 +55,12 @@ def setPodContainers(Map parameters) {
 def setPodVolumes(Map parameters) {
     if ( ! parameters.get('podVolumes', false) ) {
         parameters.podVolumes = [:]
+    }
+}
+
+def setPodEnvVars(Map parameters) {
+    if ( ! parameters.get('podEnvVars', false) ) {
+        parameters.podEnvVars = [:]
     }
 }
 
