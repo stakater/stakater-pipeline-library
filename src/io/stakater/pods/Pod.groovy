@@ -21,8 +21,11 @@ def setDockerConfig(Map parameters = [:]) {
 
 def enableMavenSettings(Map parameters = [:]) {
     setPodVolumes(parameters)
+    setDefaultContainerEnvVarsConfig(parameters)
+
     parameters.podVolumes.isMaven = true
     parameters.podVolumes.isMavenLocalRepo = true
+    parameters.podContainers.defaultContainer.envVarsConfig.isMaven = true
 }
 
 def enableChartMuseum(Map parameters = [:]) {
