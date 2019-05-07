@@ -77,6 +77,7 @@ def call(body) {
                     String imageName = repoName.split("dockerfile-").last().toLowerCase()
                     String fullAppNameWithVersion = ""
 
+                    git.setUserInfo(gitUser, gitEmailID)
                     echo "Image NAME: ${imageName}"
                     if (repoOwner.startsWith('stakater-')) {
                         repoOwner = 'stakater'
