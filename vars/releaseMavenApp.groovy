@@ -49,6 +49,7 @@ def call(body) {
                 if (cloneUsingToken) {
                     tokenSecretName = config.tokenCredentialID ?: ""
                     tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(tokenSecretName)
+                    git.configureRepoWithCredentials(repoUrl, gitUser, tokenSecret)
                 }
 
                 String nexusChartRepoName = config.nexusChartRepoName ?: "helm-charts"
@@ -78,6 +79,7 @@ def call(body) {
                     String fullAppNameWithVersion = ""
 
                     git.setUserInfo(gitUser, gitEmailID)
+                    
                     echo "Image NAME: ${imageName}"
                     if (repoOwner.startsWith('stakater-')) {
                         repoOwner = 'stakater'

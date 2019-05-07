@@ -243,6 +243,14 @@ def runGoReleaser(String repoDir){
   """
 }
 
+def configureRepoWithCredentials(String repoURL, String username, String password) {
+    def common = new io.stakater.Common()
+    String newURL = common.replaceCredentialsInURL(repoURL, username, password)
+    sh """
+        git remote set-url origin $newURL
+    """
+}
+
 def ignoredFilesChanged(List<String> ignoreFiles) {
     
     def result = true
