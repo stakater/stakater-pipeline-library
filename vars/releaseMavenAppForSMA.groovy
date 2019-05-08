@@ -109,49 +109,12 @@ def call(body) {
                             docker.pushTagCustom(dockerImage, version)
                         }
 
-                        stage('Package chart') {
-                            echo "Rendering Chart & generating manifests"
-                            helm.init(true)
-                            helm.lint(chartDir, repoName.toLowerCase())
-
-                            if (version.contains("SNAPSHOT")) {
-                                helmVersion = "0.0.0"
-                            } else {
-                                helmVersion = version.substring(1)
-                            }
-                            echo "Helm Version: ${helmVersion}"
-                            // Render chart from templates
-                            templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
-                            // Generate manifests from chart
-                            templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
-                            chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)
-                        }
-
-                        if (runIntegrationTest) {
-                            stage('Run Integration Tests') {
-                                echo "Installing in mock environment"
-                                sh """
-                                    make install-mock IMAGE_NAME=${dockerImage} IMAGE_TAG=${version} ${mockParams}
-                                """
-
-                                echo "Running Integration tests for Maven application"
-                                sh """
-                                    make run-integration-tests ${integrationTestParams}
-                                """
-                            }
-                        }
-
                         // If master
                         if (utils.isCD()) {
                             if (!javaRepositoryURL.equals("")) {
                                 stage('Publish Jar') {
                                     nexus.pushAppArtifact(imageName, version, javaRepositoryURL)
                                 }
-                            }
-
-                            stage('Upload Helm Chart') {
-                                chartManager.uploadChart(chartRepository, chartRepositoryURL, 
-                                            nexusChartRepoName, chartDir, repoName, chartPackageName)
                             }
 
                             stage("Tag") {
@@ -170,13 +133,6 @@ def call(body) {
                             stage("Deploy") {
                                 sh """
                                     make deploy IMAGE_NAME=${dockerImage} IMAGE_TAG=${version} NAMESPACE=sma-dev
-                                """
-                            }
-                        } else {
-                            if (runIntegrationTest) {
-                                echo "As PR, so rolling back to stable version"
-                                sh """
-                                    make rollback
                                 """
                             }
                         }
