@@ -18,14 +18,25 @@ def getEnvValue(String key) {
 }
 
 String replaceCredentialsInURL(String URL, String username, String password) {
-    String protocol = URL.startsWith("https") ? "https" : "http"
-    String[] parts = URL.split("$protocol://(.*@)?")
-    if (parts.length < 2) {
-        error "Unable to replace Credentials in URL."
-        return URL
+    String protocol = ""
+    if (URL.startsWith("http://")) {
+        protocol = "http://"
+    } else {
+        protocol = "https://"
     }
 
-    return protocol + "://" + username + ":" + password + "@" + parts[1]
+    String strippedURL = ""
+    Integer tokenIndex = URL.indexOf('@')
+    if (tokenIndex != -1) {
+        strippedURL = URL.substring(tokenIndex + 1, URL.size())
+    } else {
+        tokenIndex = URL.indexOf(protocol)
+        if (tokenIndex != -1) {
+            strippedURL = URL.substring(tokenIndex + protocol.size(), URL.size())
+        }
+    }
+
+    return protocol + "://" + username + ":" + password + "@" + strippedURL
 }
 
 return this
