@@ -34,7 +34,7 @@ def call(body) {
                 String dockerRepositoryURL = config.dockerRepositoryURL ?: ""
                 Boolean runIntegrationTest = config.runIntegrationTest ?: false
                 String integrationTestParams = config.integrationTestParams ?: ""
-                String domainName = config.domainName ?: "stakater.com"
+                String mockParams = config.mockParams ?: ""
                 String chartRepository = config.chartRepository ?: "nexus"
                 String nexusChartRepoName = config.nexusChartRepoName ?: "helm-charts"
                 String chartPackageName = ""
@@ -131,7 +131,7 @@ def call(body) {
                             stage('Run Integration Tests') {
                                 echo "Installing in mock environment"
                                 sh """
-                                    make install-mock IMAGE_NAME=${dockerImage} IMAGE_TAG=${version} DOMAIN=${domainName}
+                                    make install-mock IMAGE_NAME=${dockerImage} IMAGE_TAG=${version} ${mockParams}
                                 """
 
                                 echo "Running Integration tests for Maven application"

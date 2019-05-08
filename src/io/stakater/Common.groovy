@@ -17,7 +17,7 @@ def getEnvValue(String key) {
     return value
 }
 
-String replaceCredentialsInURL(String URL, String username, String password) {
+String replaceCredentialsInHttpURL(String URL, String username, String password) {
     String protocol = ""
     if (URL.startsWith("http://")) {
         protocol = "http://"
@@ -36,7 +36,10 @@ String replaceCredentialsInURL(String URL, String username, String password) {
         }
     }
 
-    return protocol + "://" + username + ":" + password + "@" + strippedURL
+    //Convert bitbucket.org:owner/repo to bitbucket.org/owner/repo
+    strippedURL = strippedURL.replaceAll(':', '/')
+
+    return protocol + username + ":" + password + "@" + strippedURL
 }
 
 return this
