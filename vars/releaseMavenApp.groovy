@@ -35,6 +35,8 @@ def call(body) {
                 Boolean runIntegrationTest = config.runIntegrationTest ?: false
                 String integrationTestParams = config.integrationTestParams ?: ""
                 String domainName = config.domainName ?: "stakater.com"
+                String chartRepository = config.chartRepository ?: "nexus"
+                String nexusChartRepoName = config.nexusChartRepoName ?: "helm-charts"
                 String chartPackageName = ""
                 String helmVersion = ""
 
@@ -51,8 +53,6 @@ def call(body) {
                     tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(tokenSecretName)
                     git.configureRepoWithCredentials(repoUrl, gitUser, tokenSecret)
                 }
-
-                String nexusChartRepoName = config.nexusChartRepoName ?: "helm-charts"
 
                 Boolean notifySlack = config.notifySlack == false ? false : true
                 String slackChannel = ""
@@ -150,12 +150,8 @@ def call(body) {
                             }
 
                             stage('Upload Helm Chart') {
-                                String nexusUsername = "${env.NEXUS_USERNAME}"
-                                String nexusPassword = "${env.NEXUS_PASSWORD}"
-
-                                String packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
-
-                                chartManager.uploadToHostedNexusRawRepository(nexusUsername, nexusPassword, packagedChartLocation, chartRepositoryURL, nexusChartRepoName)
+                                chartManager.uploadChart(chartRepository, chartRepositoryURL, 
+                                            nexusChartRepoName, chartDir, repoName, chartPackageName)
                             }
 
                             stage("Tag") {

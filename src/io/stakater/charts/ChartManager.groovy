@@ -1,6 +1,29 @@
 #!/usr/bin/groovy
 package io.stakater.charts
 
+def uploadChart(String chartRepository, String chartRepositoryURL, String nexusChartRepoName, String chartDir, String repoName, String chartPackageName) {
+    switch (chartRepository) {
+        case "nexus":
+            String nexusUsername = "${env.NEXUS_USERNAME}"
+            String nexusPassword = "${env.NEXUS_PASSWORD}"
+
+            String packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
+
+            uploadToHostedNexusRawRepository(nexusUsername, nexusPassword, packagedChartLocation, chartRepositoryURL, nexusChartRepoName)
+            break;
+
+        case "chartMuseum":
+            String cmUsername = "${env.CHARTMUSEUM_USERNAME}"
+            String cmPassword = "${env.CHARTMUSEUM_PASSWORD}"
+
+            uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)
+            break;
+
+        default:
+            error ("Cannot upload chart. Unknown chart repository : $chartRepository. Valid values are nexus, chartMuseum")
+    }
+}
+
 def uploadToChartMuseum(String location, String chartName, String fileName, String chartRepositoryURL) {
     def chartMuseum = new io.stakater.charts.ChartMuseum()
     chartRepositoryURL = chartRepositoryURL + '/api/charts'
