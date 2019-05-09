@@ -254,36 +254,28 @@ def postPRComment(comment, pr, project, provider, token) {
 }
 
 def postPRCommentToGitlab(comment, pr, project, token) {
-    comment = "Hello"
-    def apiUrl = new URL("https://gitlab.com/api/v4/projects/${java.net.URLEncoder.encode(project, 'UTF-8')}/merge_requests/${pr}/notes")
-    echo "Token: ${token}"
+    def apiUrl = new URL("https://gitlab.com/api/v4/projects/${java.net.URLEncoder.encode(project, 'UTF-8')}/merge_requests/${pr}/notes")    
+    
     echo "adding ${comment} to ${apiUrl}"
+    try {
+        def HttpURLConnection connection = apiUrl.openConnection
+        if (token.length() > 0) {
+            connection.setRequestProperty("PRIVATE-TOKEN", "${token}")
+        }
+        connection.setRequestMethod("POST")
+        connection.setDoOutput(true)        
+        connection.connect()
 
-    //sh "curl -X POST -H PRIVATE-TOKEN:${token} \'${apiUrl}\' -v"
+        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
+        writer.flush()
 
-    // try {
-    //     def HttpURLConnection connection = apiUrl.openConnection
-    //     if (token.length() > 0) {
-    //         connection.setRequestProperty("PRIVATE-TOKEN", "${token}")
-    //     }
-    //     connection.setRequestMethod("POST")
-    //     connection.setDoOutput(true)
-    //     OutputStream os = connection.getOutputStream()
-    //     os.write(comment.getBytes())
-    //     os.flush()
-    //     os.close()
-    //     connection.connect()
+        // execute the POST request
+        new InputStreamReader(connection.getInputStream())
 
-    //     // OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
-    //     // writer.flush()
-
-    //     // execute the POST request
-    //     new InputStreamReader(connection.getInputStream())
-
-    //     connection.disconnect()
-    // } catch (err) {
-    //     error "ERROR  ${err}"
-    // }
+        connection.disconnect()
+    } catch (err) {
+        error "ERROR  ${err}"
+    }
 }
 
 def getGitLabMergeRequestsByBranchName(project, branchName, token){
