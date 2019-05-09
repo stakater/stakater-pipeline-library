@@ -6,6 +6,7 @@ def call(Map parameters = [:], body) {
 
     def defaultLabel = buildId('tools')
     def label = parameters.get('label', defaultLabel)
+    def serviceAccount = parameters.get('serviceAccount', 'jenkins')    
 
     def toolsImage = parameters.get('toolsImage', 'stakater/pipeline-tools:1.5.1')
     def inheritFrom = parameters.get('inheritFrom', 'base')
@@ -14,7 +15,8 @@ def call(Map parameters = [:], body) {
 
     echo 'Using toolsImage : ' + toolsImage
     echo 'Mounting docker socket to build docker images'
-    podTemplate(cloud: cloud, label: label, serviceAccount: 'jenkins', inheritFrom: "${inheritFrom}",
+    echo 'Using serviceAccount : ' + serviceAccount
+    podTemplate(cloud: cloud, label: label, serviceAccount: serviceAccount, inheritFrom: "${inheritFrom}",
             annotations: [
                 podAnnotation(key: "scheduler.alpha.kubernetes.io/critical-pod", value: "true")
             ],
