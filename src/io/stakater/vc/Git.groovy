@@ -45,6 +45,7 @@ def commitChanges(String repoDir, String commitMessage) {
         fi
     """
 }
+
 def commitChangesUsingToken(String repoDir, String commitMessage) {
     String messageToCheck = "nothing to commit, working tree clean"
     sh """
@@ -56,6 +57,17 @@ def commitChangesUsingToken(String repoDir, String commitMessage) {
         else
             echo \"nothing to do\"
         fi
+    """
+}
+
+def checkoutRepo(String repoUrl, String branch, String dir) {
+    sh """
+        chmod 600 /root/.ssh-git/ssh-key
+        eval `ssh-agent -s`
+        ssh-add /root/.ssh-git/ssh-key
+
+        rm -rf ${dir}
+        git clone -b ${branch} ${repoUrl} ${dir}
     """
 }
 
