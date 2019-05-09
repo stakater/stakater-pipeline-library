@@ -26,19 +26,11 @@ def call(body) {
                 def utils = new io.fabric8.Utils()
                 def templates = new io.stakater.charts.Templates()
                 def nexus = new io.stakater.repository.Nexus()   
-                def chartManager = new io.stakater.charts.ChartManager()
-                def helm = new io.stakater.charts.Helm()
 
-                String chartRepositoryURL =  config.chartRepositoryURL ?: ""
                 String javaRepositoryURL = config.javaRepositoryURL ?: ""
                 String dockerRepositoryURL = config.dockerRepositoryURL ?: ""
                 Boolean runIntegrationTest = config.runIntegrationTest ?: false
                 String integrationTestParams = config.integrationTestParams ?: ""
-                String mockParams = config.mockParams ?: ""
-                String chartRepository = config.chartRepository ?: "nexus"
-                String nexusChartRepoName = config.nexusChartRepoName ?: "helm-charts"
-                String chartPackageName = ""
-                String helmVersion = ""
 
                 String appName = config.appName ?: ""
                 String gitUser = config.gitUser ?: "stakater-user"
