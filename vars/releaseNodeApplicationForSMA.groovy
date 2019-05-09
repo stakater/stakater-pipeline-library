@@ -42,6 +42,8 @@ def call(body) {
             String dockerImage = ""
             String version = ""
 
+            git.setUserInfo(gitUser, gitEmailID)
+
             container(name: 'tools') {
                 withSCM { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                     checkout scm
@@ -76,10 +78,7 @@ def call(body) {
                             echo "Version: ${version}"                       
                             fullAppNameWithVersion = imageName + '-'+ version
                         }
-                        stage('Build Node Application') {
-                            echo "Building Node application"   
-                            builder.buildNodeApplication(version)
-                        }                    
+
                         stage('Image build & push') {
                             sh """
                                 export DOCKER_IMAGE=${dockerImage}
