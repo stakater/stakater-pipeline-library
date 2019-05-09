@@ -81,15 +81,6 @@ def checkoutRepoUsingToken(String username, String tokenSecretName, String repoU
         git clone -b ${branch} https://${username}:${tokenSecret}@${result} ${dir}
     """
 }
-def checkoutRepo(String repoUrl, String branch, String dir) {
-    sh """
-        chmod 600 /root/.ssh-git/ssh-key
-        eval `ssh-agent -s`
-        ssh-add /root/.ssh-git/ssh-key
-        rm -rf ${dir}
-        git clone -b ${branch} ${repoUrl} ${dir}
-    """
-}
 
 def addCommentToPullRequest(String message) {
     def flow = new StakaterCommands()
