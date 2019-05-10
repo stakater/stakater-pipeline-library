@@ -28,6 +28,8 @@ def call(body) {
                 String chartPackageName = ""
                 String helmVersion = ""
 
+                Boolean deployManifest = config.deployManifest ?: false
+                String namespace = config.namespace ?: ""
                 Boolean cloneUsingToken = config.usePersonalAccessToken ?: false
                 String tokenSecretName = ""
                 String tokenSecret = ""
@@ -131,6 +133,14 @@ def call(body) {
                                 stage("Create Git Tag"){
                                     print "Pushing Tag ${version} to Git"
                                     git.createTagAndPush(WORKSPACE, version)
+                                }
+
+                                if (deployManifest) {
+                                    stage("Deploy") {
+                                        sh """
+                                            make deploy IMAGE_NAME=${dockerImage} IMAGE_TAG=${version} NAMESPACE=${namespace}
+                                        """
+                                    }
                                 }
 
                                 stage("Push to Dev-Apps Repo"){

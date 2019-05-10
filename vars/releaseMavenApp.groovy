@@ -16,7 +16,8 @@ def call(body) {
         stakaterNode(config) {
             withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
                 checkout scm
-                dir (config.parentDirectory) {
+                String parentDirectory = config.parentDirectory ?: WORKSPACE
+                dir (parentDirectory) {
                     def builder = new io.stakater.builder.Build()
                     def docker = new io.stakater.containers.Docker()
                     def stakaterCommands = new io.stakater.StakaterCommands()
