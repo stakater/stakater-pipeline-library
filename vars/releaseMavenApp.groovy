@@ -42,7 +42,7 @@ def call(body) {
                     Boolean deployManifest = config.deployManifest ?: false
                     String namespace = config.namespace ?: ""
 
-                    String appName = config.appName ?: ""
+                    String appName = config.appName ?: config.repoName
                     String gitUser = config.gitUser ?: "stakater-user"
                     String gitEmailID = config.gitEmail ?: "stakater@gmail.com"
 
@@ -75,7 +75,7 @@ def call(body) {
                         //TODO: Get correct env names
                         String prNumber = "${env.REPO_BRANCH}"
 
-                        String imageName = repoName.split("dockerfile-").last().toLowerCase()
+                        String imageName = appName.split("dockerfile-").last().toLowerCase()
                         String fullAppNameWithVersion = ""
 
                         git.setUserInfo(gitUser, gitEmailID)
@@ -111,7 +111,7 @@ def call(body) {
 
                             if (! chartRepositoryURL.equals("")) {
                                 stage('Package chart') {
-                                    chartPackageName = chartManager.packageChart(repoName, version, dockerImage, kubernetesDir)
+                                    chartPackageName = chartManager.packageChart(appName, version, dockerImage, kubernetesDir)
                                 }
                             }
 
@@ -140,7 +140,7 @@ def call(body) {
                                 if (! chartRepositoryURL.equals("")) {
                                     stage('Upload Helm Chart') {
                                         chartManager.uploadChart(chartRepository, chartRepositoryURL, kubernetesDir,
-                                                    nexusChartRepoName, repoName, chartPackageName)
+                                                    nexusChartRepoName, appName, chartPackageName)
                                     }
                                 }
 
