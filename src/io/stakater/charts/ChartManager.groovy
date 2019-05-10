@@ -1,7 +1,35 @@
 #!/usr/bin/groovy
 package io.stakater.charts
 
-def uploadChart(String chartRepository, String chartRepositoryURL, String nexusChartRepoName, String chartDir, String repoName, String chartPackageName) {
+String packageChart(String repoName, String version, String dockerImage, String kubernetesDir) {
+    String chartTemplatesDir = kubernetesDir + "/templates/chart"
+    String chartDir = kubernetesDir + "/chart"
+    String manifestsDir = kubernetesDir + "/manifests"
+
+    echo "Rendering Chart & generating manifests"
+    helm.init(true)
+    helm.lint(chartDir, repoName.toLowerCase())
+
+    String helmVersion = ""
+    if (version.contains("SNAPSHOT")) {
+        helmVersion = "0.0.0"
+    } else {
+        helmVersion = version.substring(1)
+    }
+    echo "Helm Version: ${helmVersion}"
+
+    // Render chart from templates
+    templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
+    // Generate manifests from chart
+    templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
+
+    return helm.package(chartDir, repoName.toLowerCase(),helmVersion)
+}
+
+def uploadChart(String chartRepository, String chartRepositoryURL, String nexusChartRepoName, String kubernetesDir, String repoName, String chartPackageName) {
+
+    String chartDir = kubernetesDir + "/chart"
+
     switch (chartRepository) {
         case "nexus":
             String nexusUsername = "${env.NEXUS_USERNAME}"

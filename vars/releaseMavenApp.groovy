@@ -14,7 +14,7 @@ def call(body) {
 
     timestamps {
         stakaterNode(config) {
-            withSCM { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+            withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
                 checkout scm
 
                 def builder = new io.stakater.builder.Build()
@@ -38,7 +38,6 @@ def call(body) {
                 String chartRepository = config.chartRepository ?: "nexus"
                 String nexusChartRepoName = config.nexusChartRepoName ?: "helm-charts"
                 String chartPackageName = ""
-                String helmVersion = ""
 
                 String appName = config.appName ?: ""
                 String gitUser = config.gitUser ?: "stakater-user"
@@ -68,9 +67,6 @@ def call(body) {
 
                 container(name: 'tools') {
                     String kubernetesDir = WORKSPACE + "/deployments/kubernetes"
-                    String chartTemplatesDir = kubernetesDir + "/templates/chart"
-                    String chartDir = kubernetesDir + "/chart"
-                    String manifestsDir = kubernetesDir + "/manifests"
 
                     //TODO: Get correct env names
                     String prNumber = "${env.REPO_BRANCH}"
@@ -109,22 +105,10 @@ def call(body) {
                             docker.pushTagCustom(dockerImage, version)
                         }
 
-                        stage('Package chart') {
-                            echo "Rendering Chart & generating manifests"
-                            helm.init(true)
-                            helm.lint(chartDir, repoName.toLowerCase())
-
-                            if (version.contains("SNAPSHOT")) {
-                                helmVersion = "0.0.0"
-                            } else {
-                                helmVersion = version.substring(1)
+                        if (! chartRepositoryURL.equals("")) {
+                            stage('Package chart') {
+                                chartPackageName = chartManager.packageChart(repoName, version, dockerImage, kubernetesDir)
                             }
-                            echo "Helm Version: ${helmVersion}"
-                            // Render chart from templates
-                            templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
-                            // Generate manifests from chart
-                            templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
-                            chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)
                         }
 
                         if (runIntegrationTest) {
@@ -149,9 +133,11 @@ def call(body) {
                                 }
                             }
 
-                            stage('Upload Helm Chart') {
-                                chartManager.uploadChart(chartRepository, chartRepositoryURL, 
-                                            nexusChartRepoName, chartDir, repoName, chartPackageName)
+                            if (! chartRepositoryURL.equals("")) {
+                                stage('Upload Helm Chart') {
+                                    chartManager.uploadChart(chartRepository, chartRepositoryURL, kubernetesDir,
+                                                nexusChartRepoName, repoName, chartPackageName)
+                                }
                             }
 
                             stage("Tag") {
