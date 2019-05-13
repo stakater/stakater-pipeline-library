@@ -17,6 +17,7 @@ def call(body) {
         def templates = new io.stakater.charts.Templates()
         def nexus = new io.stakater.repository.Nexus()    
         def javaRepositoryURL = config.javaRepositoryURL ?: common.getEnvValue('JAVA_REPOSITORY_URL')
+        String artifactType = config.artifactType ?: "jar"
 
         // Slack variables
         def slackChannel = "${env.SLACK_CHANNEL}"
@@ -48,8 +49,8 @@ def call(body) {
                         echo "Building Maven application"   
                         builder.buildMavenApplication(version)
                     }
-                    stage('Push Jar') {
-                        nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      
+                    stage('Push Artifact') {
+                        nexus.pushAppArtifact(imageName, version, javaRepositoryURL, artifactType)
                     }
                     // If master
                     if (utils.isCD()) {

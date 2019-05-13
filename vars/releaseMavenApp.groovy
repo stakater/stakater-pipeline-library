@@ -40,6 +40,7 @@ def call(body) {
                     String nexusChartRepoName = config.nexusChartRepoName ?: "helm-charts"
                     String chartPackageName = ""
                     Boolean deployManifest = config.deployManifest ?: false
+                    String artifactType = config.artifactType ?: "jar"
                     String namespace = config.namespace ?: ""
 
                     String appName = config.appName ?: config.repoName
@@ -132,8 +133,8 @@ def call(body) {
                             // If master
                             if (utils.isCD()) {
                                 if (!javaRepositoryURL.equals("")) {
-                                    stage('Publish Jar') {
-                                        nexus.pushAppArtifact(imageName, version, javaRepositoryURL)
+                                    stage('Publish Artifact') {
+                                        nexus.pushAppArtifact(imageName, version, javaRepositoryURL, artifactType)
                                     }
                                 }
 
