@@ -41,7 +41,7 @@ def call(body) {
             def devAppsJobName = config.devAppsJobName ?: ""
             def gitUser = config.gitUser ?: "stakater-user"
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
-            String artifactType = config.artifactType ?: "jar"
+            String artifactType = config.artifactType ?: ".jar"
 
             def dockerImage = ""
             def version = ""

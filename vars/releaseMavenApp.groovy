@@ -41,7 +41,7 @@ def call(body) {
                     String chartPackageName = ""
                     Boolean deployManifest = config.deployManifest ?: false
                     String mavenGoal = config.mavenGoal ?: "clean package"
-                    String artifactType = config.artifactType ?: "jar"
+                    String artifactType = config.artifactType ?: ".jar"
                     String namespace = config.namespace ?: ""
 
                     String appName = config.appName ?: config.repoName

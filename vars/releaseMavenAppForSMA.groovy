@@ -35,7 +35,7 @@ def call(body) {
                 String appName = config.appName ?: ""
                 String gitUser = config.gitUser ?: "stakater-user"
                 String gitEmailID = config.gitEmail ?: "stakater@gmail.com"
-                String artifactType = config.artifactType ?: "jar"
+                String artifactType = config.artifactType ?: ".jar"
 
                 Boolean cloneUsingToken = config.usePersonalAccessToken ?: false
                 String tokenSecretName = ""
