@@ -40,6 +40,7 @@ def call(body) {
                     String nexusChartRepoName = config.nexusChartRepoName ?: "helm-charts"
                     String chartPackageName = ""
                     Boolean deployManifest = config.deployManifest ?: false
+                    String packageCommand = config.packageCommand ?: "package"
                     String artifactType = config.artifactType ?: "jar"
                     String namespace = config.namespace ?: ""
 
@@ -98,7 +99,7 @@ def call(body) {
 
                             stage('Build Maven Application') {
                                 echo "Building Maven application"
-                                builder.buildMavenApplication(version)
+                                builder.buildMavenApplication(version, packageCommand)
                             }
 
                             stage('Build Image') {
