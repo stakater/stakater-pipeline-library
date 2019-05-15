@@ -33,6 +33,8 @@ def call(body) {
                 Boolean cloneUsingToken = config.usePersonalAccessToken ?: false
                 String tokenSecretName = ""
                 String tokenSecret = ""
+                String gitUser = config.gitUser ?: "stakater-user"
+                String gitEmailID = config.gitEmail ?: "stakater@gmail.com"
 
                 if (cloneUsingToken) {
                     tokenSecretName = config.tokenCredentialID ?: ""
@@ -51,8 +53,6 @@ def call(body) {
 
                 String dockerRepositoryURL = config.dockerRepositoryURL ?: ""
                 String chartRepositoryURL =  config.chartRepositoryURL ?: ""
-                String gitUser = config.gitUser ?: "stakater-user"
-                String gitEmailID = config.gitEmail ?: "stakater@gmail.com"
                 String devAppsJobName = config.devAppsJobName ?: ""
                 String e2eTestJob = config.e2eTestJob ?: ""
                 String appName = config.appName ?: ""
