@@ -70,6 +70,8 @@ def call(body) {
 
                     String prNumber = "${env.REPO_BRANCH}"
 
+                    git.setUserInfo(gitUser, gitEmailID)
+
                     echo "Image NAME: ${imageName}"
                     if (repoOwner.startsWith('stakater-')){
                         repoOwner = 'stakater'
@@ -118,10 +120,6 @@ def call(body) {
                         }
                         // If master
                         if (utils.isCD()) {
-                            stage("Push Changes") {
-                                print "Pushing changes to Git"
-                                git.commitChanges(WORKSPACE, "Update chart and version")
-                            }
                             if (! chartRepositoryURL.equals("")) {
                                 stage('Upload Helm Chart') {
                                     chartManager.uploadChart(chartRepository, chartRepositoryURL, kubernetesDir,
@@ -131,7 +129,11 @@ def call(body) {
 
                             stage("Create Git Tag"){
                                 print "Pushing Tag ${version} to Git"
-                                git.createTagAndPush(WORKSPACE, version)
+                                if(cloneUsingToken) {
+                                    git.createAndPushTagUsingToken(WORKSPACE, version)
+                                } else {
+                                    git.createAndPushTag(WORKSPACE, version)
+                                }
                             }
 
                             if (deployManifest) {
@@ -142,8 +144,10 @@ def call(body) {
                                 }
                             }
 
-                            stage("Push to Dev-Apps Repo"){
-                                build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: chartRepositoryURL ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
+                            if (! devAppsJobName.equals("")) {
+                                stage("Push to Dev-Apps Repo"){
+                                    build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: chartRepositoryURL ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
+                                }
                             }
                         }
                     }
