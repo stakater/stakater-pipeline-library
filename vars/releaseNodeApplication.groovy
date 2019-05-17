@@ -55,7 +55,7 @@ def call(body) {
                 String chartRepositoryURL =  config.chartRepositoryURL ?: ""
                 String devAppsJobName = config.devAppsJobName ?: ""
                 String e2eTestJob = config.e2eTestJob ?: ""
-                String appName = config.appName ?: ""
+                String appName = config.appName ?: repoName
                 String performanceTestsJob = config.performanceTestsJob ?: ""
                 String mockAppsJobName = config.mockAppsJobName ?: ""
 
@@ -65,7 +65,7 @@ def call(body) {
                 container(name: 'tools') {
                     String kubernetesDir = WORKSPACE + "/deployments/kubernetes"
 
-                    String imageName = repoName.split("dockerfile-").last().toLowerCase()
+                    String imageName = appName.split("dockerfile-").last().toLowerCase()
                     String fullAppNameWithVersion = ""
 
                     String prNumber = "${env.REPO_BRANCH}"

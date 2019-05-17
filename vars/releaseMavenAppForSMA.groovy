@@ -91,6 +91,7 @@ def call(body) {
                         stage('Build Maven Application') {
                             echo "Building Maven application"
                             builder.buildMavenApplication(version)
+                            builder.buildMavenApplication(version)
                         }
 
                         stage('Build Image') {

@@ -44,7 +44,7 @@ def call(body) {
                     String artifactType = config.artifactType ?: ".jar"
                     String namespace = config.namespace ?: ""
 
-                    String appName = config.appName ?: config.repoName
+                    String appName = config.appName ?: repoName
                     String gitUser = config.gitUser ?: "stakater-user"
                     String gitEmailID = config.gitEmail ?: "stakater@gmail.com"
 
