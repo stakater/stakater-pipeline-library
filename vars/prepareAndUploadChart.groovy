@@ -38,8 +38,8 @@ def call(body) {
 
         if(utils.isCD()) {
             stage("Upload Chart: ${chartName}") {
-                String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
-                String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
+                String cmUsername = "${env.CHARTMUSEUM_USERNAME}"
+                String cmPassword = "${env.CHARTMUSEUM_PASSWORD}"
                 String publicChartRepositoryURL = config.publicChartRepositoryURL
                 String publicChartGitURL = config.publicChartGitURL
 
