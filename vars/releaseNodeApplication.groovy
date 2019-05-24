@@ -95,8 +95,8 @@ def call(body) {
                             templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
                             chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)                        
                             
-                            String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
-                            String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
+                            String cmUsername = "${env.CHARTMUSEUM_USERNAME}"
+                            String cmPassword = "${env.CHARTMUSEUM_PASSWORD}"                            
                             chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
                         }
                         stage('Run Synthetic/E2E Tests') {                        
