@@ -4,8 +4,12 @@ def call(Map parameters = [:], body) {
 
     def flow = new Fabric8Commands()
     def cloud = flow.getCloudConfig()
+    def volumes = []
+    if ( cloud != "openshift") {
+        volumes = [secretVolume(secretName: "k8s-current-cluster-kubeconfig", mountPath: '/home/jenkins/.kube')]
+    }
 
-    podTemplate(name: 'sa-secret', serviceAccount: 'jenkins', cloud: cloud) {
+    podTemplate(name: 'sa-secret', serviceAccount: 'jenkins', cloud: cloud, volumes: volumes) {
         if ( cloud == "openshift") {
             toolsTemplateOpenshift(parameters) { label ->
                 node(label) {

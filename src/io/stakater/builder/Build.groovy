@@ -8,7 +8,7 @@ def buildMavenApplication(String version, String mavenGoal = "clean package"){
     """
 }
 
-def buildAspNetApplication(String version){
+def buildAspNetApplication(){
     sh """
         dotnet restore
         dotnet publish -c Release -o out

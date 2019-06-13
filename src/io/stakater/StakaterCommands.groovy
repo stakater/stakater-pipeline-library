@@ -206,30 +206,30 @@ def extractOrganizationAndProjectFromUrl(url, provider) {
 }
 
 def formatGithubUrl(url) {
-    if (url.contains("https://github.com/")){
-        url = url.replaceAll("https://github.com/", '')
-    } else if (url.contains("git@github.com:")){
-        url = url.replaceAll("git@github.com:", '')
+    if (url.contains("github.com/")){
+        url = url.replaceAll(".*github.com/", '')
+    } else if (url.contains("github.com:")){
+        url = url.replaceAll(".*github.com:", '')
     }
 
     return url.trim()
 }
 
 def formatGitlabUrl(url) {
-    if (url.contains("https://gitlab.com/")){
-        url = url.replaceAll("https://gitlab.com/", '')
-    } else if (url.contains("git@gitlab.com:")){
-        url = url.replaceAll("git@gitlab.com:", '')
+    if (url.contains("gitlab.com/")){
+        url = url.replaceAll(".*gitlab.com/", '')
+    } else if (url.contains("gitlab.com:")){
+        url = url.replaceAll(".*gitlab.com:", '')
     }
 
     return url.trim()
 }
 
 def formatBitbucketUrl(url) {
-    if (url.contains("https://bitbucket.org/")){
-        url = url.replaceAll("https://bitbucket.org/", '')
-    } else if (url.contains("git@bitbucket.org:")){
-        url = url.replaceAll("git@bitbucket.org:", '')
+    if (url.contains("bitbucket.org/")){
+        url = url.replaceAll(".*bitbucket.org/", '')
+    } else if (url.contains("bitbucket.org:")){
+        url = url.replaceAll(".*bitbucket.org:", '')
     }
 
     return url.trim()
@@ -257,13 +257,13 @@ def postPRCommentToGitlab(comment, pr, project, token) {
     def apiUrl = new URL("https://gitlab.com/api/v4/projects/${java.net.URLEncoder.encode(project, 'UTF-8')}/merge_requests/${pr}/notes?body=${java.net.URLEncoder.encode(comment, 'UTF-8')}")
     
     echo "adding ${comment} to ${apiUrl}"
-        try {
+    try {
         def HttpURLConnection connection = apiUrl.openConnection
         if (token.length() > 0) {
             connection.setRequestProperty("PRIVATE-TOKEN", "${token}")
         }
         connection.setRequestMethod("POST")
-        connection.setDoOutput(true)
+        connection.setDoOutput(true)        
         connection.connect()
 
         OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())
@@ -411,6 +411,38 @@ def createImageVersionForCiAndCd(String repoUrl, String imagePrefix, String prNu
             createGitHubRelease(version)
         }
 
+        imageVersion = imagePrefix + version
+    }
+    // For CI
+    else {
+        imageVersion = imagePrefix + 'SNAPSHOT-' + prNumber + '-' + buildNumber
+    }
+
+    return imageVersion
+}
+
+/**
+ * Only returns the complete tagged string for CI (PRs) or CD(Master-Branch).
+ *
+ * @param imagePrefix - passed from Jenkins file
+ * @param prNumber - Used only in case of CI
+ * @param buildNumber - Used only in case of CI
+ * @return
+ */
+ // Doesn't create release for CD
+ // This method is an overloaded method of below method.
+def getImageVersionForCiAndCd(String imagePrefix, String prNumber, String buildNumber) {
+    def utils = new io.fabric8.Utils()
+    def branchName = utils.getBranch()
+    def git = new io.stakater.vc.Git()
+    def imageVersion = ''
+
+    // For CD
+    if (branchName.equalsIgnoreCase("master")) {
+        sh "stk generate version > commandResult"
+        def version = readFile('commandResult').trim()
+        sh "rm commandResult .VERSION"
+        version = 'v' + version        
         imageVersion = imagePrefix + version
     }
     // For CI
