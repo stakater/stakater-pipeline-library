@@ -32,18 +32,22 @@ def call(body) {
             def devAppsJobName = config.devAppsJobName ?: ""
             def gitUser = config.gitUser ?: "stakater-user"
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
+
+            String artifactType = config.artifactType ?: ".jar"
+
+            def dockerImage = ""
+            def version = ""
             def cloneUsingToken = config.usePersonalAccessToken ?: false
             def credentialSecretID = config.tokenCredentialID ?: ""
-            
+
             // Slack variables
             def slackChannel = "${env.SLACK_CHANNEL}"
-            def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"          
+            def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
 
             container(name: 'tools') {
                 withCurrentRepo(gitUsername: gitUser, gitEmail: gitEmailID, useToken: cloneUsingToken, credentialSecretName: credentialSecretID ) { def repoUrl, def repoName, def repoOwner, def repoBranch ->                  
                     // Variables used in multiple stages                  
-                    def dockerImage = ""
-                    def version = ""
+                    
                     String helmVersion = ""
                     def kubernetesDir = WORKSPACE + "/deployments/kubernetes"
                     def chartTemplatesDir = kubernetesDir + "/templates/chart"
@@ -117,10 +121,17 @@ def call(body) {
                         }                        
                         // If master
                         if (utils.isCD()) {
+                            if (!javaRepositoryURL.equals("")){
+                                stage('Publish Artifact') {
+                                    nexus.pushAppArtifact(imageName, version, javaRepositoryURL, artifactType)
+                                }
+                            }
+                          
                             if (deployUsingMakeTarget == true) {
                                 echo "Deploying Chart using make target"   
                                 builder.deployHelmChart(chartDir)
                             }
+                          
                             stage("Tag") {
                                 print "Pushing changes to Git"
                                 git.commitChanges(WORKSPACE, "Update chart and version")                       

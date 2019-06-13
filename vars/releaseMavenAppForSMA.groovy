@@ -1,4 +1,5 @@
 #!/usr/bin/groovy
+// Used to build maven apps, then create & upload chart
 
 def call(body) {
     def config = [:]
@@ -7,11 +8,13 @@ def call(body) {
     body()
 
     def stakaterPod = new io.stakater.pods.Pod()
+    stakaterPod.setToolsImage(config, "stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.3")
     stakaterPod.setDockerConfig(config)
+    stakaterPod.enableMavenSettings(config)
 
     timestamps {
         stakaterNode(config) {
-            withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
+            withSCM { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 checkout scm
 
                 def builder = new io.stakater.builder.Build()
@@ -22,19 +25,21 @@ def call(body) {
                 def common = new io.stakater.Common()
                 def utils = new io.fabric8.Utils()
                 def templates = new io.stakater.charts.Templates()
-                def chartManager = new io.stakater.charts.ChartManager()
-                def helm = new io.stakater.charts.Helm()
+                def nexus = new io.stakater.repository.Nexus()   
 
-                String chartPackageName = ""
-                String helmVersion = ""
+                String javaRepositoryURL = config.javaRepositoryURL ?: ""
+                String dockerRepositoryURL = config.dockerRepositoryURL ?: ""
+                Boolean runIntegrationTest = config.runIntegrationTest ?: false
+                String integrationTestParams = config.integrationTestParams ?: ""
 
-                Boolean deployManifest = config.deployManifest ?: false
-                String namespace = config.namespace ?: ""
+                String appName = config.appName ?: ""
+                String gitUser = config.gitUser ?: "stakater-user"
+                String gitEmailID = config.gitEmail ?: "stakater@gmail.com"
+                String artifactType = config.artifactType ?: ".jar"
+
                 Boolean cloneUsingToken = config.usePersonalAccessToken ?: false
                 String tokenSecretName = ""
                 String tokenSecret = ""
-                String gitUser = config.gitUser ?: "stakater-user"
-                String gitEmailID = config.gitEmail ?: "stakater@gmail.com"
 
                 if (cloneUsingToken) {
                     tokenSecretName = config.tokenCredentialID ?: ""
@@ -51,46 +56,45 @@ def call(body) {
                     slackWebHookURL = common.getEnvValue('SLACK_WEBHOOK_URL')
                 }
 
-                String dockerRepositoryURL = config.dockerRepositoryURL ?: ""
-                String chartRepositoryURL =  config.chartRepositoryURL ?: ""
-                String devAppsJobName = config.devAppsJobName ?: ""
-                String e2eTestJob = config.e2eTestJob ?: ""
-                String appName = config.appName ?: repoName
-                String performanceTestsJob = config.performanceTestsJob ?: ""
-                String mockAppsJobName = config.mockAppsJobName ?: ""
-
                 String dockerImage = ""
                 String version = ""
 
                 container(name: 'tools') {
                     String kubernetesDir = WORKSPACE + "/deployments/kubernetes"
+                    String chartTemplatesDir = kubernetesDir + "/templates/chart"
+                    String chartDir = kubernetesDir + "/chart"
+                    String manifestsDir = kubernetesDir + "/manifests"
 
-                    String imageName = appName.split("dockerfile-").last().toLowerCase()
-                    String fullAppNameWithVersion = ""
-
+                    //TODO: Get correct env names
                     String prNumber = "${env.REPO_BRANCH}"
 
-                    git.setUserInfo(gitUser, gitEmailID)
+                    String imageName = repoName.split("dockerfile-").last().toLowerCase()
+                    String fullAppNameWithVersion = ""
 
+                    git.setUserInfo(gitUser, gitEmailID)
+                    
                     echo "Image NAME: ${imageName}"
-                    if (repoOwner.startsWith('stakater-')){
+                    if (repoOwner.startsWith('stakater-')) {
                         repoOwner = 'stakater'
                     }
                     echo "Repo Owner: ${repoOwner}"
                     try {
-                        stage('Create Version'){
+                        stage('Create Version') {
                             dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
                             // If image Prefix is passed, use it, else pass empty string to create versions
-                            String imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
-                            version = stakaterCommands.getImageVersionForNodeCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
+                            String imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''                        
+                            version = stakaterCommands.getImageVersionForCiAndCd(repoUrl,imagePrefix, prNumber, "${env.BUILD_NUMBER}")
                             echo "Version: ${version}"
                             fullAppNameWithVersion = imageName + '-'+ version
                         }
-                        stage('Build Node Application') {
-                            echo "Building Node application"
-                            builder.buildNodeApplication(version)
+
+                        stage('Build Maven Application') {
+                            echo "Building Maven application"
+                            builder.buildMavenApplication(version)
+                            builder.buildMavenApplication(version)
                         }
-                        stage('Image build & push') {
+
+                        stage('Build Image') {
                             sh """
                                 export DOCKER_IMAGE=${dockerImage}
                                 export DOCKER_TAG=${version}
@@ -99,55 +103,31 @@ def call(body) {
                             docker.pushTagCustom(dockerImage, version)
                         }
 
-                        if (! chartRepositoryURL.equals("")) {
-                            stage('Package chart') {
-                                chartPackageName = chartManager.packageChart(repoName, version, dockerImage, kubernetesDir)
-                            }
-                        }
-
-                        stage('Run Synthetic/E2E Tests') {
-                            echo "Running synthetic tests for Node application:  ${e2eTestJob}"   
-                            if (!e2eTestJob.equals("")){
-                                e2eTestStage(appName: appName, e2eJobName: e2eTestJob, performanceTestJobName: performanceTestsJob, chartName: repoName.toLowerCase(), chartVersion: helmVersion, repoUrl: repoUrl, repoBranch: repoBranch, chartRepositoryURL: chartRepositoryURL, mockAppsJobName: mockAppsJobName, [
-                                    microservice: [
-                                            name   : repoName.toLowerCase(),
-                                            version: helmVersion
-                                    ]
-                                ])
-                            }else{
-                                echo "No Job Name passed."
-                            }
-                        }
                         // If master
                         if (utils.isCD()) {
-                            if (! chartRepositoryURL.equals("")) {
-                                stage('Upload Helm Chart') {
-                                    chartManager.uploadChart(chartRepository, chartRepositoryURL, kubernetesDir,
-                                                nexusChartRepoName, repoName, chartPackageName)
+                            if (!javaRepositoryURL.equals("")) {
+                                stage('Publish Artifact') {
+                                    nexus.pushAppArtifact(imageName, version, javaRepositoryURL, artifactType)
                                 }
                             }
 
-                            stage("Create Git Tag"){
-                                print "Pushing Tag ${version} to Git"
+                            stage("Tag") {
+                                print "Pushing changes to Git"
                                 if(cloneUsingToken) {
+                                    // git.commitChangesUsingToken(WORKSPACE, "Update chart and version")
+                                    print "Pushing Tag ${version} to Git"
                                     git.createAndPushTagUsingToken(WORKSPACE, version)
                                 } else {
+                                    // git.commitChanges(WORKSPACE, "Update chart and version")
+                                    print "Pushing Tag ${version} to Git"
                                     git.createAndPushTag(WORKSPACE, version)
                                 }
                             }
 
-                            if (deployManifest) {
-                                stage("Deploy") {
-                                    sh """
-                                        make deploy IMAGE_NAME=${dockerImage} IMAGE_TAG=${version} NAMESPACE=${namespace}
-                                    """
-                                }
-                            }
-
-                            if (! devAppsJobName.equals("")) {
-                                stage("Push to Dev-Apps Repo"){
-                                    build job: devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: chartRepositoryURL ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
-                                }
+                            stage("Deploy") {
+                                sh """
+                                    make deploy IMAGE_NAME=${dockerImage} IMAGE_TAG=${version} NAMESPACE=sma-dev
+                                """
                             }
                         }
                     }

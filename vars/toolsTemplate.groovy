@@ -8,7 +8,7 @@ def call(Map parameters = [:], body) {
     def label = parameters.get('label', defaultLabel)
     def serviceAccount = parameters.get('serviceAccount', 'jenkins')    
 
-    def toolsImage = parameters.get('toolsImage', 'stakater/pipeline-tools:1.5.1')
+    def toolsImage = parameters.get('toolsImage', 'stakater/pipeline-tools:v2.0.5')
     def inheritFrom = parameters.get('inheritFrom', 'base')
 
     def cloud = flow.getCloudConfig()

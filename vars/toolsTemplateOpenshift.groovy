@@ -7,7 +7,7 @@ def call(Map parameters = [:], body) {
     def defaultLabel = buildId('tools')
     def label = parameters.get('label', defaultLabel)
 
-    def toolsImage = parameters.get('toolsImage', 'stakater/pipeline-tools:1.5.1')
+    def toolsImage = parameters.get('toolsImage', 'stakater/pipeline-tools:v2.0.5')
     String serviceAccount = parameters.get('serviceAccount', 'jenkins')
     def inheritFrom = parameters.get('inheritFrom', 'base')
 

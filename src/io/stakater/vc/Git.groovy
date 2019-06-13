@@ -88,6 +88,7 @@ def addCommentToPullRequest(String message) {
     def provider = flow.getProvider(url)
     echo "provider: ${provider}"
     def project = flow.getProject(provider)
+  
     def providerToken = flow.getProviderToken(provider)
     switch(provider) {
         case "github":
@@ -117,6 +118,7 @@ def addCommentToPullRequest(String message, String token) {
     def provider = flow.getProvider(url)
     echo "provider: ${provider}"
     def project = flow.getProject(provider)
+
     def providerToken = token
     switch(provider) {
         case "github":
@@ -207,6 +209,7 @@ def runGoReleaser(String repoDir){
     goreleaser
   """
 }
+
 def configureRepoWithCredentials(String repoURL, String username, String password) {
     def common = new io.stakater.Common()
     String newURL = common.replaceCredentialsInHttpURL(repoURL, username, password)
@@ -214,6 +217,7 @@ def configureRepoWithCredentials(String repoURL, String username, String passwor
         git remote set-url origin $newURL
     """
 }
+
 def ignoredFilesChanged(List<String> ignoreFiles) {
     
     def result = true

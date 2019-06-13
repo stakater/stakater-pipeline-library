@@ -1,6 +1,57 @@
 #!/usr/bin/groovy
 package io.stakater.charts
 
+String packageChart(String repoName, String version, String dockerImage, String kubernetesDir) {
+    String chartTemplatesDir = kubernetesDir + "/templates/chart"
+    String chartDir = kubernetesDir + "/chart"
+    String manifestsDir = kubernetesDir + "/manifests"
+
+    echo "Rendering Chart & generating manifests"
+    helm.init(true)
+    helm.lint(chartDir, repoName.toLowerCase())
+
+    String helmVersion = ""
+    if (version.contains("SNAPSHOT")) {
+        helmVersion = "0.0.0"
+    } else {
+        helmVersion = version.substring(1)
+    }
+    echo "Helm Version: ${helmVersion}"
+
+    // Render chart from templates
+    templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, helmVersion, dockerImage)
+    // Generate manifests from chart
+    templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
+
+    return helm.package(chartDir, repoName.toLowerCase(),helmVersion)
+}
+
+def uploadChart(String chartRepository, String chartRepositoryURL, String nexusChartRepoName, String kubernetesDir, String repoName, String chartPackageName) {
+
+    String chartDir = kubernetesDir + "/chart"
+
+    switch (chartRepository) {
+        case "nexus":
+            String nexusUsername = "${env.NEXUS_USERNAME}"
+            String nexusPassword = "${env.NEXUS_PASSWORD}"
+
+            String packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
+
+            uploadToHostedNexusRawRepository(nexusUsername, nexusPassword, packagedChartLocation, chartRepositoryURL, nexusChartRepoName)
+            break;
+
+        case "chartMuseum":
+            String cmUsername = "${env.CHARTMUSEUM_USERNAME}"
+            String cmPassword = "${env.CHARTMUSEUM_PASSWORD}"
+
+            uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)
+            break;
+
+        default:
+            error ("Cannot upload chart. Unknown chart repository : $chartRepository. Valid values are nexus, chartMuseum")
+    }
+}
+
 def uploadToChartMuseum(String location, String chartName, String fileName, String chartRepositoryURL) {
     def chartMuseum = new io.stakater.charts.ChartMuseum()
     chartRepositoryURL = chartRepositoryURL + '/api/charts'
