@@ -34,12 +34,17 @@ def call(body) {
             def appName = config.appName ?: ""
             def gitUser = config.gitUser ?: "stakater-user"
             def gitEmailID = config.gitEmail ?: "stakater@gmail.com"
+            def cloneUsingToken = config.usePersonalAccessToken ?: false
+            def tokenSecretName = config.tokenCredentialID ?: ""
+            def nexusChartRepoName = config.nexusChartRepoName ?: "helm-charts"
+            def notifySlack = config.notifySlack == false ? false : true
 
             def dockerImage = ""
             def version = ""
 
             container(name: 'tools') {
-                withCurrentRepo(gitUsername: gitUser, gitEmail: gitEmailID) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+                withCurrentRepo(gitUsername: gitUser, gitEmail: gitEmailID, useToken: cloneUsingToken,
+                        tokenSecretName: tokenSecretName) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                     def kubernetesDir = WORKSPACE + "/deployments/kubernetes"
                     def chartTemplatesDir = kubernetesDir + "/templates/chart"
                     def chartDir = kubernetesDir + "/chart"
@@ -95,36 +100,54 @@ def call(body) {
                                 templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
                                 chartPackageName = helm.package(chartDir, repoName.toLowerCase(),helmVersion)                        
                                 
-                                String cmUsername = "${env.CHARTMUSEUM_USERNAME}"
-                                String cmPassword = "${env.CHARTMUSEUM_PASSWORD}"
-                                chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
+                                String nexusUsername = "${env.NEXUS_USERNAME}"
+                                String nexusPassword = "${env.NEXUS_PASSWORD}"
+
+                                def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
+
+                                chartManager.uploadToHostedNexusRawRepository(nexusUsername, nexusPassword, packagedChartLocation, chartRepositoryURL, nexusChartRepoName)                        
                             }
-                            stage('Push Jar') {
-                                nexus.pushAppArtifact(imageName, version, javaRepositoryURL)                      
-                            }
-                            stage("Push Changes") {
+                            stage("Tag") {
                                 print "Pushing changes to Git"
-                                git.commitChanges(WORKSPACE, "Update chart and version")
-                            }
-                            stage("Create Git Tag"){                          
-                                print "Pushing Tag ${version} to Git"
-                                git.createTagAndPush(WORKSPACE, version)
+                                if(cloneUsingToken){
+                                    git.commitChangesUsingToken(WORKSPACE, "Update chart and version")
+                                    print "Pushing Tag ${version} to Git"
+                                    git.createTagAndPushUsingToken(WORKSPACE, version)
+                                }else {
+                                    git.commitChanges(WORKSPACE, "Update chart and version")
+                                    print "Pushing Tag ${version} to Git"
+                                    git.createTagAndPush(WORKSPACE, version)
+                                }
                             }
                         }
                     }
                     catch (e) {
-                        slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)], prNumber)
-
+                        if (notifySlack) {
+                            slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)], prNumber)
+                        }
                         def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
-                        git.addCommentToPullRequest(commentMessage)
+                         if(cloneUsingToken){
+                            def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(tokenSecretName)    
 
+                            git.addCommentToPullRequest(commentMessage, tokenSecret)
+                        }else{
+                            git.addCommentToPullRequest(commentMessage)
+                        }
                         throw e
                     }
                     stage('Notify') {
-                        slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")], prNumber)
-
+                        if (notifySlack) {
+                            slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")], prNumber)
+                        }
                         def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
-                        git.addCommentToPullRequest(commentMessage)
+
+                        if(cloneUsingToken){
+                            def tokenSecret = stakaterCommands.getProviderTokenFromJenkinsSecret(tokenSecretName)    
+
+                            git.addCommentToPullRequest(commentMessage, tokenSecret)
+                        }else{
+                            git.addCommentToPullRequest(commentMessage)
+                        }
                     }
                 }
             }

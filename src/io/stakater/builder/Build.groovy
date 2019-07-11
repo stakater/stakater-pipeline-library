@@ -1,10 +1,17 @@
 #!/usr/bin/groovy
 package io.stakater.builder
 
-def buildMavenApplication(String version){
+def buildMavenApplication(String version, String mavenGoal = "clean package"){
     sh """
         mvn versions:set -DnewVersion=${version} -f pom.xml
-        mvn clean package -f pom.xml
+        mvn ${mavenGoal} -f pom.xml
+    """
+}
+
+def buildAspNetApplication(){
+    sh """
+        dotnet restore
+        dotnet publish -c Release -o out
     """
 }
 

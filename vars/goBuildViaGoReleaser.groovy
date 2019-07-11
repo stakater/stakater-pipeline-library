@@ -140,8 +140,8 @@ def call(body) {
 
                         stage('Chart: Upload') {
                             echo "Executing chart upload step"
-                            String cmUsername = common.getEnvValue('CHARTMUSEUM_USERNAME')
-                            String cmPassword = common.getEnvValue('CHARTMUSEUM_PASSWORD')
+                            String cmUsername = "${env.CHARTMUSEUM_USERNAME}"
+                            String cmPassword = "${env.CHARTMUSEUM_PASSWORD}"
                             String publicChartRepositoryURL = config.publicChartRepositoryURL
                             String publicChartGitURL = config.publicChartGitURL
 
