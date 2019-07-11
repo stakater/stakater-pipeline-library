@@ -50,8 +50,7 @@ def call(body) {
             stage('Plan and Apply') {
               sh """
                 export ${exportKey}=\$${exportValue}
-                
-                terraform plan
+
                 terraform apply -auto-approve
               """
 
