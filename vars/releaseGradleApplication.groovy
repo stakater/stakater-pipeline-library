@@ -8,7 +8,8 @@ def call(body) {
     body()
 
     def stakaterPod = new io.stakater.pods.Pod()
-    stakaterPod.setToolsImage(config, "stakater/builder-maven:3.5.4-jdk1.8-apline8-v0.0.3")
+    String toolsImage = config.toolsImage ?: "stakater/builder-gradle:3.4.1-jdk1.8-v2.0.1-v0.0.2"
+    stakaterPod.setToolsImage(config, toolsImage)
     stakaterPod.setDockerConfig(config)
     stakaterPod.enableGradleSettings(config)
 
