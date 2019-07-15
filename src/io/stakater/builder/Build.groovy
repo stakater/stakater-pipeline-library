@@ -8,6 +8,12 @@ def buildMavenApplication(String version, String mavenGoal = "clean package"){
     """
 }
 
+def buildGradleApplication(String version, String gradleGoal = "clean package"){
+    sh """
+        gradle -Pversion=${version} ${gradleGoal}
+    """
+}
+
 def buildAspNetApplication(){
     sh """
         dotnet restore

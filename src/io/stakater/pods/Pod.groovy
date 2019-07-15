@@ -28,6 +28,11 @@ def enableMavenSettings(Map parameters = [:]) {
     parameters.podContainers.defaultContainer.envVarsConfig.isMaven = true
 }
 
+def enableGradleSettings(Map parameters = [:]) {
+    setPodVolumes(parameters)
+    setDefaultContainerEnvVarsConfig(parameters)
+}
+
 def enableChartMuseum(Map parameters = [:]) {
     setPodEnvVars(parameters)
     parameters.podEnvVars.isChartMuseum = true
