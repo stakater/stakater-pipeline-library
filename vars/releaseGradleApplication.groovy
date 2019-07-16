@@ -100,7 +100,7 @@ def call(body) {
 
                             stage('Build Gradle Application') {
                                 echo "Building Gradle application"
-                                builder.buildGradleApplication(version, mavenGoal)
+                                builder.buildGradleApplication(version, gradleGoal)
                             }
 
                             stage('Build Image') {
