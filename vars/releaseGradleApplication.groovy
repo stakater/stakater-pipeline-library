@@ -41,7 +41,7 @@ def call(body) {
                     String nexusChartRepoName = config.nexusChartRepoName ?: "helm-charts"
                     String chartPackageName = ""
                     Boolean deployManifest = config.deployManifest ?: false
-                    String gradleGoal = config.gradleGoal ?: "clean package"
+                    String gradleGoal = config.gradleGoal ?: "clean build -x test --info"
                     String artifactType = config.artifactType ?: ".jar"
                     String namespace = config.namespace ?: ""
 
