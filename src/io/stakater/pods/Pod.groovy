@@ -31,6 +31,8 @@ def enableMavenSettings(Map parameters = [:]) {
 def enableGradleSettings(Map parameters = [:]) {
     setPodVolumes(parameters)
     setDefaultContainerEnvVarsConfig(parameters)
+
+    parameters.podVolumes.isGradleLocalRepo = true
 }
 
 def enableChartMuseum(Map parameters = [:]) {
