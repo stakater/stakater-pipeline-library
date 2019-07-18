@@ -31,8 +31,10 @@ def buildNodeApplication(String version, String nodeGoal) {
 def buildAngularApplication(String version, String angularGoal) {
     sh """
         npm --no-git-tag-version --allow-same-version version ${version}
-        npm ${nodeGoal}
     """
+    angularGoal.split(';').each { goal ->
+        sh "npm ${goal}"
+    }
 }
 
 def deployHelmChart(String chartDir){

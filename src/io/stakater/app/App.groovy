@@ -26,7 +26,7 @@ Map configureAngularApp(Map parameters = [:]) {
 
     parameters.builderImage = parameters.builderImage ?: "stakater/builder-angular:7.0.7-node8.16-alpine-v0.0.1"
     Map container = createAngularBuilderContainer(parameters.builderImage)
-    stakaterPod.addExtraContainer(container)
+    stakaterPod.addExtraContainer(parameters, container)
 }
 
 Map createAngularBuilderContainer(String image) {

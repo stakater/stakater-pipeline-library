@@ -7,7 +7,7 @@ Map getBaseConfig(Map config, String repoName, String repoOwner, String workspac
     baseConfig.appType = config.appType
     baseConfig.goal = config.goal
     baseConfig.name = config.appName ?: repoName
-    baseConfig.imageName = baseConfig.appName.split("dockerfile-").last().toLowerCase()
+    baseConfig.imageName = baseConfig.name.split("dockerfile-").last().toLowerCase()
     baseConfig.kubernetesDir = workspace + "/deployments/kubernetes"
     if (repoOwner.startsWith('stakater-')){
         baseConfig.repoOwner = 'stakater'

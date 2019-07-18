@@ -85,13 +85,13 @@ def addExtraContainer(Map parameters, Map container) {
     parameters.podContainers.additionalContainers.add(container)
 }
 
-Map createContainer(String name, String image, String command, String args, Boolean priviliged, String workingDir, Boolean ttyEnabled, Map[] envVars) {
+Map createContainer(String name, String image, String command, String args, Boolean privileged, String workingDir, Boolean ttyEnabled, ArrayList<Map> envVars) {
     return [
         name: name,
         image: image,
         command: command,
         args: args,
-        priviliged: priviliged,
+        privileged: privileged,
         workingDir: workingDir,
         ttyEnabled: ttyEnabled,
         envVars: envVars

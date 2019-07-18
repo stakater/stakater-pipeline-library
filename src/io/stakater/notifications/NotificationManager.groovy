@@ -10,6 +10,8 @@ def sendError(Map notificationConfig, Map gitConfig, String buildNumber, String 
 
     String commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${buildNumber}](${buildUrl}) has Failed!"
 
+    def git = new io.stakater.vc.Git()
+
     if(gitConfig.cloneUsingToken) {
         git.addCommentToPullRequest(commentMessage, gitConfig.tokenSecret)
     } else {
@@ -25,6 +27,8 @@ def sendSuccess(Map notificationConfig, Map gitConfig, String dockerImage, Strin
     }
 
     String commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
+
+    def git = new io.stakater.vc.Git()
 
     if(gitConfig.cloneUsingToken){
         git.addCommentToPullRequest(commentMessage, gitConfig.tokenSecret)
