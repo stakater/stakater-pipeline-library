@@ -1,33 +1,17 @@
 #!/usr/bin/groovy
 package io.stakater.app
 
-enum AppType {
-    ANGULAR
-
-    @Override
-    static AppType valueOf(String value) {
-        switch(value) {
-            case "ANGULAR":
-                return AppType.ANGULAR;
-            break;
-        }
-        throw new IllegalArgumentException('Unknown AppType ' + value + '.')
-    }
-}
-
-this.AppType = AppType
-
 Map configure(Map parameters = [:]) {
-    AppType appType = (parameters.appType ?: "ANGULAR") as AppType
+    String appType = parameters.appType ?: "angular"
 
     configureByAppType(appType, parameters)
 
     return parameters
 }
 
-Map configureByAppType(AppType appType, Map parameters = [:]) {
+Map configureByAppType(String appType, Map parameters = [:]) {
     switch(appType) {
-        case AppType.ANGULAR:
+        case "angular":
             configureAngularApp(parameters)
         break
     }
@@ -63,11 +47,11 @@ def createAndPushTag(Boolean cloneUsingToken, String gitDir, String version) {
     }
 }
 
-def build(AppType appType, String version, String goal) {
+def build(String appType, String version, String goal) {
     def builder = new io.stakater.builder.Build()
 
     switch(appType) {
-        case AppType.ANGULAR:
+        case "angular":
             builder.buildAngularApplication(version, goal)
         break
     }
