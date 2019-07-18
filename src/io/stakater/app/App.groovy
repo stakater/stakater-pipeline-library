@@ -57,6 +57,9 @@ def build(String appType, String version, String goal) {
         case "angular":
             builder.buildAngularApplication(version, goal)
         break
+        case "gradle":
+            builder.buildGradleApplication(version, goal)
+        break
     }
 }
 
