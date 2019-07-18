@@ -4,6 +4,7 @@ package io.stakater.app
 enum AppType {
     ANGULAR
 
+    @Override
     static AppType valueOf(String value) {
         switch(value) {
             case "ANGULAR":
