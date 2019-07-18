@@ -8,7 +8,7 @@ Map configure(Map parameters = [:]) {
 
     Map container = createBuilderContainer(parameters.builderImage)
     def stakaterPod = new io.stakater.pods.Pod()
-    stakaterPod.setDefaultContainerEnvVarsConfig(parameters)
+    stakaterPod.setDockerConfig(parameters)
     stakaterPod.addExtraContainer(parameters, container)
 
     return parameters
