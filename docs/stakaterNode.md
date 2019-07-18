@@ -128,7 +128,7 @@ Containers running on pods can be configured using following parameters
 | defaultContainer.envVarsConfig.isKubernetes | `false` | Adds env var with name `KUBERNETES_MASTER` and value `https://kubernetes.default:443` |
 | defaultContainer.envVarsConfig.isMaven      | `false` | Adds env var with name `MAVEN_OPTS` and value `-Duser.home=/root/ -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn` |
 | defaultContainer.envVarsConfig.extraEnvVars | `[[:]]` | Adds a list of extra env variables defined by `key` and `value`. |
-| additionalContainers        | `[]`    | Adds additional containers to pod. Expects [PodAdditionalContainerSpec[]](#pod-additional-container-spec) |
+| additionalContainers        | `[]`    | Adds additional containers to pod. Expects [PodAdditionalContainerSpec[](#pod-additional-container-spec) |
 
 ## Pod Additional Container Spec
 

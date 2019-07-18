@@ -11,12 +11,13 @@ def mountDockerSocket(Map parameters = [:]) {
     parameters.podVolumes.isDockerMount = true
 }
 
-def setDockerConfig(Map parameters = [:]) {
+Map setDockerConfig(Map parameters = [:]) {
     mountDockerSocket(parameters)
     setDefaultContainerEnvVarsConfig(parameters)
 
     parameters.podVolumes.isDockerConfig = true
     parameters.podContainers.defaultContainer.envVarsConfig.isDocker = true
+    return parameters
 }
 
 def enableMavenSettings(Map parameters = [:]) {
@@ -70,6 +71,29 @@ def setPodEnvVars(Map parameters) {
     if ( ! parameters.get('podEnvVars', false) ) {
         parameters.podEnvVars = [:]
     }
+}
+
+def addExtraContainer(Map parameters, Map container) {
+    if ( ! parameters.get('podContainers', false) ) {
+        parameters.podContainers = [:]
+    }
+    if ( ! parameters.podContainers.get('additionalContainers', false) ) {
+        parameters.podContainers.additionalContainers = []
+    }
+    parameters.podContainers.additionalContainers.add(container)
+}
+
+Map createContainer(String name, String image, String command, String args, Boolean priviliged, String workingDir, Boolean ttyEnabled, Map[] envVars) {
+    return [
+        name: name,
+        image: image,
+        command: command,
+        args: args,
+        priviliged: priviliged,
+        workingDir: workingDir,
+        ttyEnabled: ttyEnabled,
+        envVars: envVars
+    ]
 }
 
 return this

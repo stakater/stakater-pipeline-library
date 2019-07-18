@@ -21,10 +21,17 @@ def buildAspNetApplication(){
     """
 }
 
-def buildNodeApplication(String version) {
+def buildNodeApplication(String version, String nodeGoal) {
     sh """
         npm --no-git-tag-version --allow-same-version version ${version}
-        npm install
+        npm ${nodeGoal}
+    """
+}
+
+def buildAngularApplication(String version, String angularGoal) {
+    sh """
+        npm --no-git-tag-version --allow-same-version version ${version}
+        npm ${nodeGoal}
     """
 }
 
