@@ -3,6 +3,15 @@ package io.stakater.app
 
 enum AppType {
     ANGULAR
+
+    static AppType valueOf(String value) {
+        switch(value) {
+            case "ANGULAR":
+                return AppType.ANGULAR;
+            break;
+        }
+        throw new IllegalArgumentException('Unknown AppType ' + value + '.')
+    }
 }
 
 this.AppType = AppType
