@@ -23,10 +23,19 @@ Map getPackageConfig(Map config) {
     packageConfig.chartPackageName = ""
     packageConfig.helmVersion = ""
     packageConfig.dockerRepositoryURL = config.dockerRepositoryURL ?: ""
+
+    packageConfig.javaRepositoryURL = config.javaRepositoryURL ?: ""
+    packageConfig.publishArtifact = ! packageConfig.javaRepositoryURL.equals("")
+    packageConfig.artifactType = config.artifactType ?: ".jar"
+
     packageConfig.chartRepositoryURL = config.chartRepositoryURL ?: ""
-    packageConfig.packageChart = ! packageConfig.chartRepositoryURL.equals("")
+    packageConfig.publishChart = ! packageConfig.chartRepositoryURL.equals("")
+
     packageConfig.e2eTestJob = config.e2eTestJob ?: ""
     packageConfig.executeE2E = ! packageConfig.e2eTestJob.equals("")
+
+    packageConfig.runIntegrationTest = config.runIntegrationTest ?: false
+
     packageConfig.performanceTestsJob = config.performanceTestsJob ?: ""
     packageConfig.mockAppsJobName = config.mockAppsJobName ?: ""
 

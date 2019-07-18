@@ -6,6 +6,11 @@ Map configure(Map parameters = [:]) {
 
     configureByAppType(appType, parameters)
 
+    Map container = createBuilderContainer(parameters.builderImage)
+    def stakaterPod = new io.stakater.pods.Pod()
+    stakaterPod.setDefaultContainerEnvVarsConfig(parameters)
+    stakaterPod.addExtraContainer(parameters, container)
+
     return parameters
 }
 
@@ -14,23 +19,21 @@ Map configureByAppType(String appType, Map parameters = [:]) {
         case "angular":
             configureAngularApp(parameters)
         break
+        case "gradle":
+            configureGradleApp(parameters)
+        break
     }
     return parameters
 }
 
 Map configureAngularApp(Map parameters = [:]) {
-
     parameters.goal = parameters.goal ?: "run build"
-    def stakaterPod = new io.stakater.pods.Pod()
-    stakaterPod.setDockerConfig(parameters)
-
     parameters.builderImage = parameters.builderImage ?: "stakater/builder-angular:7.0.7-node8.16-alpine-v0.0.1"
-    Map container = createAngularBuilderContainer(parameters.builderImage)
-    stakaterPod.addExtraContainer(parameters, container)
 }
 
-Map createAngularBuilderContainer(String image) {
-    return createBuilderContainer(image)
+Map configureGradleApp(Map parameters = [:]) {
+    parameters.goal = parameters.goal ?: "clean build"
+    parameters.builderImage = parameters.builderImage ?: "stakater/builder-gradle:3.5-jdk1.8-v2.0.1-v0.0.1"
 }
 
 Map createBuilderContainer(String image) {

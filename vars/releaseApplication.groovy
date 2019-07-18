@@ -72,7 +72,7 @@ def call(body) {
                         }
 
                         stage('Package chart' ) {
-                            if (packageConfig.packageChart) {
+                            if (packageConfig.publishChart) {
                                 packageConfig.chartPackageName = chartManager.packageChart(repoName, version, dockerImage, baseConfig.kubernetesDir)
                             }
                         }
@@ -95,8 +95,14 @@ def call(body) {
                         }
                         // If master
                         if (utils.isCD()) {
+                            stage('Publish Artifact') {
+                                if (packageConfig.publishArtifact) {
+                                    nexus.pushAppArtifact(baseConfig.imageName, version, packageConfig.javaRepositoryURL, packageConfig.artifactType)
+                                }
+                            }
+
                             stage('Upload Helm Chart') {
-                                if (packageConfig.packageChart) {
+                                if (packageConfig.publishChart) {
                                     chartManager.uploadChart(chartRepository, packageConfig.chartRepositoryURL, baseConfig.kubernetesDir,
                                             nexusChartRepoName, repoName, packageConfig.chartPackageName)
                                 }
@@ -118,6 +124,13 @@ def call(body) {
                                 if (deploymentConfig.pushToDevApps) {
                                     build job: deploymentConfig.devAppsJobName, parameters: [ [$class: 'StringParameterValue', name: 'chartVersion', value: packageConfig.helmVersion ], [$class: 'StringParameterValue', name: 'chartName', value: repoName.toLowerCase() ], [$class: 'StringParameterValue', name: 'chartUrl', value: packageConfig.chartRepositoryURL ], [$class: 'StringParameterValue', name: 'chartAlias', value: repoName.toLowerCase() ]]
                                 }
+                            }
+                        } else {
+                            if (packageConfig.runIntegrationTest) {
+                                echo "As PR, so rolling back to stable version"
+                                sh """
+                                    make rollback
+                                """
                             }
                         }
                     }
