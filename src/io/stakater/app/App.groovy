@@ -22,6 +22,15 @@ Map configureByAppType(String appType, Map parameters = [:]) {
         case "gradle":
             configureGradleApp(parameters)
         break
+        case "maven":
+            configureMavenApp(parameters)
+        break
+        case "node":
+            configureNodeApp(parameters)
+        break
+        case "dotnet":
+            configureDotnetApp(parameters)
+        break
     }
     return parameters
 }
@@ -34,6 +43,21 @@ Map configureAngularApp(Map parameters = [:]) {
 Map configureGradleApp(Map parameters = [:]) {
     parameters.goal = parameters.goal ?: "clean build"
     parameters.builderImage = parameters.builderImage ?: "stakater/builder-gradle:3.5-jdk1.8-v2.0.1-v0.0.1"
+}
+
+Map configureMavenApp(Map parameters = [:]) {
+    parameters.goal = parameters.goal ?: "run build"
+    parameters.builderImage = parameters.builderImage ?: "stakater/builder-maven:3.5.4-jdk1.8-v2.0.1-v0.0.6"
+}
+
+Map configureNodeApp(Map parameters = [:]) {
+    parameters.goal = parameters.goal ?: "install"
+    parameters.builderImage = parameters.builderImage ?: "stakater/builder-node-8:v0.0.2"
+}
+
+Map configureDotnetApp(Map parameters = [:]) {
+    parameters.goal = parameters.goal ?: "restore;publish -c Release -o out"
+    parameters.builderImage = parameters.builderImage ?: "stakater/builder-node-8:v0.0.2"
 }
 
 Map createBuilderContainer(String image) {
@@ -59,6 +83,15 @@ def build(String appType, String version, String goal) {
         break
         case "gradle":
             builder.buildGradleApplication(version, goal)
+        break
+        case "maven":
+            builder.buildMavenApplication(version, goal)
+        break
+        case "node":
+            builder.buildNodeApplication(version, goal)
+        break
+        case "dotnet":
+            builder.buildDotnetApplication(version, goal)
         break
     }
 }
