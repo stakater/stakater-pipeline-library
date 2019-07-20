@@ -21,7 +21,7 @@ def buildDotnetApplication(String version, String dotnetGoal){
     }
 }
 
-def buildNodeApplication(String version, String nodeGoal) {
+def buildNodeApplication(String version, String nodeGoal="install") {
     sh """
         npm --no-git-tag-version --allow-same-version version ${version}
     """
@@ -30,7 +30,7 @@ def buildNodeApplication(String version, String nodeGoal) {
     }
 }
 
-def buildAngularApplication(String version, String angularGoal) {
+def buildAngularApplication(String version, String angularGoal="install;run build:stage") {
     sh """
         npm --no-git-tag-version --allow-same-version version ${version}
     """
