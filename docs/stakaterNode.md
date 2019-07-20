@@ -73,6 +73,7 @@ Volumes can be mounted on pod using the following parameters:
 |---------------------------|---------------|------------------------------------|
 | isMaven                   | `false`       | Adds a secret volume with name `jenkins-maven-settings` and mount path `/root/.m2`. |
 | isMavenLocalRepo          | `false`       | Adds a persistent volume claim with name `jenkins-mvn-local-repo` and mount path `/root/.mvnrepository`.|
+| isGradleLocalRepo          | `false`       | Adds a persistent volume claim with name `jenkins-gradle-local-repo` and mount path `/home/gradle/`.|
 | isDockerConfig            | `false`       | Adds a secret volume with name `jenkins-docker-cfg` and mount path `/home/jenkins/.docker`. |
 | isDockerMount             | `false`       | Adds a host path volume with host path `/var/run/docker.sock` and mount path `/var/run/docker.sock`. |
 | isGitSsh                  | `false`       | Adds a secret volume with name `jenkins-git-ssh` and mount path `/root/.ssh-git`. |
@@ -128,7 +129,7 @@ Containers running on pods can be configured using following parameters
 | defaultContainer.envVarsConfig.isKubernetes | `false` | Adds env var with name `KUBERNETES_MASTER` and value `https://kubernetes.default:443` |
 | defaultContainer.envVarsConfig.isMaven      | `false` | Adds env var with name `MAVEN_OPTS` and value `-Duser.home=/root/ -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn` |
 | defaultContainer.envVarsConfig.extraEnvVars | `[[:]]` | Adds a list of extra env variables defined by `key` and `value`. |
-| additionalContainers        | `[]`    | Adds additional containers to pod. Expects [PodAdditionalContainerSpec[]](#pod-additional-container-spec) |
+| additionalContainers        | `[]`    | Adds additional containers to pod. Expects [PodAdditionalContainerSpec[](#pod-additional-container-spec) |
 
 ## Pod Additional Container Spec
 

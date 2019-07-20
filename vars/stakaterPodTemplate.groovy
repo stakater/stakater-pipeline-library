@@ -92,6 +92,7 @@ def getStakaterPodVolumes(Map parameters = [:]) {
 
     Boolean isMaven = parameters.get('isMaven', false)
     Boolean isMavenLocalRepo = parameters.get('isMavenLocalRepo', false)
+    Boolean isGradleLocalRepo = parameters.get('isGradleLocalRepo', false)
     Boolean isDockerConfig = parameters.get('isDockerConfig', false)
     Boolean isDockerMount = parameters.get('isDockerMount', false)
     Boolean isGitSsh = parameters.get('isGitSsh', false)
@@ -108,6 +109,10 @@ def getStakaterPodVolumes(Map parameters = [:]) {
 
     if (isMavenLocalRepo) {
         volumes.add(persistentVolumeClaim(claimName: 'jenkins-mvn-local-repo', mountPath: '/root/.mvnrepository'))
+    }
+
+    if (isGradleLocalRepo) {
+        volumes.add(persistentVolumeClaim(claimName: 'jenkins-gradle-local-repo', mountPath: '/home/gradle/'))
     }
 
     if (isDockerConfig) {
