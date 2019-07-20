@@ -57,7 +57,7 @@ Map configureNodeApp(Map parameters = [:]) {
 
 Map configureDotnetApp(Map parameters = [:]) {
     parameters.goal = parameters.goal ?: "restore;publish -c Release -o out"
-    parameters.builderImage = parameters.builderImage ?: "stakater/builder-node-8:v0.0.2"
+    parameters.builderImage = parameters.builderImage ?: "stakater/builder-dotnet:2.2-centos7"
 }
 
 Map createBuilderContainer(String image) {
