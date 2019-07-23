@@ -10,6 +10,7 @@ Map configure(Map parameters = [:]) {
     def stakaterPod = new io.stakater.pods.Pod()
     stakaterPod.setDockerConfig(parameters)
     stakaterPod.addExtraContainer(parameters, container)
+    stakaterPod.setPodEnvVars(parameters)
 
     return parameters
 }
