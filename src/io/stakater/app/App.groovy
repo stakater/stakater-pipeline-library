@@ -63,7 +63,7 @@ Map configureDotnetApp(Map parameters = [:]) {
 
 Map createBuilderContainer(String image) {
     def stakaterPod = new io.stakater.pods.Pod()
-    return stakaterPod.creatbuildAngularApplicationeContainer("builder", image, "/bin/sh -c", "cat", true, '/home/jenkins', true, [])
+    return stakaterPod.createContainer("builder", image, "/bin/sh -c", "cat", true, '/home/jenkins', true, [])
 }
 
 def createAndPushTag(Boolean cloneUsingToken, String gitDir, String version) {
@@ -76,7 +76,7 @@ def createAndPushTag(Boolean cloneUsingToken, String gitDir, String version) {
 }
 
 def build(String appType, String version, String goal) {
-    def builder = new io.stabuildAngularApplicationkater.builder.Build()
+    def builder = new io.stakater.builder.Build()
 
     switch(appType) {
         case "angular":
