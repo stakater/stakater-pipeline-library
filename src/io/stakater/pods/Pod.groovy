@@ -73,7 +73,7 @@ def setPodEnvVars(Map parameters) {
     if ( ! parameters.get('podEnvVars', false) ) {
         parameters.podEnvVars = [:]
         
-        if (parameters.get('notifySlack', false ) {
+        if (parameters.get('notifySlack', false )) {
             parameters.podEnvVars['isNotifySlack'] = true
         }
     }
