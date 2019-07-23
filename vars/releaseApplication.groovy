@@ -43,7 +43,7 @@ def call(body) {
 
                         stage('Create Version') {
                             dockerImage = "${packageConfig.dockerRepositoryURL}/${baseConfig.repoOwner.toLowerCase()}/${baseConfig.imageName}"
-                            version = stakaterCommands.getImageVersion(repoUrl, baseConfig.imagePrefix, repoBranch, "${env.BUILD_NUMBER}")
+                            version = app.getImageVersion(repoUrl, baseConfig.imagePrefix, repoBranch, "${env.BUILD_NUMBER}")
                             echo "Version: ${version}"
                         }
 
