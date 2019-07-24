@@ -300,6 +300,13 @@ def getGitLabMergeRequestsByBranchName(project, branchName, token){
 }
 
 def postPRCommentToBitbucket(comment, pr, project, token, user) {
+    def changeAuthor = env.CHANGE_AUTHOR
+    if (!changeAuthor){
+        echo "no commit author found so commenting without tagging author"
+    } else {
+        comment = "@${changeAuthor} " + comment
+    }
+
     if (!pr){
         echo "no pull request number found so cannot comment on PR"
         return
