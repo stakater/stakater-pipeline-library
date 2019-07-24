@@ -13,9 +13,9 @@ def sendError(Map notificationConfig, Map gitConfig, String buildNumber, String 
     def git = new io.stakater.vc.Git()
 
     if(gitConfig.cloneUsingToken) {
-        git.addCommentToPullRequest(commentMessage, gitConfig.tokenSecret)
+        git.addCommentToPullRequest(commentMessage, gitConfig.tokenSecret, gitConfig.user)
     } else {
-        git.addCommentToPullRequest(commentMessage)
+        git.addCommentToPullRequest(commentMessage, gitConfig.user)
     }
 }
 
@@ -31,9 +31,9 @@ def sendSuccess(Map notificationConfig, Map gitConfig, String dockerImage, Strin
     def git = new io.stakater.vc.Git()
 
     if(gitConfig.cloneUsingToken){
-        git.addCommentToPullRequest(commentMessage, gitConfig.tokenSecret)
+        git.addCommentToPullRequest(commentMessage, gitConfig.tokenSecret, gitConfig.user)
     } else {
-        git.addCommentToPullRequest(commentMessage)
+        git.addCommentToPullRequest(commentMessage, gitConfig.user)
     }
 }
 
