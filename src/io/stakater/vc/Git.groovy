@@ -82,7 +82,7 @@ def checkoutRepoUsingToken(String username, String tokenSecretName, String repoU
     """
 }
 
-def addCommentToPullRequest(String message) {
+def addCommentToPullRequest(String message, String user) {
     def flow = new StakaterCommands()
     def url = flow.getScmPushUrl()
     def provider = flow.getProvider(url)
@@ -92,18 +92,18 @@ def addCommentToPullRequest(String message) {
     def providerToken = flow.getProviderToken(provider)
     switch(provider) {
         case "github":
-            flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken)
+            flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken, user)
             break
         case "gitlab":
             def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME == null ? env.REPO_CLONE_BRANCH : env.BRANCH_NAME, providerToken)
             result.each{value -> 
                 def prMessage = "@${value.author.username} " + message
                 echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
-                flow.postPRComment(prMessage, value.iid, project, provider, providerToken)
+                flow.postPRComment(prMessage, value.iid, project, provider, providerToken, user)
             }
             break
         case "bitbucket":
-            def result = flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken)
+            def result = flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken, user)
             break
             
         default:
@@ -112,7 +112,7 @@ def addCommentToPullRequest(String message) {
     }
 }
 //Overloaded function to send the token if already got that
-def addCommentToPullRequest(String message, String token) {
+def addCommentToPullRequest(String message, String token, String user) {
     def flow = new StakaterCommands()
     def url = flow.getScmPushUrl()
     def provider = flow.getProvider(url)
@@ -122,18 +122,18 @@ def addCommentToPullRequest(String message, String token) {
     def providerToken = token
     switch(provider) {
         case "github":
-            flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken)
+            flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken, user)
             break
         case "gitlab":
             def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME == null ? env.REPO_CLONE_BRANCH : env.BRANCH_NAME, providerToken)
             result.each{value -> 
                 def prMessage = "@${value.author.username} " + message
                 echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
-                flow.postPRComment(prMessage, value.iid, project, provider, providerToken)
+                flow.postPRComment(prMessage, value.iid, project, provider, providerToken, user)
             }
             break
         case "bitbucket":
-            def result = flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken)
+            def result = flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken, user)
             break
             
         default:

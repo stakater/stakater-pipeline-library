@@ -97,4 +97,29 @@ def build(String appType, String version, String goal) {
     }
 }
 
+def getImageVersion(String repoUrl, String imagePrefix, String prNumber, String buildNumber) {
+    def utils = new io.fabric8.Utils()
+    def branchName = utils.getBranch()
+    def git = new io.stakater.vc.Git()
+    def imageVersion = ''
+
+    // For CD
+    if (branchName.equalsIgnoreCase("master")) {
+        sh "stk generate version > commandResult"
+        def version = readFile('commandResult').trim()
+        sh "rm commandResult .VERSION"
+        version = 'v' + version        
+        imageVersion = imagePrefix + version
+    }
+    // For CI
+    else {
+        if(imagePrefix == "") {
+            imagePrefix = "0.0.0"
+        }
+        imageVersion = imagePrefix + "-" + prNumber + '-' + buildNumber + '-SNAPSHOT'
+    }
+
+    return imageVersion
+}
+
 return this

@@ -235,7 +235,7 @@ def formatBitbucketUrl(url) {
     return url.trim()
 }
 
-def postPRComment(comment, pr, project, provider, token) {
+def postPRComment(comment, pr, project, provider, token, user) {
     switch(provider){
         case "github":
             postPRCommentToGithub(comment, pr, project, token)
@@ -246,7 +246,7 @@ def postPRComment(comment, pr, project, provider, token) {
             break
 
         case "bitbucket":
-            postPRCommentToBitbucket(comment, pr, project, token)
+            postPRCommentToBitbucket(comment, pr, project, token, user)
         default: 
             error "${provider} is not supported"
             break
@@ -299,21 +299,22 @@ def getGitLabMergeRequestsByBranchName(project, branchName, token){
     }
 }
 
-def postPRCommentToBitbucket(comment, pr, project, token) {
+def postPRCommentToBitbucket(comment, pr, project, token, user) {
     def changeAuthor = env.CHANGE_AUTHOR
     if (!changeAuthor){
-        echo "no commit author found so cannot comment on PR"
-        return
+        echo "no commit author found so commenting without tagging author"
+    } else {
+        comment = "@${changeAuthor} " + comment
     }
+
     if (!pr){
         echo "no pull request number found so cannot comment on PR"
         return
     }
 
-    comment = "@${changeAuthor} " + comment
     echo "adding ${comment} to https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments"
     
-    sh "curl -u stakater-user:${token} -X POST -H \"Content-Type: application/json\" https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments -d '{\"content\":{\"raw\":\"${comment}\"}}'"
+    sh "curl -u ${user}:${token} -X POST -H \"Content-Type: application/json\" https://api.bitbucket.org/2.0/repositories/${project}/pullrequests/${pr}/comments -d '{\"content\":{\"raw\":\"${comment}\"}}'"
 }
 
 def postPRCommentToGithub(comment, pr, project, githubToken) {
