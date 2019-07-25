@@ -5,7 +5,7 @@ def sendError(Map notificationConfig, Map gitConfig, String buildNumber, String 
     def slack = new io.stakater.notifications.Slack()
 
     if (notificationConfig.notifySlack) {
-        slack.sendDefaultFailureNotification(notificationConfig.slackWebHookURL, notificationConfig.slackChannel, [slack.createErrorField(e)], repoBranch)
+        slack.sendDefaultFailureNotification(notificationConfig.slackWebHookURL, notificationConfig.slackChannel, [slack.createErrorField(error)], repoBranch)
     }
 
     String commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${buildNumber}](${buildUrl}) has Failed!"
