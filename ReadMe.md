@@ -4,7 +4,6 @@
 ## Problem
 
 We often face situations where multiple projects were using the same CI/CD pipeline workflow(optionally with minor changes). This resulted in a lot of code duplication and redundant work when trying to update a functionality. 
-We would like to watch if some change happens in `ConfigMap` and/or `Secret`; then perform a rolling upgrade on relevant `DeploymentConfig`, `Deployment`, `Daemonset` and `Statefulset`
 
 ## Solution
 
