@@ -47,7 +47,8 @@ Map configureGradleApp(Map parameters = [:]) {
 }
 
 Map configureMavenApp(Map parameters = [:]) {
-    parameters.goal = parameters.goal ?: "run build"
+    parameters.goal = parameters.goal ?: "clean package"
+    parameters.isMaven = true
     parameters.builderImage = parameters.builderImage ?: "stakater/builder-maven:3.5.4-jdk1.8-v2.0.1-v0.0.6"
 }
 
@@ -67,6 +68,7 @@ Map createBuilderContainer(String image) {
 }
 
 def createAndPushTag(Boolean cloneUsingToken, String gitDir, String version) {
+    def git = new io.stakater.vc.Git()
     print "Pushing Tag ${version} to Git"
     if(cloneUsingToken) {
         git.createAndPushTagUsingToken(gitDir, version)
