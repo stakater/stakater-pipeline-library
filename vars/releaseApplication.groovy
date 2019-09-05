@@ -27,6 +27,7 @@ def call(body) {
                 def utils = new io.fabric8.Utils()
                 def chartManager = new io.stakater.charts.ChartManager()
                 def notificationManager = new io.stakater.notifications.NotificationManager()
+                def nexus = new io.stakater.repository.Nexus()
 
                 if (gitConfig.cloneUsingToken) {
                     git.configureRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret)
@@ -57,6 +58,13 @@ def call(body) {
                             app.build(baseConfig.appType, version, baseConfig.goal)
                         }
 
+                        if (utils.isCD()) {
+                            stage('Publish Artifact') {
+                                if (packageConfig.publishArtifact) {
+                                    nexus.pushAppArtifact(baseConfig.imageName, version, packageConfig.javaRepositoryURL, packageConfig.artifactType)
+                                }
+                            }
+                        }
                     }
                     catch (e) {
                         print "caught exception during build phase"
@@ -64,7 +72,7 @@ def call(body) {
                     }
                 }
 
-                container(name: 'tools') {    
+                container(name: 'tools') {
                     git.setUserInfo(gitConfig.user, gitConfig.email)
 
                     try {
@@ -101,12 +109,6 @@ def call(body) {
                         }
                         // If master
                         if (utils.isCD()) {
-                            stage('Publish Artifact') {
-                                if (packageConfig.publishArtifact) {
-                                    nexus.pushAppArtifact(baseConfig.imageName, version, packageConfig.javaRepositoryURL, packageConfig.artifactType)
-                                }
-                            }
-
                             stage('Upload Helm Chart') {
                                 if (packageConfig.publishChart) {
                                     chartManager.uploadChart(chartRepository, packageConfig.chartRepositoryURL, baseConfig.kubernetesDir,
