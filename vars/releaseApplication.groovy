@@ -36,7 +36,7 @@ def call(body) {
                 String version = ""
                 def buildException = null
 
-                container(name: 'builder') {
+                container(name: 'tools') {
                     try {
                         echo "Image NAME: ${baseConfig.imageName}"
                         echo "Repo Owner: ${baseConfig.repoOwner}"
@@ -46,7 +46,13 @@ def call(body) {
                             version = app.getImageVersion(repoUrl, baseConfig.imagePrefix, repoBranch, "${env.BUILD_NUMBER}")
                             echo "Version: ${version}"
                         }
-
+                    catch (e) {
+                        print "caught exception during build phase"
+                        buildException = e
+                    }
+                }
+                container(name: 'builder') {
+                    try {
                         stage('Build Application') {
                             app.build(baseConfig.appType, version, baseConfig.goal)
                         }
