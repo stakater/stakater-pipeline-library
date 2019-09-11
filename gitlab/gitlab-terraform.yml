@@ -1,0 +1,28 @@
+# pipeline base image
+image:
+  name: stakater/gitlab:0.0.5-terraform-0-11-11
+
+# Configuring CI/CD environment variables
+variables:
+  # Environment variables added here are just for example
+  GITLAB_TOKEN: ""  # It will be used to create resources in GitLab projects.
+  PLUGIN_DIRS: "~/.terraform.d/plugins"  # Default value is: ~/.terraform.d/plugins.
+  TARGET: "validate"  # Valid targets are given in the Makefile
+  PROVIDERS: "https://github.com/stakater/terraform-provider-gitlab/releases/download/v1.1.0/terraform-provider-gitlab"
+  BRANCH: "master"
+  USER_MAIL: "carbook.bot@gmail.com"
+  USER_NAME: "carbook.bot"
+
+# pipeline stages
+stages:
+  - deploy
+deploy:
+  stage: deploy
+  # pipeline execution script
+  script:
+    - make $TARGET PLUGIN_DIR=$PLUGIN_DIR PROVIDERS=$PROVIDERS
+    - git config --global user.email $USER_MAIL
+    - git config --global user.name $USER_NAME
+    - git add .
+    - git commit -m "commiting state" || true
+    - git push https://oauth2:$GITLAB_TOKEN@gitlab.com:carbook/carbook-gitlab-config.git $BRANCH || true
