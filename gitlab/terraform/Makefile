@@ -14,17 +14,13 @@ get_third_party:
 init: get_third_party
 	terraform init
 
-validate:
+validate: init
 	terraform validate
 
-plan:
+plan: validate
 	terraform plan
 
-apply:
+apply: plan
 	terraform apply -auto-approve
 
-validate: init validate
-test_plan: init validate plan
-plan_and_apply: init plan apply
-
-.PHONY: validate plan_and_apply
+.PHONY: validate plan apply
