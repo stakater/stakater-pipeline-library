@@ -47,6 +47,7 @@ def call(body) {
                             version = app.getImageVersion(repoUrl, baseConfig.imagePrefix, repoBranch, "${env.BUILD_NUMBER}")
                             echo "Version: ${version}"
                         }
+                    }
                     catch (e) {
                         print "caught exception during build phase"
                         buildException = e
