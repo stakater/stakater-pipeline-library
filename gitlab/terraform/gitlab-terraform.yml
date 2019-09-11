@@ -5,6 +5,7 @@ image:
 # Configuring CI/CD environment variables
 variables:
   # Environment variables added here are just for example
+  GITLAB_BASE_URL: ""
   GITLAB_TOKEN: ""  # It will be used to create resources in GitLab projects.
   PLUGIN_DIRS: "~/.terraform.d/plugins"  # Default value is: ~/.terraform.d/plugins.
   TARGET: "validate"  # Valid targets are given in the Makefile
