@@ -21,9 +21,10 @@ deploy:
   stage: deploy
   # pipeline execution script
   script:
+    - git remote set-url origin https://$USER_NAME:$GITLAB_TOKEN@gitlab.com/carbook/carbook-gitlab-config.git
     - make $TARGET PLUGIN_DIR=$PLUGIN_DIR PROVIDERS=$PROVIDERS
     - git config --global user.email $USER_MAIL
     - git config --global user.name $USER_NAME
     - git add .
-    - git commit -m "commiting state" || true
-    - git push https://gitlab-ci-token:$GITLAB_TOKEN@gitlab.com/carbook/carbook-gitlab-config.git $BRANCH || true
+    - git commit -m "[skip ci] update terraform state" || true
+    - git push origin HEAD:$BRANCH || true
