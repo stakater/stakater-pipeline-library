@@ -7,7 +7,7 @@ variables:
   # Environment variables added here are just for example
   GITLAB_BASE_URL: ""
   GITLAB_TOKEN: ""  # It will be used to create resources in GitLab projects.
-  PLUGIN_DIRS: "~/.terraform.d/plugins"  # Default value is: ~/.terraform.d/plugins.
+  PLUGIN_DIR: "~/.terraform.d/plugins"  # Default value is: ~/.terraform.d/plugins.
   TARGET: "validate"  # Valid targets are given in the Makefile
   PROVIDERS: "https://github.com/stakater/terraform-provider-gitlab/releases/download/v1.1.0/terraform-provider-gitlab"
   BRANCH: "master"
@@ -26,4 +26,4 @@ deploy:
     - git config --global user.name $USER_NAME
     - git add .
     - git commit -m "commiting state" || true
-    - git push https://oauth2:$GITLAB_TOKEN@gitlab.com:carbook/carbook-gitlab-config.git $BRANCH || true
+    - git push https://gitlab-ci-token:$GITLAB_TOKEN@gitlab.com/carbook/carbook-gitlab-config.git $BRANCH || true
