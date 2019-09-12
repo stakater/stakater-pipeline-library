@@ -18,4 +18,8 @@ apply: plan
 	cd $(MODULE_NAME)
 	terraform apply -auto-approve
 
-.PHONY: validate plan apply
+destroy: init
+	cd $(MODULE_NAME)
+	terraform destroy -auto-approve
+
+.PHONY: validate plan apply destroy
