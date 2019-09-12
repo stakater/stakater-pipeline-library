@@ -9,6 +9,7 @@ variables:
   BRANCH: "master"
   USER_MAIL: "carbook.bot@gmail.com"
   USER_NAME: "carbook.bot"
+  MODULE_NAME: "invalid"
 
 # pipeline stages
 stages:
@@ -18,7 +19,7 @@ deploy:
   # pipeline execution script
   script:
     - git remote set-url origin https://$USER_NAME:$GITLAB_TOKEN@${CI_PROJECT_URL:8}
-    - make $TARGET
+    - make $TARGET MODULE_NAME=$MODULE_NAME
     - git config --global user.email $USER_MAIL
     - git config --global user.name $USER_NAME
     - git add .
