@@ -5,7 +5,7 @@ image:
 # Configuring CI/CD environment variables
 variables:
   # Environment variables added here are just for example
-  GITLAB_BASE_URL: ""
+  GITLAB_BASE_URL: ""   # e.g. https://gitlab.server.com
   GITLAB_TOKEN: ""  # It will be used to create resources in GitLab projects.
   PLUGIN_DIR: "~/.terraform.d/plugins"  # Default value is: ~/.terraform.d/plugins.
   TARGET: "validate"  # Valid targets are given in the Makefile
@@ -21,7 +21,7 @@ deploy:
   stage: deploy
   # pipeline execution script
   script:
-    - git remote set-url origin https://$USER_NAME:$GITLAB_TOKEN@gitlab.com/carbook/carbook-gitlab-config.git
+    - git remote set-url origin https://$USER_NAME:$GITLAB_TOKEN@${CI_PROJECT_URL:8}
     - make $TARGET PLUGIN_DIR=$PLUGIN_DIR PROVIDERS=$PROVIDERS
     - git config --global user.email $USER_MAIL
     - git config --global user.name $USER_NAME
