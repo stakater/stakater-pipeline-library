@@ -1,0 +1,26 @@
+# pipeline base image
+image:
+  name: stakater/gitlab:0.0.4-terraform-0-12-7
+
+# Configuring CI/CD environment variables
+variables:
+  # Environment variables added here are just for example  
+  TARGET: "validate"  # Valid targets are given in the Makefile  
+  BRANCH: "master"
+  USER_MAIL: "carbook.bot@gmail.com"
+  USER_NAME: "carbook.bot"
+
+# pipeline stages
+stages:
+  - deploy
+deploy:
+  stage: deploy
+  # pipeline execution script
+  script:
+    - git remote set-url origin https://$USER_NAME:$GITLAB_TOKEN@${CI_PROJECT_URL:8}
+    - make $TARGET
+    - git config --global user.email $USER_MAIL
+    - git config --global user.name $USER_NAME
+    - git add .
+    - git commit -m "[skip ci] update terraform state" || true
+    - git push origin HEAD:$BRANCH || true
