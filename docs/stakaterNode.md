@@ -125,8 +125,6 @@ Containers running on pods can be configured using following parameters
 | defaultContainer.privileged | `true`      | Name of default container          |
 | defaultContainer.workingDir | `/home/jenkins/` | Working directory of default container |
 | defaultContainer.ttyEnabled | `true`      | Enable TTY of default container    |
-| defaultContainer.isEcr      | `false`     | Enable Configurations for Amazon ECR Elastic Container Registery (Uses credentials through assigned role) |
-| defaultContainer.ecrRegion  | `us-west-1` | Region in which ECR is located (only if isEcr is true) | 
 | defaultContainer.envVarsConfig.isDocker    | `false` | Adds 2 env vars. One with name `DOCKER_CONFIG` and value `/home/jenkins/.docker/` and the other with name `DOCKER_API_VERSION` and value `1.32` |
 | defaultContainer.envVarsConfig.isKubernetes | `false` | Adds env var with name `KUBERNETES_MASTER` and value `https://kubernetes.default:443` |
 | defaultContainer.envVarsConfig.isMaven      | `false` | Adds env var with name `MAVEN_OPTS` and value `-Duser.home=/root/ -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn` |

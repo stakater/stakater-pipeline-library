@@ -79,5 +79,12 @@ Map getNotificationConfig(Map config) {
     
     return notificationConfig
 }
+Map getEcrConfig(Map config) {
+    Map ecrConfig = [:]
 
+    ecrConfig.isEcr = config.isEcr ?: false
+    ecrConfig.ecrRegion = config.ecrRegion ?: 'us-west-1'
+
+    return ecrConfig
+}
 return this

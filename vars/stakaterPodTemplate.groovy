@@ -186,8 +186,6 @@ def getStakaterPodDefaultContainer(Map parameters = [:]) {
     String image = parameters.get('image', 'stakater/pipeline-tools:v2.0.9')
     String command = parameters.get('command', '/bin/sh -c')
     String args = parameters.get('args', 'cat')
-    Boolean isEcr = parameters.get('isEcr', false)
-    String ecrRegion = parameters.get('ecrRegion', 'us-west-1')
     Boolean privileged = parameters.get('privileged', true)
     String workingDir = parameters.get('workingDir', '/home/jenkins/')
     Boolean ttyEnabled = parameters.get('ttyEnabled', true)
@@ -210,11 +208,6 @@ def getStakaterPodDefaultContainer(Map parameters = [:]) {
 
     if (isMaven) {
         envVars.add(envVar(key: 'MAVEN_OPTS', value: '-Duser.home=/root/ -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'))
-    }
-
-    if (isEcr) {
-        envVars.add(envVar(key: 'PUSH_TO_ECR', value: 'true'))
-        envVars.add(envVar(key: 'ECR_REGION', value: ecrRegion ))
     }
 
     extraEnvVars.each { it->

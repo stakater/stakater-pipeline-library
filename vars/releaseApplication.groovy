@@ -20,6 +20,7 @@ def call(body) {
                 Map gitConfig = appConfig.getGitConfig(config)
                 Map notificationConfig = appConfig.getNotificationConfig(config)
                 Map baseConfig = appConfig.getBaseConfig(config, repoName, repoOwner, WORKSPACE)
+                Map ecrConfig = appConfig.getEcrConfig(config)
 
                 def docker = new io.stakater.containers.Docker()
                 def stakaterCommands = new io.stakater.StakaterCommands()
@@ -28,6 +29,7 @@ def call(body) {
                 def chartManager = new io.stakater.charts.ChartManager()
                 def notificationManager = new io.stakater.notifications.NotificationManager()
                 def nexus = new io.stakater.repository.Nexus()
+                def aws = new io.stakater.cloud.Amazon()
 
                 if (gitConfig.cloneUsingToken) {
                     git.configureRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret)
@@ -75,6 +77,9 @@ def call(body) {
 
                 container(name: 'tools') {
                     git.setUserInfo(gitConfig.user, gitConfig.email)
+                    if (ecrConfig.isEcr) {
+                        aws.configureECRCredentials(ecrConfig.ecrRegion)
+                    }
 
                     try {
                         if (buildException != null) {
