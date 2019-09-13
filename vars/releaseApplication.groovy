@@ -77,6 +77,7 @@ def call(body) {
 
                 container(name: 'tools') {
                     git.setUserInfo(gitConfig.user, gitConfig.email)
+                    print "${ecrConfig.isEcr}:${ecrConfig.ecrRegion}"
                     if (ecrConfig.isEcr) {
                         aws.configureECRCredentials(ecrConfig.ecrRegion)
                     }
