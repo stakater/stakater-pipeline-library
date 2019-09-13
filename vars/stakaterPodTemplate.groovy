@@ -213,8 +213,8 @@ def getStakaterPodDefaultContainer(Map parameters = [:]) {
     }
 
     if (isEcr) {
-        envVar.add(envVar(key: 'PUSH_TO_ECR', value: 'true'))
-        envVar.add(envVar(key: 'ECR_REGION', value: ecrRegion ))
+        envVars.add(envVar(key: 'PUSH_TO_ECR', value: 'true'))
+        envVars.add(envVar(key: 'ECR_REGION', value: ecrRegion ))
     }
 
     extraEnvVars.each { it->
