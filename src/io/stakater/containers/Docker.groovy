@@ -47,24 +47,12 @@ def tagImage(def imageName, def currentTag, def newTag) {
 }
 
 def pushTagCustom(def imageName, def tag) {
-
-    if(env['PUSH_TO_ECR'] == 'true' ) {
-        def aws = io.stakater.cloud.Amazon()
-        aws.configureECRCredentials(env['ECR_REGION'])
-    } 
-
     sh """
         docker push ${imageName}:${tag}
     """
 }
 
 def pushImage(def imageName, def tag) {
-
-    if(env['PUSH_TO_ECR'] == 'true' ) {
-        def aws = io.stakater.cloud.Amazon()
-        aws.configureECRCredentials(env['ECR_REGION'])
-    }
-
     sh """
         docker push ${imageName}:${tag}
     """
