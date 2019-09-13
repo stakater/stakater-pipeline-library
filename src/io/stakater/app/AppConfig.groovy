@@ -82,7 +82,7 @@ Map getNotificationConfig(Map config) {
 
 Map getEcrConfig(Map config) {
     Map ecrConfig = [:]
-    print "CONFIG: ${config}"
+    
     ecrConfig.isEcr = config.isEcr ?: false
     ecrConfig.ecrRegion = config.ecrRegion ?: 'us-west-1'
 
