@@ -162,7 +162,12 @@ def getStakaterPodContainers(Map parameters = [:]) {
     def additionalContainers = parameters.get('additionalContainers', [])
 
     if (isDefaultContainer) {
-        containers.add(getStakaterPodDefaultContainer(defaultContainer))
+        if (defaultContainer != [:]) {
+            containers.add(getStakaterPodDefaultContainer(defaultContainer))
+        }
+        else {
+            containers.add(getStakaterPodDefaultContainer(parameters))
+        }
     }
 
     additionalContainers.each { it->
