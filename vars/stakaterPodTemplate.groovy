@@ -162,12 +162,7 @@ def getStakaterPodContainers(Map parameters = [:]) {
     def additionalContainers = parameters.get('additionalContainers', [])
 
     if (isDefaultContainer) {
-        if (defaultContainer != [:]) {
-            containers.add(getStakaterPodDefaultContainer(defaultContainer))
-        }
-        else {
-            containers.add(getStakaterPodDefaultContainer(parameters))
-        }
+        containers.add(getStakaterPodDefaultContainer(defaultContainer))
     }
 
     additionalContainers.each { it->
@@ -188,7 +183,7 @@ def getStakaterPodContainers(Map parameters = [:]) {
 
 def getStakaterPodDefaultContainer(Map parameters = [:]) {
     String name = parameters.get('name', 'tools')
-    String image = parameters.get('toolsImage', 'stakater/pipeline-tools:v2.0.9')
+    String image = parameters.get('image', 'stakater/pipeline-tools:v2.0.12')
     String command = parameters.get('command', '/bin/sh -c')
     String args = parameters.get('args', 'cat')
     Boolean privileged = parameters.get('privileged', true)
