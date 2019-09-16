@@ -15,6 +15,7 @@ The releaseApplication can be used with the following parameters:
 |-----------------|-------------------------|-----------------------------------|
 | appType                | `maven`     | The type of application to be deployed e.g.`node|angular|maven|dotnet|gradle`|
 | builderImage     | `stakater/builder-angular:7.0.7-node8.16-alpine-v0.0.1`| docker image to use for the particular `appType`.|
+| toolsImage       | `stakater/pipeline-tools:v2.0.9` | docker image to use for default container. |
 | goal                   | `install;run build:stage`              | build goal for the application.|
 | notifySlack            | `false`                           | Should notify slack for pipeline results or not.|
 | runIntegrationTest     | `false`                  | Should run Integration Tests or not.|
