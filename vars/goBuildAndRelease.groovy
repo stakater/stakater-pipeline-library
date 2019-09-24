@@ -162,7 +162,7 @@ def call(body) {
                             slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
 
                             def commentMessage = "Image is available for testing. ``docker pull ${dockerImageWithTag}``"
-                            git.addCommentToPullRequest(commentMessage)
+                            git.addCommentToPullRequest(commentMessage, repoOwner)
                         }
                     }
                 }
