@@ -18,10 +18,14 @@ deploy:
   stage: deploy
   # pipeline execution script
   script:
-    - git remote set-url origin https://$USER_NAME:$GITLAB_TOKEN@${CI_PROJECT_URL:8}
-    - make $TARGET MODULE_NAMES=$MODULE_NAMES
-    - git config --global user.email $USER_MAIL
-    - git config --global user.name $USER_NAME
-    - git add .
-    - git commit -m "[skip ci] update terraform state" || true
-    - git push origin HEAD:$BRANCH || true
+    - if [ $CI_COMMIT_REF_NAME == "master" ]; then \
+    -       git remote set-url origin https://$USER_NAME:$GITLAB_TOKEN@${CI_PROJECT_URL:8}; \
+    -       make $TARGET MODULE_NAMES=$MODULE_NAMES; \
+    -       git config --global user.email $USER_MAIL; \
+    -       git config --global user.name $USER_NAME; \
+    -       git add .; \
+    -       git commit -m "[skip ci] update terraform state" || true; \
+    -       git push origin HEAD:$CI_COMMIT_REF_NAME || true; \
+    - else \
+    -       make plan MODULE_NAMES=$MODULE_NAMES; \
+    - fi
