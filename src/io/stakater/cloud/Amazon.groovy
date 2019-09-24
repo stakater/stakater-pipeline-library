@@ -41,4 +41,10 @@ def persistAwsRole(String roleArn, String credentialSource, String region){
     """
 }
 
+def configureECRCredentials(String region = "us-west-2"){
+    sh """
+        \$(aws ecr get-login --no-include-email --region ${region})
+    """
+}
+
 return this
