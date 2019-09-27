@@ -210,21 +210,6 @@ def getBranch(){
   return branch
 }
 
-def parseGoalEnvironment(goal){
-  def parsedGoal = goal
-  def branch = env.BRANCH_NAME
-
-  // In case of master branch replace any and all occurrences of #ENVIRONMENT with prod else replace them with stage
-  if (branch == 'master'){
-      parsedGoal = parsedGoal.replaceAll('#ENVIRONMENT','prod')
-  }
-  else {
-      parsedGoal = parsedGoal.replaceAll('#ENVIRONMENT','stage')
-  }
-  echo "Parsed goal from ${goal} to ${parsedGoal}"
-  return parsedGoal
-}
-
 def isCI(){
   def branch = getBranch()
   if(branch && branch.startsWith('PR-')){

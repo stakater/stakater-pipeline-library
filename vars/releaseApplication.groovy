@@ -58,8 +58,7 @@ def call(body) {
                 container(name: 'builder') {
                     try {
                         stage('Build Application') {
-                            String goal = utils.parseGoalEnvironment(baseConfig.goal)
-                            app.build(baseConfig.appType, version, goal)
+                            app.build(baseConfig.appType, version, baseConfig.goal)
                         }
 
                         if (utils.isCD()) {
