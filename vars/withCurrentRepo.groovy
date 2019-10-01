@@ -1,9 +1,10 @@
 def call(Map parameters = [:], body) {
-    withSCM { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+    withSCM { def repoUrl, def repoName, def repoOwner, def repoBranch, def repoCloneBranch ->
         print "Repo URL ${repoUrl}"
         print "Repo Name ${repoName}"
         print "Repo Branch ${repoBranch}"
         print "Repo Owner ${repoOwner}"
+        print "Current Change Branch ${repoCloneBranch}"
 
         def gitUsername = parameters.get('gitUsername', 'stakater-user')
         def gitEmail = parameters.get('gitEmail', 'stakater@gmail.com')
@@ -34,14 +35,14 @@ def call(Map parameters = [:], body) {
         git.setUserInfo(gitUsername, gitEmail)
 
         if(cloneUsingToken){
-            git.checkoutRepoUsingToken(gitUsername, tokenSecretName, repoUrl, repoBranch, workspaceDir)
+            git.checkoutRepoUsingToken(gitUsername, tokenSecretName, repoUrl, repoCloneBranch, workspaceDir)
         } else {
             git.addHostsToKnownHosts()
-            git.checkoutRepo(repoUrl, repoBranch, workspaceDir)
+            git.checkoutRepo(repoUrl, repoCloneBranch, workspaceDir)
         }
 
         ws(workspaceDir) {
-            body(repoUrl, repoName, repoOwner, repoBranch)            
+            body(repoUrl, repoName, repoOwner, repoCloneBranch)            
         }
     }
 }

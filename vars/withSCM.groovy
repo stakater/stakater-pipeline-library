@@ -66,6 +66,6 @@ def call(body) {
              "REPO_OWNER=${repoOwner}",
              "REPO_CLONE_BRANCH=${repoCloneBranch}",
              "REPO_BRANCH=${repoBranch}"]) {
-        body(repoUrl, repoName, repoOwner, repoBranch)
+        body(repoUrl, repoName, repoOwner, repoBranch, repoCloneBranch)
     }
 }
