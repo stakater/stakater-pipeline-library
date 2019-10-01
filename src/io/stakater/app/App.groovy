@@ -77,24 +77,40 @@ def createAndPushTag(Boolean cloneUsingToken, String gitDir, String version) {
     }
 }
 
+def parseGoalEnvironment(String goal){
+    String parsedGoal = goal
+    String branch = env.BRANCH_NAME
+
+    // In case of master branch replace any and all occurrences of #ENVIRONMENT with prod else replace them with stage
+    if (branch == 'master'){
+        parsedGoal = parsedGoal.replaceAll('#ENVIRONMENT','prod')
+    }
+    else {
+        parsedGoal = parsedGoal.replaceAll('#ENVIRONMENT','stage')
+    }
+    echo "Parsed goal from ${goal} to ${parsedGoal}"
+    return parsedGoal
+}
+
 def build(String appType, String version, String goal) {
     def builder = new io.stakater.builder.Build()
+    String parsedGoal = parseGoalEnvironment(goal)
 
     switch(appType) {
         case "angular":
-            builder.buildAngularApplication(version, goal)
+            builder.buildAngularApplication(version, parsedGoal)
         break
         case "gradle":
-            builder.buildGradleApplication(version, goal)
+            builder.buildGradleApplication(version, parsedGoal)
         break
         case "maven":
-            builder.buildMavenApplication(version, goal)
+            builder.buildMavenApplication(version, parsedGoal)
         break
         case "node":
-            builder.buildNodeApplication(version, goal)
+            builder.buildNodeApplication(version, parsedGoal)
         break
         case "dotnet":
-            builder.buildDotnetApplication(version, goal)
+            builder.buildDotnetApplication(version, parsedGoal)
         break
     }
 }

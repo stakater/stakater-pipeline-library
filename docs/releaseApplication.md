@@ -23,7 +23,20 @@ The releaseApplication can be used with the following parameters:
 | usePersonalAccessToken | `false`                  | Use personal access token or not.|
 | tokenCredentialID      | `""`                     | Name for the personal access token. |
 | serviceAccount         | `jenkins`                | Service account to be used for k8s. |
+| isEcr                  | `false`     | Enable Configurations for Amazon ECR Elastic Container Registery (Uses credentials through assigned role) |
+| ecrRegion            | `us-west-1` | Region in which ECR is located (only if isEcr is true) | 
 | dockerRepositoryURL    | `""`                     | Docker URL to push docker images. |
-| chartRepositoryURL     | `""`                     | URL to push helm charts. 
-| javaRepositoryURL      | `""` | Nexus Repository to push artifacts.
-| artifactType           | `.jar`                         | Suffix to add to the artifiact name when pushing to `javaRepositoryURL`
+| chartRepositoryURL     | `""`                     | URL to push helm charts. |
+| javaRepositoryURL      | `""` | Nexus Repository to push artifacts.|
+| artifactType           | `.jar`                         | Suffix to add to the artifiact name when pushing to `javaRepositoryURL`|
+
+Passing "#ENVIRONMENT" in goals would dynamically replace it with prod if the branch against which release application 
+was called is master, else it will replace it with stage.
+For example,
+
+`releaseApplication {
+   ...
+    goal = "install;run build:#ENVIRONMENT"
+   ...
+}`
+this will run goal install;run build:prod if the branch was master and install;run build:stage in other cases.
