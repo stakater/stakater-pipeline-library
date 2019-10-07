@@ -1,0 +1,23 @@
+# pipeline base image
+image:
+  name: stakater/builder-tool:terraform-0.11.11-v0.0.13
+
+
+# Configuring CI/CD environment variables
+variables:
+  TARGET: "plan-infra"  # Valid targets are given in the Makefile  
+  USER_MAIL: "stakater@gmail.com"
+  USER_NAME: "stakater-user"
+  INFRA_TYPE: "site"
+
+stages:
+  - deploy
+deploy:
+  stage: deploy
+  script:
+    - if [ $CI_COMMIT_REF_NAME == "master" ]; then \
+    -       git remote set-url origin https://$USER_NAME:$GITLAB_TOKEN@${CI_PROJECT_URL:8}; \
+    -       make $TARGET BRANCH=$CI_COMMIT_REF_NAME; \
+    - else \
+    -       make plan INFRA_TYPE=$INFRA_TYPE; \
+    - fi
