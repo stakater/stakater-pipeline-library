@@ -6,7 +6,7 @@ def call(body) {
     body.delegate = config
     body()
 
-    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.14.1'
+    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:v2.0.13'
 
     toolsNode(toolsImage: toolsImage) {
         container(name: 'tools') {
@@ -55,6 +55,7 @@ def call(body) {
                         fullAppNameWithVersion = imageName + '-'+ version
                         echo "Full App name: ${fullAppNameWithVersion}"
                     }
+
                     stage('Download Dependencies') {
                         sh """
                             cd ${goProjectDir}
@@ -69,6 +70,7 @@ def call(body) {
                             make test
                         """
                     }
+                    
                     if (utils.isCI()) {
                         stage('CI: Publish Dev Image') {
                             def builder = "${dockerRepositoryURL}/${dockerImage}:${version}"

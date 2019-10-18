@@ -6,7 +6,7 @@ def call(body) {
     body.delegate = config
     body()
 
-    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:1.14.1'
+    toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:v2.0.13'
 
     toolsNode(toolsImage: toolsImage) {
         container(name: 'tools') {
@@ -87,7 +87,7 @@ def call(body) {
                             slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
 
                             def commentMessage = "Image is available for testing. ``docker pull ${dockerImageWithTag}``"
-                            git.addCommentToPullRequest(commentMessage)
+                            git.addCommentToPullRequest(commentMessage, repoOwner)
                             sh """
                                 stk notify jira --comment "${commentMessage}"
                             """
@@ -95,12 +95,12 @@ def call(body) {
                     } else if (utils.isCD()) {
                         stage('CD: Tag and Push') {
                             print "Generating New Version"
-                            def versionFile = ".version"
+                            def versionFile = ".VERSION"
 
                             print "Pushing Tag ${version} to DockerHub"
 
                             sh """
-                                echo "${version}" > ${versionFile}
+                                echo "version: ${version}" > ${versionFile}
                                 cd ${goProjectDir}
                                 export DOCKER_TAG=${version}
                                 make binary-image
@@ -164,7 +164,7 @@ def call(body) {
                             slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField(dockerImageWithTag)])
 
                             def commentMessage = "Image is available for testing. ``docker pull ${dockerImageWithTag}``"
-                            git.addCommentToPullRequest(commentMessage)
+                            git.addCommentToPullRequest(commentMessage, repoOwner)
                         }
                     }
                 }
@@ -172,7 +172,7 @@ def call(body) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
 
                     def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
-                    git.addCommentToPullRequest(commentMessage)
+                    git.addCommentToPullRequest(commentMessage, repoOwner)
                     sh """
                         stk notify jira --comment "${commentMessage}"
                     """
