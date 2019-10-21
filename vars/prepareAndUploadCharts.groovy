@@ -46,6 +46,7 @@ def call(body) {
                         chartRepositoryURL = config.chartRepositoryURL
                         publicChartRepositoryURL = config.publicChartRepositoryURL
                         publicChartGitURL = config.publicChartGitURL
+                        repositoryOwner = repoOwner
                     }
                     echo "Removing packaged chart"
                     sh """
@@ -74,7 +75,7 @@ def call(body) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
             
                     def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
-                    git.addCommentToPullRequest(commentMessage)
+                    git.addCommentToPullRequest(commentMessage, repoOwner)
 
                     throw e
                 }
