@@ -20,6 +20,7 @@ def call(body) {
 
     def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
     def chartName = config.chartName
+    def repoOwner = config.repositoryOwner
     def packageName
 
     if(chartName == '') {
@@ -61,7 +62,7 @@ def call(body) {
         slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
                 
         def commentMessage = "[Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
-        git.addCommentToPullRequest(commentMessage)
+        git.addCommentToPullRequest(commentMessage, repoOwner)
 
         throw e
     }
@@ -78,6 +79,6 @@ def call(body) {
 
         slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createField("ChartMuseum", message, false)])
 
-        git.addCommentToPullRequest(message)
+        git.addCommentToPullRequest(message, repoOwner)
     }
 }
