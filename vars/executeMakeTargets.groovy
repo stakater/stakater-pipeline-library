@@ -3,7 +3,7 @@
 
 def call(body) {
     Map config = [:]
-    String[] methodParameters = ["target", "notifySlack", "image"]
+    String[] methodParameters = config.requiredParams
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = config
     body()
@@ -27,7 +27,7 @@ def call(body) {
 
                             ArrayList<String> parameters = new ArrayList<String>()
                                 config.keySet().each { key ->
-                                    if (! (key in methodParameters)) {
+                                    if ((key in methodParameters)) {
                                         parameters.add("$key=${config[key]}")
                                     }
                             }
