@@ -32,6 +32,7 @@ def call(body) {
                             config["notifySlack"] = true
                             print config
                             print "bbbbbbbbbbbbbbbbbbbbbbb"
+                            print notificationConfig
                             sh "ls -al"
                             sh "make non-master"
                         }
