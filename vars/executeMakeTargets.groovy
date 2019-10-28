@@ -35,13 +35,14 @@ def call(body) {
 
                 container(name: 'tools') {
                     try {
-                        echo "Image NAME: ${baseConfig.imageName}"
-                        echo "Repo Owner: ${baseConfig.repoOwner}"
+                        // echo "Image NAME: ${baseConfig.imageName}"
+                        // echo "Repo Owner: ${baseConfig.repoOwner}"
 
                         stage('Create Version') {
-                            dockerImage = "${packageConfig.dockerRepositoryURL}/${baseConfig.repoOwner.toLowerCase()}/${baseConfig.imageName}"
-                            version = app.getImageVersion(repoUrl, baseConfig.imagePrefix, repoBranch, "${env.BUILD_NUMBER}")
-                            echo "Version: ${version}"
+                            // dockerImage = "${packageConfig.dockerRepositoryURL}/${baseConfig.repoOwner.toLowerCase()}/${baseConfig.imageName}"
+                            // version = app.getImageVersion(repoUrl, baseConfig.imagePrefix, repoBranch, "${env.BUILD_NUMBER}")
+                            // echo "Version: ${version}"
+                            sh "make ${config.target} ${parameters.join(" ")}"
                         }
                     }
                     catch (e) {
