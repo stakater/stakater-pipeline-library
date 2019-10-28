@@ -3,7 +3,7 @@
 
 def call(body) {
     Map config = [:]
-    String[] methodParameters = ["target"]
+    String[] methodParameters = ["target", "notifySlack", "image"]
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = config
     body()
@@ -11,7 +11,7 @@ def call(body) {
     def app = new io.stakater.app.App()
     config = app.configure(config)
     timestamps {
-        toolsNode(toolsImage: 'stakater/builder-tool:terraform-0.11.11-v0.0.13') {
+        toolsNode(toolsImage: config.image) {
             withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
                 checkout scm
 
@@ -19,15 +19,19 @@ def call(body) {
                 Map notificationConfig = appConfig.getNotificationConfig(config)
                 Map gitConfig = appConfig.getGitConfig(config)
 
-
                 def notificationManager = new io.stakater.notifications.NotificationManager()
-
-
 
                 container(name: 'tools') {
                     try {
-                        stage('Create Version') {
-                            sh "make ${config.target}"
+                        stage('run') {
+
+                            ArrayList<String> parameters = new ArrayList<String>()
+                                config.keySet().each { key ->
+                                    if (! (key in methodParameters)) {
+                                        parameters.add("$key=${config[key]}")
+                                    }
+                            }
+                            sh "make ${config.target} ${parameters.join(" ")}"
                         }
                     }
                     catch (e) {
@@ -38,12 +42,8 @@ def call(body) {
                     }
                 }
     }
-    
-
-
 
     // config.target = config.target ? config.target : "install-dry-run"
-
     // timestamps {
     //     ArrayList<String> parameters = new ArrayList<String>()
     //     config.keySet().each { key ->
