@@ -12,8 +12,8 @@ def call(body) {
     config = app.configure(config)
     timestamps {
         toolsNode(toolsImage: 'stakater/builder-tool:terraform-0.11.11-v0.0.13') {
-            // withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
-                // checkout scm
+            withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
+                checkout scm
 
                 def appConfig = new io.stakater.app.AppConfig()
                 Map notificationConfig = appConfig.getNotificationConfig(config)
@@ -25,23 +25,22 @@ def call(body) {
 
                 container(name: 'tools') {
                     try {
-                        // echo "Image NAME: ${baseConfig.imageName}"
-                        // echo "Repo Owner: ${baseConfig.repoOwner}"
-
                         stage('Create Version') {
-                            // dockerImage = "${packageConfig.dockerRepositoryURL}/${baseConfig.repoOwner.toLowerCase()}/${baseConfig.imageName}"
-                            // version = app.getImageVersion(repoUrl, baseConfig.imagePrefix, repoBranch, "${env.BUILD_NUMBER}")
-                            // echo "Version: ${version}"
-                            ls -al
-                            sh "make ${config.target} ${parameters.join(" ")}"
+                            print "aaaaaaaaaaaaaaaaaaaaaaa"
+                            print config
+                            print "bbbbbbbbbbbbbbbbbbbbbbb"
+                            sh "ls -al"
+                            sh "make non-master"
                         }
                     }
                     catch (e) {
+                        
                         print "caught exception during build phase"
+                        print e
                         buildException = e
                     }
                 }
-    // }
+    }
     
 
 
