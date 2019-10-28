@@ -16,21 +16,11 @@ def call(body) {
                 // checkout scm
 
                 def appConfig = new io.stakater.app.AppConfig()
-                Map packageConfig = appConfig.getPackageConfig(config)
-                Map deploymentConfig = appConfig.getDeploymentConfig(config)
-                Map gitConfig = appConfig.getGitConfig(config)
                 Map notificationConfig = appConfig.getNotificationConfig(config)
-                Map baseConfig = appConfig.getBaseConfig(config, repoName, repoOwner, WORKSPACE)
-                Map ecrConfig = appConfig.getEcrConfig(config)
 
-                def docker = new io.stakater.containers.Docker()
-                def stakaterCommands = new io.stakater.StakaterCommands()
-                def git = new io.stakater.vc.Git()
-                def utils = new io.fabric8.Utils()
-                def chartManager = new io.stakater.charts.ChartManager()
+
                 def notificationManager = new io.stakater.notifications.NotificationManager()
-                def nexus = new io.stakater.repository.Nexus()
-                def aws = new io.stakater.cloud.Amazon()
+
 
 
                 container(name: 'tools') {
