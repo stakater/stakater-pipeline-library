@@ -17,6 +17,7 @@ def call(body) {
 
                 def appConfig = new io.stakater.app.AppConfig()
                 Map notificationConfig = appConfig.getNotificationConfig(config)
+                Map gitConfig = appConfig.getGitConfig(config)
 
 
                 def notificationManager = new io.stakater.notifications.NotificationManager()
@@ -38,6 +39,7 @@ def call(body) {
                         print "caught exception during build phase"
                         print e
                         buildException = e
+                        notificationManager.sendError(notificationConfig, gitConfig, "${env.BUILD_NUMBER}", "${env.BUILD_URL}", repoBranch, e)
                     }
                 }
     }
