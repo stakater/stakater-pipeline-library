@@ -27,20 +27,12 @@ def call(body) {
                 container(name: 'tools') {
                     try {
                         stage('Create Version') {
-                            print "aaaaaaaaaaaaaaaaaaaaaaa"
-                            print config
-                            config["notifySlack"] = true
-                            print config
-                            print "bbbbbbbbbbbbbbbbbbbbbbb"
-                            print notificationConfig
-                            sh "ls -al"
-                            sh "make non-master"
+                            sh "make ${config.target}"
                         }
                     }
                     catch (e) {
                         
                         print "caught exception during build phase"
-                        print e
                         buildException = e
                         notificationManager.sendError(notificationConfig, gitConfig, "${env.BUILD_NUMBER}", "${env.BUILD_URL}", repoBranch, e)
                     }
