@@ -29,6 +29,8 @@ def call(body) {
                         stage('Create Version') {
                             print "aaaaaaaaaaaaaaaaaaaaaaa"
                             print config
+                            config["notifySlack"] = true
+                            print config
                             print "bbbbbbbbbbbbbbbbbbbbbbb"
                             sh "ls -al"
                             sh "make non-master"
