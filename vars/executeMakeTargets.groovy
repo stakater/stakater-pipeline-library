@@ -12,8 +12,8 @@ def call(body) {
     config = app.configure(config)
     timestamps {
         toolsNode(toolsImage: 'stakater/builder-tool:terraform-0.11.11-v0.0.13') {
-            withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
-                checkout scm
+            // withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
+                // checkout scm
 
                 def appConfig = new io.stakater.app.AppConfig()
                 Map packageConfig = appConfig.getPackageConfig(config)
@@ -42,6 +42,7 @@ def call(body) {
                             // dockerImage = "${packageConfig.dockerRepositoryURL}/${baseConfig.repoOwner.toLowerCase()}/${baseConfig.imageName}"
                             // version = app.getImageVersion(repoUrl, baseConfig.imagePrefix, repoBranch, "${env.BUILD_NUMBER}")
                             // echo "Version: ${version}"
+                            ls -al
                             sh "make ${config.target} ${parameters.join(" ")}"
                         }
                     }
@@ -50,7 +51,7 @@ def call(body) {
                         buildException = e
                     }
                 }
-    }
+    // }
     
 
 
