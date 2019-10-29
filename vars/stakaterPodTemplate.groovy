@@ -107,6 +107,9 @@ def getStakaterPodVolumes(Map parameters = [:]) {
         volumes.add(secretVolume(secretName: 'jenkins-maven-settings', mountPath: '/root/.m2'))
     }
 
+    volumes.add(secretVolume(secretName: 'credentials', mountPath: '/home/jenkins/.aws/'))
+    volumes.add(secretVolume(secretName: 'config', mountPath: '/home/jenkins/.aws/'))
+
     if (isMavenLocalRepo) {
         volumes.add(persistentVolumeClaim(claimName: 'jenkins-mvn-local-repo', mountPath: '/root/.mvnrepository'))
     }
