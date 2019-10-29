@@ -23,6 +23,12 @@ def call(body) {
                 container(name: 'tools') {
                     try {
                         stage('run') {
+                            print "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                            Map parameters = [:]
+                            x = stakaterPodTemplate.getStakaterPodVolumes(parameters)
+                            print(parameters)
+                            print(x)
+                            print "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
                             ArrayList<String> parameters = new ArrayList<String>()
                                 config.keySet().each { key ->
                                     if ((key in methodParameters)) {
