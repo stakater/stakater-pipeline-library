@@ -25,7 +25,7 @@ def call(body) {
                         stage('run') {
                             print "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                             Map p = [:]
-                            x = stakaterPodTemplate.getStakaterPodVolumes(p)
+                            x = stakaterPodTemplate.getStakaterPodEnvVars(p)
                             print(p)
                             print(x)
                             print "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
