@@ -58,6 +58,9 @@ def getStakaterPodEnvVars(Map parameters = [:]) {
     def additionalEnvVars = parameters.get('additionalEnvVars', [])
     def additionalSecretEnvVars = parameters.get('additionalSecretEnvVars', [])
 
+    envVars.add(secretEnvVar(key: 'AWS_ACCESS_KEY_ID', secretName: 's3-secret', secretKey: 'AWS_ACCESS_KEY_ID'))
+    envVars.add(secretEnvVar(key: 'AWS_SECRET_ACCESS_KEY', secretName: 's3-secret', secretKey: 'AWS_SECRET_ACCESS_KEY'))
+
     if (isChartMuseum) {
         envVars.add(secretEnvVar(key: 'CHARTMUSEUM_USERNAME', secretName: 'chartmuseum-auth', secretKey: 'username'))
         envVars.add(secretEnvVar(key: 'CHARTMUSEUM_PASSWORD', secretName: 'chartmuseum-auth', secretKey: 'password'))
@@ -106,9 +109,6 @@ def getStakaterPodVolumes(Map parameters = [:]) {
     if (isMaven) {
         volumes.add(secretVolume(secretName: 'jenkins-maven-settings', mountPath: '/root/.m2'))
     }
-
-    volumes.add(secretVolume(secretName: 'credentials', mountPath: '/home/jenkins/.aws/'))
-    volumes.add(secretVolume(secretName: 'config', mountPath: '/home/jenkins/.aws/'))
 
     if (isMavenLocalRepo) {
         volumes.add(persistentVolumeClaim(claimName: 'jenkins-mvn-local-repo', mountPath: '/root/.mvnrepository'))
