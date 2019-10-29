@@ -24,9 +24,9 @@ def call(body) {
                     try {
                         stage('run') {
                             print "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-                            Map parameters = [:]
-                            x = stakaterPodTemplate.getStakaterPodVolumes(parameters)
-                            print(parameters)
+                            Map p = [:]
+                            x = stakaterPodTemplate.getStakaterPodVolumes(p)
+                            print(p)
                             print(x)
                             print "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
                             ArrayList<String> parameters = new ArrayList<String>()
