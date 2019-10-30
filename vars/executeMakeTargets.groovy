@@ -12,7 +12,7 @@ def call(body) {
     def app = new io.stakater.app.App()
     config = app.configure(config)
     timestamps {
-        stakaterNode(config) {
+        toolsNode(toolsImage: config.image) {
             withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
                 checkout scm
                 
@@ -31,10 +31,9 @@ def call(body) {
                                     }
                             }
                             sh "make ${config.target} ${parameters.join(" ")}"
-                            sh "echo KEYID: \$AWS_ACCESS_KEY_ID \n  SECRET KEY: \$AWS_SECRET_ACCESS_KEY"
-                            // withAWS(credentials:'aws-credentials', region: 'eu-west-1') {
-                            //     s3Upload(file:'file.txt', bucket:'cypress-test-bucket', path:'path/to/target/file.txt')
-                            // }
+                            withAWS(credentials:'aws-credentials', region: 'eu-west-1') {
+                                s3Upload(file:'file.txt', bucket:'cypress-test-bucket', path:'path/to/target/file.txt')
+                            }
                         }
                     }
                     catch (e) {
