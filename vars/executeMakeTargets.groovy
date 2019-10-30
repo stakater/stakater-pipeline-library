@@ -31,13 +31,13 @@ def call(body) {
                             }
                             sh "make ${config.target} ${parameters.join(" ")}"
                             withAWS(credentials:'aws-credentials', region: 'eu-west-1') {
-                                s3Upload(file:'tests_results.tar.gz', bucket:'cypress-test-bucket')
+                                s3Upload(file:config.BACKUP_NAME, bucket:config.S3_BUCKET_NAME)
                             }
+
                         }
                     }
                     catch (e) {
                         print "caught exception during build phase"
-                        print e
                         notificationManager.sendError(notificationConfig, gitConfig, "${env.BUILD_NUMBER}", "${env.BUILD_URL}", repoBranch, e)
                     }
                 }
