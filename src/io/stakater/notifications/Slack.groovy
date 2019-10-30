@@ -32,16 +32,27 @@ def createDefaultAttachment(fields, String branchName) {
     if(branchName == null) {
         branchName = env.BRANCH_NAME
     }
-    fields << createBranchField(branchName)
+    def attachment = null
 
-    attachment = createAttachment(
-        "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
-        env.BUILD_URL,
-        git.getGitAuthor(),
-        "",
-        fields
-    )
+    if (fields == null) {
+        attachment = createAttachment(
+            "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
+            env.BUILD_URL,
+            git.getGitAuthor(),
+            "",
+            null
+        )
+    } else {
+        fields << createBranchField(branchName)
 
+        attachment = createAttachment(
+            "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
+            env.BUILD_URL,
+            git.getGitAuthor(),
+            "",
+            fields
+        )
+    }
     return attachment
 }
 
