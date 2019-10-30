@@ -37,7 +37,7 @@ def sendSuccess(Map notificationConfig, Map gitConfig, String dockerImage, Strin
     }
 }
 
-def sendSuccess(Map notificationConfig, Map gitConfig, String commentMessage){
+def sendSuccess(Map notificationConfig, Map gitConfig, String commentMessage, repoBranch){
     def slack = new io.stakater.notifications.Slack()
 
     if (notificationConfig.notifySlack) {

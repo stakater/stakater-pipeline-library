@@ -33,7 +33,7 @@ def call(body) {
                             withAWS(credentials:'aws-credentials', region: 'eu-west-1') {
                                 s3Upload(file:config.BACKUP_NAME, bucket:config.S3_BUCKET_NAME)
                             }
-                            notificationManager.sendSuccess(notificationConfig, gitConfig, "Tests has been passed")
+                            notificationManager.sendSuccess(notificationConfig, gitConfig, "Tests has been passed", repoBranch)
                         }
                     }
                     catch (e) {
