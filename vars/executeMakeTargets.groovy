@@ -31,7 +31,7 @@ def call(body) {
                             }
                             sh "make ${config.target} ${parameters.join(" ")}"
                             withAWS(credentials:'aws-credentials', region: 'eu-west-1') {
-                                s3Upload(file:'home/jenkins/workspace/tests_results.tar.gz', bucket:'cypress-test-bucket', path:'home/jenkins/workspace/')
+                                s3Upload(file:'tests_results.tar.gz', bucket:'cypress-test-bucket', path:'home/jenkins/workspace/')
                             }
                         }
                     }
