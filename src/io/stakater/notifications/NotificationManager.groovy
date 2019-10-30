@@ -41,7 +41,7 @@ def sendSuccess(Map notificationConfig, Map gitConfig, String commentMessage){
     def slack = new io.stakater.notifications.Slack()
 
     if (notificationConfig.notifySlack) {
-        slack.sendDefaultSuccessNotification(notificationConfig.slackWebHookURL, notificationConfig.slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")], repoBranch)
+        slack.sendDefaultSuccessNotification(notificationConfig.slackWebHookURL, notificationConfig.slackChannel, repoBranch)
     }
 
     def git = new io.stakater.vc.Git()

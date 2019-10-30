@@ -59,6 +59,10 @@ def sendDefaultFailureNotification(String webhookURL, String channel, fields, St
     sendFailureNotification(webhookURL, "", channel, [attachment])
 }
 
+def sendDefaultSuccessNotification(String webhookURL, String channel, String branchName) {
+    sendDefaultSuccessNotification(webhookURL, channel, null, branchName)
+}
+
 def sendDefaultSuccessNotification(String webhookURL, String channel, fields) {
     sendDefaultSuccessNotification(webhookURL, channel, fields, null)
 }
