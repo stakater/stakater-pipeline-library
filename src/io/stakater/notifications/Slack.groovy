@@ -32,28 +32,37 @@ def createDefaultAttachment(fields, String branchName) {
     if(branchName == null) {
         branchName = env.BRANCH_NAME
     }
-    def attachment = null
+    fields << createBranchField(branchName)
 
-    if (fields == null) {
-        attachment = createAttachment(
-            "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
-            env.BUILD_URL,
-            git.getGitAuthor(),
-            ""
-        )
-    } else {
-        fields << createBranchField(branchName)
+    attachment = createAttachment(
+        "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
+        env.BUILD_URL,
+        git.getGitAuthor(),
+        "",
+        fields
+    )
 
-        attachment = createAttachment(
-            "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
-            env.BUILD_URL,
-            git.getGitAuthor(),
-            "",
-            fields
-        )
-    }
     return attachment
 }
+
+def createDefaultAttachment(String branchName) {
+    def git = new io.stakater.vc.Git()
+    // Add Branch field
+    if(branchName == null) {
+        branchName = env.BRANCH_NAME
+    }
+
+    attachment = createAttachment(
+        "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
+        env.BUILD_URL,
+        git.getGitAuthor(),
+        "",
+        null
+    )
+
+    return attachment
+}
+
 
 def createDefaultAttachment(fields) {
     createDefaultAttachment(fields, null)
@@ -77,7 +86,12 @@ def sendDefaultSuccessNotification(String webhookURL, String channel, fields) {
 }
 
 def sendDefaultSuccessNotification(String webhookURL, String channel, fields, String branchName) {
-    def attachment = createDefaultAttachment(fields, branchName)
+    def attachment = null
+    if (fields != null) {
+        attachment = createDefaultAttachment(fields, branchName)
+    } else {
+        attachment = createDefaultAttachment(branchName)
+    }
     sendSuccessNotification(webhookURL, "", channel, [attachment])
 }
 
