@@ -2,6 +2,7 @@
 //execute make target
 
 def call(body) {
+    def env = System.getenv()
     Map config = [:]
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = config
@@ -23,12 +24,6 @@ def call(body) {
                 container(name: 'tools') {
                     try {
                         stage('run') {
-                            print "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-                            Map p = [:]
-                            x = stakaterPodTemplate.getStakaterPodEnvVars(p)
-                            print(p)
-                            print(x)
-                            print "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
                             ArrayList<String> parameters = new ArrayList<String>()
                                 config.keySet().each { key ->
                                     if ((key in methodParameters)) {
@@ -36,6 +31,9 @@ def call(body) {
                                     }
                             }
                             sh "make ${config.target} ${parameters.join(" ")}"
+                            withAWS(credentials:'aws-credentials') {
+                                s3Upload(file:'file.txt', bucket:'cypress-test-bucket', path:'path/to/target/file.txt')
+                            }
                         }
                     }
                     catch (e) {
