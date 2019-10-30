@@ -2,7 +2,6 @@
 //execute make target
 
 def call(body) {
-    def env = System.getenv()
     Map config = [:]
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = config
