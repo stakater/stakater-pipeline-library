@@ -37,4 +37,20 @@ def sendSuccess(Map notificationConfig, Map gitConfig, String dockerImage, Strin
     }
 }
 
+def sendSuccess(Map notificationConfig, Map gitConfig, String commentMessage){
+    def slack = new io.stakater.notifications.Slack()
+
+    if (notificationConfig.notifySlack) {
+        slack.sendDefaultSuccessNotification(notificationConfig.slackWebHookURL, notificationConfig.slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")], repoBranch)
+    }
+
+    def git = new io.stakater.vc.Git()
+
+    if(gitConfig.cloneUsingToken){
+        git.addCommentToPullRequest(commentMessage, gitConfig.tokenSecret, gitConfig.user)
+    } else {
+        git.addCommentToPullRequest(commentMessage, gitConfig.user)
+    }
+}
+
 return this
