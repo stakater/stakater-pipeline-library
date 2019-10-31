@@ -31,7 +31,11 @@ def call(body) {
                             }
                             sh "make ${config.target} ${parameters.join(" ")}"
                             
-                            aws.pushFileToS3(config, pushToS3=config.pushToS3)
+                            if (config.pushToS3) { 
+                                withAWS(credentials: 'aws-credentials', region: "eu-west-1") {
+                                    s3Upload(file: config.BACKUP_NAME, bucket: config.S3_BUCKET_NAME)
+                                }
+                            }
                             
                             notificationManager.sendSuccess(notificationConfig, gitConfig, "Tests have been passed!", repoBranch)
                         }
