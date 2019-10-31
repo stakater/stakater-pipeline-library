@@ -31,7 +31,7 @@ def call(body) {
                             }
                             sh "make ${config.target} ${parameters.join(" ")}"
                             
-                            aws.pushFileToS3(config, pushToS3=config.PUSH_TO_S3)
+                            aws.pushFileToS3(config, pushToS3=config.pushToS3)
                             
                             notificationManager.sendSuccess(notificationConfig, gitConfig, "Tests have been passed!", repoBranch)
                         }
