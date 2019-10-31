@@ -42,28 +42,8 @@ def createDefaultAttachment(fields, String branchName) {
         "",
         fields
     )
-    
     return attachment
 }
-
-def createDefaultAttachment(String branchName) {
-    def git = new io.stakater.vc.Git()
-    // Add Branch field
-    if(branchName == null) {
-        branchName = env.BRANCH_NAME
-    }
-
-    attachment = createAttachment(
-        "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
-        env.BUILD_URL,
-        git.getGitAuthor(),
-        "",
-        null
-    )
-
-    return attachment
-}
-
 
 def createDefaultAttachment(fields) {
     createDefaultAttachment(fields, null)
