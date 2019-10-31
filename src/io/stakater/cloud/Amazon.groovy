@@ -47,4 +47,12 @@ def configureECRCredentials(String region = "us-west-2"){
     """
 }
 
+def pushFileToS3(config, Boolean pushToS3 = false, String awsRegion = "eu-west-1", String s3Credentials = 'aws-credentials') {
+    if (pushToS3) { 
+        withAWS(credentials: s3Credentials, region: awsRegion) {
+            s3Upload(file: config.BACKUP_NAME, bucket: config.S3_BUCKET_NAME)
+        }
+    }
+}
+
 return this
