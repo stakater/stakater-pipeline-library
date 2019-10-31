@@ -32,7 +32,7 @@ def createDefaultAttachment(fields, String branchName) {
     if(branchName == null) {
         branchName = env.BRANCH_NAME
     }
-
+    
     fields << createBranchField(branchName)
 
     def attachment = createAttachment(
@@ -42,7 +42,6 @@ def createDefaultAttachment(fields, String branchName) {
         "",
         fields
     )
-
     return attachment
 }
 
@@ -59,12 +58,21 @@ def sendDefaultFailureNotification(String webhookURL, String channel, fields, St
     sendFailureNotification(webhookURL, "", channel, [attachment])
 }
 
+def sendDefaultSuccessNotification(String webhookURL, String channel, String branchName) {
+    sendDefaultSuccessNotification(webhookURL, channel, [], branchName)
+}
+
 def sendDefaultSuccessNotification(String webhookURL, String channel, fields) {
     sendDefaultSuccessNotification(webhookURL, channel, fields, null)
 }
 
 def sendDefaultSuccessNotification(String webhookURL, String channel, fields, String branchName) {
-    def attachment = createDefaultAttachment(fields, branchName)
+    def attachment = null
+    if (fields != null) {
+        attachment = createDefaultAttachment(fields, branchName)
+    } else {
+        attachment = createDefaultAttachment(branchName)
+    }
     sendSuccessNotification(webhookURL, "", channel, [attachment])
 }
 
