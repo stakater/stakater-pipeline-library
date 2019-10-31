@@ -32,27 +32,17 @@ def createDefaultAttachment(fields, String branchName) {
     if(branchName == null) {
         branchName = env.BRANCH_NAME
     }
-    def attachment = null
+    
+    fields << createBranchField(branchName)
 
-    if (fields == null) {
-        attachment = createAttachment(
-            "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
-            env.BUILD_URL,
-            git.getGitAuthor(),
-            "",
-            null
-        )
-    } else {
-        fields << createBranchField(branchName)
-
-        attachment = createAttachment(
-            "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
-            env.BUILD_URL,
-            git.getGitAuthor(),
-            "",
-            fields
-        )
-    }
+    def attachment = createAttachment(
+        "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
+        env.BUILD_URL,
+        git.getGitAuthor(),
+        "",
+        fields
+    )
+    
     return attachment
 }
 
@@ -89,7 +79,7 @@ def sendDefaultFailureNotification(String webhookURL, String channel, fields, St
 }
 
 def sendDefaultSuccessNotification(String webhookURL, String channel, String branchName) {
-    sendDefaultSuccessNotification(webhookURL, channel, null, branchName)
+    sendDefaultSuccessNotification(webhookURL, channel, [], branchName)
 }
 
 def sendDefaultSuccessNotification(String webhookURL, String channel, fields) {
