@@ -19,7 +19,7 @@ def call(body) {
                 Map notificationConfig = appConfig.getNotificationConfig(config)
                 Map gitConfig = appConfig.getGitConfig(config)
                 def notificationManager = new io.stakater.notifications.NotificationManager()
-                
+                def aws = new io.stakater.cloud.Amazon()
                 container(name: 'tools') {
                     try {
                         stage('run') {
@@ -31,7 +31,7 @@ def call(body) {
                             }
                             sh "make ${config.target} ${parameters.join(" ")}"
                             
-                            pushFileToS3(config, pushToS3=config.PUSH_TO_S3)
+                            aws.pushFileToS3(config, pushToS3=config.PUSH_TO_S3)
                             
                             notificationManager.sendSuccess(notificationConfig, gitConfig, "Tests have been passed!", repoBranch)
                         }
