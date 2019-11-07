@@ -16,7 +16,7 @@ def call(Map parameters = [:], body) {
         }
     }
     else {
-        toolsTemplate(parameters) {
+        minimalToolsTemplate(parameters) {
             node(label) {
                 body()
             }
