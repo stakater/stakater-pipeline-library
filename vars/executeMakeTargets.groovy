@@ -42,7 +42,7 @@ def call(body) {
                     }
                     catch (e) {
                         print "caught exception during build phase"
-                        print e
+                        throw e
                         notificationManager.sendError(notificationConfig, gitConfig, "${env.BUILD_NUMBER}", "${env.BUILD_URL}", repoBranch, e)
                     }
                 }
