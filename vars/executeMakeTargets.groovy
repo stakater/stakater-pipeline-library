@@ -11,7 +11,7 @@ def call(body) {
     def app = new io.stakater.app.App()
     config = app.configure(config)
     timestamps {
-        toolsNode(toolsImage: config.image) {
+        minimalToolsNode(toolsImage: config.image) {
             withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
                 checkout scm
                 
