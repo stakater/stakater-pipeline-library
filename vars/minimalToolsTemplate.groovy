@@ -52,7 +52,7 @@ def call(Map parameters = [:], body) {
                     persistentVolumeClaim(claimName: 'jenkins-mvn-local-repo', mountPath: '/root/.mvnrepository'),
                     secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/jenkins/.docker'),
                     // secretVolume(secretName: 'jenkins-git-ssh', mountPath: '/root/.ssh-git'),
-                    // secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
+                    secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
                     // secretVolume(secretName: 'ingress-monitor-controller-test-config', mountPath: '/etc/ingress-monitor-controller'),
                     // secretVolume(secretName: 'stk-config', mountPath: '/home/jenkins/.stk'),
                     // secretVolume(secretName: 'helm-pgp-key', mountPath: '/usr/local/bin/pgp-configuration/'),
