@@ -23,8 +23,8 @@ def call(Map parameters = [:], body) {
             envVars: [
                 secretEnvVar(key: 'SLACK_CHANNEL', secretName: 'slack-notification-hook', secretKey: 'channel'),
                 secretEnvVar(key: 'SLACK_WEBHOOK_URL', secretName: 'slack-notification-hook', secretKey: 'webHookURL'),
-                envVar(key: 'DOCKER_REPOSITORY_URL', value: 'docker.release.stakater.com:443'),
-                envVar(key: 'CHART_REPOSITORY_URL', value: 'https://chartmuseum.release.stakater.com'),
+                envVar(key: 'DOCKER_REPOSITORY_URL', value: 'docker.delivery.stakater.com:443'),
+                envVar(key: 'CHART_REPOSITORY_URL', value: 'https://stakater.github.io/stakater-charts'),
                 envVar(key: 'JAVA_REPOSITORY_URL', value: 'http://nexus.release/repository/maven')
             ],
             containers: [
