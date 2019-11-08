@@ -21,12 +21,8 @@ def call(Map parameters = [:], body) {
                 podAnnotation(key: "scheduler.alpha.kubernetes.io/critical-pod", value: "true")
             ],
             envVars: [
-                // secretEnvVar(key: 'CHARTMUSEUM_USERNAME', secretName: 'chartmuseum-auth', secretKey: 'username'),
-                // secretEnvVar(key: 'CHARTMUSEUM_PASSWORD', secretName: 'chartmuseum-auth', secretKey: 'password'),
                 secretEnvVar(key: 'SLACK_CHANNEL', secretName: 'slack-notification-hook', secretKey: 'channel'),
                 secretEnvVar(key: 'SLACK_WEBHOOK_URL', secretName: 'slack-notification-hook', secretKey: 'webHookURL'),
-                // secretEnvVar(key: 'GITHUB_AUTH_TOKEN', secretName: 'jenkins-hub-api-token', secretKey: 'hub'),
-                // secretEnvVar(key: 'GITLAB_AUTH_TOKEN', secretName: 'jenkins-hub-api-token', secretKey: 'gitlab.hub'),
                 envVar(key: 'DOCKER_REPOSITORY_URL', value: 'docker.release.stakater.com:443'),
                 envVar(key: 'CHART_REPOSITORY_URL', value: 'https://chartmuseum.release.stakater.com'),
                 envVar(key: 'JAVA_REPOSITORY_URL', value: 'http://nexus.release/repository/maven')
@@ -51,11 +47,7 @@ def call(Map parameters = [:], body) {
                     secretVolume(secretName: 'jenkins-maven-settings', mountPath: '/root/.m2'),
                     persistentVolumeClaim(claimName: 'jenkins-mvn-local-repo', mountPath: '/root/.mvnrepository'),
                     secretVolume(secretName: 'jenkins-docker-cfg', mountPath: '/home/jenkins/.docker'),
-                    // secretVolume(secretName: 'jenkins-git-ssh', mountPath: '/root/.ssh-git'),
                     secretVolume(secretName: 'jenkins-hub-api-token', mountPath: '/home/jenkins/.apitoken'),
-                    // secretVolume(secretName: 'ingress-monitor-controller-test-config', mountPath: '/etc/ingress-monitor-controller'),
-                    // secretVolume(secretName: 'stk-config', mountPath: '/home/jenkins/.stk'),
-                    // secretVolume(secretName: 'helm-pgp-key', mountPath: '/usr/local/bin/pgp-configuration/'),
                     hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')]) {
         body()
     }
