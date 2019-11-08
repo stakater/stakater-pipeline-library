@@ -11,7 +11,7 @@ def call(body) {
     def app = new io.stakater.app.App()
     config = app.configure(config)
     timestamps {
-        toolsNode(toolsImage: config.image) {
+        minimalToolsNode(toolsImage: config.image) {
             withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
                 checkout scm
                 
@@ -42,8 +42,8 @@ def call(body) {
                     }
                     catch (e) {
                         print "caught exception during build phase"
-                        throw e
                         notificationManager.sendError(notificationConfig, gitConfig, "${env.BUILD_NUMBER}", "${env.BUILD_URL}", repoBranch, e)
+                        throw e
                     }
                 }
             }
