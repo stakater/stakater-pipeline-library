@@ -39,7 +39,6 @@ def call(Map parameters = [:], body) {
                             envVars: [
                                     envVar(key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/'),
                                     envVar(key: 'DOCKER_API_VERSION', value: '1.32'),
-                                    envVar(key: 'CONFIG_FILE_PATH', value: '/etc/ingress-monitor-controller/config.yaml'),
                                     envVar(key: 'MAVEN_OPTS', value: '-Duser.home=/root/ -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn'),
                                     envVar(key: 'KUBERNETES_MASTER', value: 'https://kubernetes.default:443')]
                     )],
