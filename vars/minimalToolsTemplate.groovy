@@ -8,7 +8,7 @@ def call(Map parameters = [:], body) {
     def label = parameters.get('label', defaultLabel)
     def serviceAccount = parameters.get('serviceAccount', 'jenkins')
      
-    def toolsImage = parameters.get('toolsImage', 'stakater/pipeline-tools:v2.0.5')
+    def toolsImage = parameters.get('image', 'stakater/pipeline-tools:v2.0.5')
     def notificationSecret = parameters.get('notificationSecret', 'slack-notification-hook')
 
     def inheritFrom = parameters.get('inheritFrom', 'base')
