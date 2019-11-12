@@ -54,6 +54,7 @@ def getStakaterPodEnvVars(Map parameters = [:]) {
     Boolean isNotifySlack = parameters.get('isNotifySlack', false)
     Boolean isGithubToken = parameters.get('isGithubToken', false)
     Boolean isGitlabToken = parameters.get('isGitlabToken', false)
+    String notificationSecretName = parameters.get('notificationSecret', 'slack-notification-hook')
 
     def additionalEnvVars = parameters.get('additionalEnvVars', [])
     def additionalSecretEnvVars = parameters.get('additionalSecretEnvVars', [])
@@ -64,8 +65,8 @@ def getStakaterPodEnvVars(Map parameters = [:]) {
     }
 
     if (isNotifySlack) {
-        envVars.add(secretEnvVar(key: 'SLACK_CHANNEL', secretName: 'slack-notification-hook', secretKey: 'channel'))
-        envVars.add(secretEnvVar(key: 'SLACK_WEBHOOK_URL', secretName: 'slack-notification-hook', secretKey: 'webHookURL'))
+        envVars.add(secretEnvVar(key: 'SLACK_CHANNEL', secretName: notificationSecretName, secretKey: 'channel'))
+        envVars.add(secretEnvVar(key: 'SLACK_WEBHOOK_URL', secretName: notificationSecretName, secretKey: 'webHookURL'))
     }
 
     if (isGithubToken) {
