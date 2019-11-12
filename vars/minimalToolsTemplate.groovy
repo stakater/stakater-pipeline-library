@@ -10,10 +10,7 @@ def call(Map parameters = [:], body) {
      
     def toolsImage = parameters.get('toolsImage', 'stakater/pipeline-tools:v2.0.5')
     def notificationSecret = parameters.get('notificationSecret', 'slack-notification-hook')
-    echo "===================="
-    echo "${parameters}"
-    echo "${notificationSecret}"
-    echo "===================="
+
     def inheritFrom = parameters.get('inheritFrom', 'base')
 
     def cloud = flow.getCloudConfig()
