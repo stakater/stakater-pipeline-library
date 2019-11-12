@@ -6,9 +6,11 @@ def call(Map parameters = [:], body) {
 
     def defaultLabel = buildId('tools')
     def label = parameters.get('label', defaultLabel)
-    def serviceAccount = parameters.get('serviceAccount', 'jenkins')    
+    def serviceAccount = parameters.get('serviceAccount', 'jenkins')
+     
+    def toolsImage = parameters.get('image', 'stakater/pipeline-tools:v2.0.5')
+    def notificationSecret = parameters.get('notificationSecret', 'slack-notification-hook')
 
-    def toolsImage = parameters.get('toolsImage', 'stakater/pipeline-tools:v2.0.5')
     def inheritFrom = parameters.get('inheritFrom', 'base')
 
     def cloud = flow.getCloudConfig()
@@ -21,8 +23,8 @@ def call(Map parameters = [:], body) {
                 podAnnotation(key: "scheduler.alpha.kubernetes.io/critical-pod", value: "true")
             ],
             envVars: [
-                secretEnvVar(key: 'SLACK_CHANNEL', secretName: 'slack-notification-hook', secretKey: 'channel'),
-                secretEnvVar(key: 'SLACK_WEBHOOK_URL', secretName: 'slack-notification-hook', secretKey: 'webHookURL'),
+                secretEnvVar(key: 'SLACK_CHANNEL', secretName: notificationSecret, secretKey: 'channel'),
+                secretEnvVar(key: 'SLACK_WEBHOOK_URL', secretName: notificationSecret, secretKey: 'webHookURL'),
                 envVar(key: 'DOCKER_REPOSITORY_URL', value: 'docker.delivery.stakater.com:443'),
                 envVar(key: 'CHART_REPOSITORY_URL', value: 'https://stakater.github.io/stakater-charts'),
                 envVar(key: 'JAVA_REPOSITORY_URL', value: 'http://nexus.release/repository/maven')
