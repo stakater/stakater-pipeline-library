@@ -100,18 +100,19 @@ def call(body) {
 
                         stage('Run Synthetic/E2E Tests') {
                             if (packageConfig.executeE2E) {
-                                echo "Running synthetic tests for Node application:  ${packageConfig.e2eTestJob}"   
-                                e2eTestStage(appName: baseConfig.name, e2eJobName: packageConfig.e2eTestJob, 
-                                                performanceTestJobName: packageConfig.performanceTestsJob,
-                                                chartName: repoName.toLowerCase(), chartVersion: packageConfig.helmVersion,
-                                                repoUrl: repoUrl, repoBranch: repoBranch, 
-                                                chartRepositoryURL: packageConfig.chartRepositoryURL, 
-                                                mockAppsJobName: packageConfig.mockAppsJobName, [
-                                                    microservice: [
-                                                            name   : repoName.toLowerCase(),
-                                                            version: packageConfig.helmVersion
-                                                    ]
-                                ])
+                                echo "Running synthetic tests for application:  ${packageConfig.e2eTestJob}"  
+                                def testJob = build job: packageConfig.e2eTestJob, propagate:false
+                                // e2eTestStage(appName: baseConfig.name, e2eJobName: packageConfig.e2eTestJob, 
+                                //                 performanceTestJobName: packageConfig.performanceTestsJob,
+                                //                 chartName: repoName.toLowerCase(), chartVersion: packageConfig.helmVersion,
+                                //                 repoUrl: repoUrl, repoBranch: repoBranch, 
+                                //                 chartRepositoryURL: packageConfig.chartRepositoryURL, 
+                                //                 mockAppsJobName: packageConfig.mockAppsJobName, [
+                                //                     microservice: [
+                                //                             name   : repoName.toLowerCase(),
+                                //                             version: packageConfig.helmVersion
+                                //                     ]
+                                // ])
                             }
                         }
                         // If master
