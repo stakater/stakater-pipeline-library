@@ -21,15 +21,19 @@ def call(body) {
                 Map notificationConfig = appConfig.getNotificationConfig(config)
                 Map baseConfig = appConfig.getBaseConfig(config, repoName, repoOwner, WORKSPACE)
                 Map ecrConfig = appConfig.getEcrConfig(config)
+                Map kubernetesConfig = appConfig.getKubernetesConfig(config)
 
                 def docker = new io.stakater.containers.Docker()
-                def stakaterCommands = new io.stakater.StakaterCommands()
                 def git = new io.stakater.vc.Git()
                 def utils = new io.fabric8.Utils()
                 def chartManager = new io.stakater.charts.ChartManager()
                 def notificationManager = new io.stakater.notifications.NotificationManager()
                 def nexus = new io.stakater.repository.Nexus()
                 def aws = new io.stakater.cloud.Amazon()
+
+                // Required variables for generating charts
+                def deploymentsDir = WORKSPACE + "/deployments"
+                def manifestsDir = deploymentsDir + "/manifests"
 
                 if (gitConfig.cloneUsingToken) {
                     git.configureRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret)
@@ -123,6 +127,16 @@ def call(body) {
                                     chartManager.uploadChart(chartRepository, packageConfig.chartRepositoryURL, baseConfig.kubernetesDir,
                                             nexusChartRepoName, repoName, packageConfig.chartPackageName)
                                 }
+                            }
+
+                            if (kubernetesConfig.kubernetesGenerateManifests()) {
+                                stage("Generate Chart Templates"){
+                                    // Generate manifests from chart using pre-defined values.yaml
+                                    templates.generateManifestsUsingValues(kubernetesConfig.kubernetesPublicChartRepositoryURL,
+                                            kubernetesConfig.kubernetesChartName, kubernetesConfig.kubernetesChartVersion,
+                                            deploymentsDir, manifestsDir, baseConfig.name)
+                                    git.commitChanges(WORKSPACE, "Bump Version to ${version}")
+                                    }
                             }
 
                             stage("Create Git Tag"){

@@ -29,6 +29,10 @@ The releaseApplication can be used with the following parameters:
 | chartRepositoryURL     | `""`                     | URL to push helm charts. |
 | javaRepositoryURL      | `""` | Nexus Repository to push artifacts.|
 | artifactType           | `.jar`                         | Suffix to add to the artifiact name when pushing to `javaRepositoryURL`|
+| kubernetesGenerateManifests           | `false`                         | Generate & commit back kubernetes manifests|
+| kubernetesPublicChartRepositoryURL           | `https://stakater.github.io/stakater-charts`                         | Helm Chart repository URL|
+| kubernetesChartName           | `stakater/application`                         | Helm chart against which manifests will be generated|
+| kubernetesChartVersion           | `0.0.12`                         | Helm chart version|
 
 Passing "#ENVIRONMENT" in goals would dynamically replace it with prod if the branch against which release application 
 was called is master, else it will replace it with stage.
