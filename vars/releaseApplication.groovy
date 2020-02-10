@@ -31,7 +31,6 @@ def call(body) {
                 def aws = new io.stakater.cloud.Amazon()
                 def templates = new io.stakater.charts.Templates()
                 def cloneUsingToken = config.usePersonalAccessToken ?: false
-                def tokenSecretName = config.tokenCredentialID ?: ""
 
                 // Required variables for generating charts
                 def deploymentsDir = WORKSPACE + "/deployment"
@@ -40,7 +39,7 @@ def call(body) {
                 String version = ""
                 def buildException = null
 
-                if (gitConfig.cloneUsingToken) {
+                if (cloneUsingToken) {
                     git.cloneRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret, repoBranch)
                 }
                 else {
