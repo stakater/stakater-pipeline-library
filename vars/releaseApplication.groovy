@@ -104,7 +104,7 @@ def call(body) {
 
                         stage('Run Synthetic/E2E Tests') {
                             if (packageConfig.executeE2E) {
-                                echo "Running synthetic tests for application:  ${packageConfig.e2eTestJob}"  
+                                echo "Running synthetic tests for application:  ${repoName}"
                                 // def testJob = build job: packageConfig.e2eTestJob, propagate:false
                                 build config.e2eJobName
                                 // e2eTestStage(appName: baseConfig.name, e2eJobName: packageConfig.e2eTestJob, 

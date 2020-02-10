@@ -31,8 +31,7 @@ Map getPackageConfig(Map config) {
     packageConfig.chartRepositoryURL = config.chartRepositoryURL ?: ""
     packageConfig.publishChart = ! packageConfig.chartRepositoryURL.equals("")
 
-    packageConfig.e2eTestJob = config.e2eTestJob ?: ""
-    packageConfig.executeE2E = ! packageConfig.e2eTestJob.equals("")
+    packageConfig.executeE2E = config.e2eTestJob ?: false
 
     packageConfig.runIntegrationTest = config.runIntegrationTest ?: false
 
