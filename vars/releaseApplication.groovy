@@ -11,8 +11,6 @@ def call(body) {
     
     timestamps {
         stakaterNode(config) {
-            withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
-                checkout scm
 
                 def appConfig = new io.stakater.app.AppConfig()
                 Map packageConfig = appConfig.getPackageConfig(config)
@@ -31,6 +29,8 @@ def call(body) {
                 def nexus = new io.stakater.repository.Nexus()
                 def aws = new io.stakater.cloud.Amazon()
                 def templates = new io.stakater.charts.Templates()
+                def cloneUsingToken = config.usePersonalAccessToken ?: false
+                def tokenSecretName = config.tokenCredentialID ?: ""
 
                 // Required variables for generating charts
                 def deploymentsDir = WORKSPACE + "/deployment"
@@ -44,6 +44,8 @@ def call(body) {
                 def buildException = null
 
                 container(name: 'tools') {
+                    withCurrentRepo(gitUsername: gitUser, gitEmail: gitEmailID, useToken: cloneUsingToken,
+                            tokenSecretName: tokenSecretName) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                     try {
                         echo "Image NAME: ${baseConfig.imageName}"
                         echo "Repo Owner: ${baseConfig.repoOwner}"
