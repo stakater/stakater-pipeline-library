@@ -86,6 +86,7 @@ Map getKubernetesConfig(Map config) {
     kubernetesConfig.kubernetesPublicChartRepositoryURL = config.kubernetesPublicChartRepositoryURL ?: "https://stakater.github.io/stakater-charts"
     kubernetesConfig.kubernetesChartName = config.kubernetesChartName ?: "stakater/application"
     kubernetesConfig.kubernetesChartVersion = config.kubernetesChartVersion ?: "0.0.12"
+    kubernetesConfig.kubernetesNamespace = config.kubernetesNamespace ?: "default"
     return kubernetesConfig
 }
 

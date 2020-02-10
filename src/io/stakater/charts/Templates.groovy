@@ -80,8 +80,8 @@ def generateManifests(String chartDir, String chartName, String manifestsDir){
     """
 }
 
-def generateManifestsUsingValues(String chartRepoUrl, String chartName, String chartVersion, String deploymentsDir,
-                                 String appName){
+def generateManifestsUsingValues(String chartRepoUrl, String chartName, String chartVersion, String namespace,
+                                 String deploymentsDir, String appName){
     sh """
         helm init --client-only
         helm repo add stakater ${chartRepoUrl}
@@ -90,14 +90,14 @@ def generateManifestsUsingValues(String chartRepoUrl, String chartName, String c
         for valueFile in ${deploymentsDir}/*.yaml; do
             manifestsDir="${deploymentsDir}/manifests"
             manifestsFileName=\${valueFile##*/}
-            manifestsFileNameWithoutExtension=\${manifestsFileName %.*}
+            manifestsFileNameWithoutExtension=\${manifestsFileName%.*}
             if [ ! "\${valueFile##*/}" == "values.yaml" ]; then manifestsDir="\${manifestsDir}-\${manifestsFileNameWithoutExtension}" ; fi
             mkdir -p \${manifestsDir}
             chartName=${chartName}
             chartDir=\${chartName##*/}
             echo "chart dir: \${chartDir} - chart name: \${chartName}" 
-            helm template \${chartDir} -f \${valueFile} --namespace default > \${manifestsDir}/\${chartDir}/${appName}.yaml
-            helm template -f \${valueFile} --output-dir './\${manifestsDir}' './\${chartDir}'
+            helm template \${chartDir} -f \${valueFile} --namespace ${namespace} > \${manifestsDir}/\${chartDir}/${appName}.yaml
+            helm template -f \${valueFile} --namespace ${namespace} --output-dir './\${manifestsDir}' './\${chartDir}'
             rm -rf \${chartDir}
         done
     """

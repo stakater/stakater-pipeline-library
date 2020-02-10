@@ -126,7 +126,7 @@ def call(body) {
                                 // Generate manifests from chart using pre-defined values.yaml
                                 templates.generateManifestsUsingValues(kubernetesConfig.kubernetesPublicChartRepositoryURL,
                                         kubernetesConfig.kubernetesChartName, kubernetesConfig.kubernetesChartVersion,
-                                        deploymentsDir, baseConfig.name)
+                                        kubernetesConfig.kubernetesNamespace, deploymentsDir, baseConfig.name)
                                 git.commitChanges(WORKSPACE, "Update chart templates")
                             }
                         }
