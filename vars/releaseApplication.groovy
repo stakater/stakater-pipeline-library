@@ -12,12 +12,6 @@ def call(body) {
     timestamps {
         stakaterNode(config) {
             withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
-                if (gitConfig.cloneUsingToken) {
-                    git.configureRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret)
-                }
-                else {
-                    checkout scm
-                }
 
                 def appConfig = new io.stakater.app.AppConfig()
                 Map packageConfig = appConfig.getPackageConfig(config)
@@ -46,6 +40,13 @@ def call(body) {
                 String version = ""
                 def buildException = null
 
+                if (gitConfig.cloneUsingToken) {
+                    git.configureRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret)
+                }
+                else {
+                    checkout scm
+                }
+                
                 container(name: 'tools') {
                     try {
                         echo "Image NAME: ${baseConfig.imageName}"
