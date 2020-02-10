@@ -120,6 +120,17 @@ def call(body) {
                                 // ])
                             }
                         }
+
+                        if (kubernetesConfig.kubernetesGenerateManifests()) {
+                            stage("Generate Chart Templates"){
+                                // Generate manifests from chart using pre-defined values.yaml
+                                templates.generateManifestsUsingValues(kubernetesConfig.kubernetesPublicChartRepositoryURL,
+                                        kubernetesConfig.kubernetesChartName, kubernetesConfig.kubernetesChartVersion,
+                                        deploymentsDir, manifestsDir, baseConfig.name)
+                                git.commitChanges(WORKSPACE, "Update chart templates")
+                            }
+                        }
+
                         // If master
                         if (utils.isCD()) {
                             stage('Upload Helm Chart') {
@@ -127,16 +138,6 @@ def call(body) {
                                     chartManager.uploadChart(chartRepository, packageConfig.chartRepositoryURL, baseConfig.kubernetesDir,
                                             nexusChartRepoName, repoName, packageConfig.chartPackageName)
                                 }
-                            }
-
-                            if (kubernetesConfig.kubernetesGenerateManifests()) {
-                                stage("Generate Chart Templates"){
-                                    // Generate manifests from chart using pre-defined values.yaml
-                                    templates.generateManifestsUsingValues(kubernetesConfig.kubernetesPublicChartRepositoryURL,
-                                            kubernetesConfig.kubernetesChartName, kubernetesConfig.kubernetesChartVersion,
-                                            deploymentsDir, manifestsDir, baseConfig.name)
-                                    git.commitChanges(WORKSPACE, "Bump Version to ${version}")
-                                    }
                             }
 
                             stage("Create Git Tag"){
