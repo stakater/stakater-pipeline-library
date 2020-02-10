@@ -33,6 +33,7 @@ The releaseApplication can be used with the following parameters:
 | kubernetesPublicChartRepositoryURL           | `https://stakater.github.io/stakater-charts`                         | Helm Chart repository URL|
 | kubernetesChartName           | `stakater/application`                         | Helm chart against which manifests will be generated|
 | kubernetesChartVersion           | `0.0.12`                         | Helm chart version|
+| kubernetesNamespace           | `default`                         | Namespace which will be used to generate k8s resources |
 
 Passing "#ENVIRONMENT" in goals would dynamically replace it with prod if the branch against which release application 
 was called is master, else it will replace it with stage.
