@@ -34,7 +34,6 @@ def call(body) {
 
                 // Required variables for generating charts
                 def deploymentsDir = WORKSPACE + "/deployments"
-                def manifestsDir = deploymentsDir + "/manifests"
 
                 if (gitConfig.cloneUsingToken) {
                     git.configureRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret)
@@ -127,7 +126,7 @@ def call(body) {
                                 // Generate manifests from chart using pre-defined values.yaml
                                 templates.generateManifestsUsingValues(kubernetesConfig.kubernetesPublicChartRepositoryURL,
                                         kubernetesConfig.kubernetesChartName, kubernetesConfig.kubernetesChartVersion,
-                                        deploymentsDir, manifestsDir, baseConfig.name)
+                                        deploymentsDir, baseConfig.name)
                                 git.commitChanges(WORKSPACE, "Update chart templates")
                             }
                         }

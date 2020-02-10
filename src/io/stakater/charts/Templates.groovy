@@ -81,8 +81,9 @@ def generateManifests(String chartDir, String chartName, String manifestsDir){
 }
 
 def generateManifestsUsingValues(String chartRepoUrl, String chartName, String chartVersion, String deploymentsDir,
-                                 String manifestsDir, String appName){
+                                 String appName){
     sh """
+        helm init --client-only
         helm repo add stakater ${chartRepoUrl}
         helm repo update
         helm fetch --untar ${chartName} --version=${chartVersion}
