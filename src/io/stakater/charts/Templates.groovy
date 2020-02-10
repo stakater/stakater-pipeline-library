@@ -91,10 +91,9 @@ def generateManifestsUsingValues(String chartRepoUrl, String chartName, String c
             echo "value file: \${valueFile}"
             manifestsDir="${deploymentsDir}/manifests"
             if [ ! "\${valueFile##*/}" == "values.yaml" ]; then manifestsDir="\${manifestsDir}-\${valueFile//+(*\\/|.*)}" ; fi
-            echo "manifest file: \${manifestsDir}"
             mkdir -p \${manifestsDir}
             chartDir=\${chartName##*/}
-            echo "chart dir: \${chartDir}" 
+            echo "chart dir: \${chartDir} - chart name: \${chartName}" 
             helm template \${chartDir} -f \${valueFile} --namespace default > \${manifestsDir}/\${chartDir}/${appName}.yaml
             helm template -f \${valueFile} --output-dir './\${manifestsDir}' './\${chartDir}'
             rm -rf \${chartDir}
