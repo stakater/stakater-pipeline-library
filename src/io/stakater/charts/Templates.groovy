@@ -100,5 +100,6 @@ def generateManifestsUsingValues(String chartRepoUrl, String chartName, String c
             helm template \${chartDirectory} -f \${valueFile} --namespace ${namespace} > \${manifestsDir}/\${chartDirectoryName}/${appName}.yaml
             rm -rf \${deploymentsDir}/\${chartDirectoryName}
         done
+        sleep 3000
     """
 }

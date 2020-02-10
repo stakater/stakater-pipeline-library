@@ -50,6 +50,7 @@ def commitChangesUsingToken(String repoDir, String commitMessage) {
     String messageToCheck = "nothing to commit, working tree clean"
     sh """
         cd ${repoDir}
+        git branch
         git add .
         if ! git status | grep '${messageToCheck}' ; then
             git commit -m "${commitMessage}"
