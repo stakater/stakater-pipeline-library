@@ -216,7 +216,6 @@ def cloneRepoWithCredentials(String repoURL, String username, String password, S
     String newURL = common.replaceCredentialsInHttpURL(repoURL, username, password)
     sh """
         git clone $newURL .
-        cd *
         git checkout $branchName
     """
 }
