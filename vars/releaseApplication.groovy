@@ -129,7 +129,7 @@ def call(body) {
                                 templates.generateManifestsUsingValues(kubernetesConfig.kubernetesPublicChartRepositoryURL,
                                         kubernetesConfig.kubernetesChartName, kubernetesConfig.kubernetesChartVersion,
                                         kubernetesConfig.kubernetesNamespace, deploymentsDir, baseConfig.name)
-                                git.commitChanges(WORKSPACE, "Update chart templates")
+                                git.commitChangesUsingToken(WORKSPACE, "Update chart templates")
                             }
                         }
 
