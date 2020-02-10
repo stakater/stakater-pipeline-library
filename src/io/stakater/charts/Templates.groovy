@@ -88,9 +88,10 @@ def generateManifestsUsingValues(String chartRepoUrl, String chartName, String c
         helm repo update
         helm fetch --untar ${chartName} --version=${chartVersion}
         for valueFile in ${deploymentsDir}/*.yaml; do
-            echo "value file: \${valueFile}"
             manifestsDir="${deploymentsDir}/manifests"
-            if [ ! "\${valueFile##*/}" == "values.yaml" ]; then manifestsDir="\${manifestsDir}-\${\${valueFile##*/}%.*}" ; fi
+            manifestsFileName=\${valueFile##*/}
+            manifestsFileNameWithoutExtension=\${manifestsFileName %.*}
+            if [ ! "\${valueFile##*/}" == "values.yaml" ]; then manifestsDir="\${manifestsDir}-\${manifestsFileNameWithoutExtension}" ; fi
             mkdir -p \${manifestsDir}
             chartName=${chartName}
             chartDir=\${chartName##*/}
