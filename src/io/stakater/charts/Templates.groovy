@@ -97,6 +97,7 @@ def generateManifestsUsingValues(String chartRepoUrl, String chartName, String c
             chartDir=\${chartName##*/}
             mkdir -p \${manifestsDir}\\\$chartDir
             echo "chart dir: \${chartDir} - chart name: \${chartName}" 
+            ls
             helm template -f \${valueFile} --namespace ${namespace} --output-dir './\${manifestsDir}' './\${chartDir}'
             helm template \${chartDir} -f \${valueFile} --namespace ${namespace} > \${manifestsDir}/\${chartDir}/${appName}.yaml
             rm -rf \${chartDir}
