@@ -122,7 +122,7 @@ def call(body) {
                         }
 
                         stage("Generate Chart Templates"){
-                            if (kubernetesConfig.kubernetesGenerateManifests()) {
+                            if (kubernetesConfig.kubernetesGenerateManifests) {
                                 // Generate manifests from chart using pre-defined values.yaml
                                 templates.generateManifestsUsingValues(kubernetesConfig.kubernetesPublicChartRepositoryURL,
                                         kubernetesConfig.kubernetesChartName, kubernetesConfig.kubernetesChartVersion,
