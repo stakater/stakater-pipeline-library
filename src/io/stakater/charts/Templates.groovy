@@ -87,18 +87,18 @@ def generateManifestsUsingValues(String chartRepoUrl, String chartName, String c
         helm repo add stakater ${chartRepoUrl}
         helm repo update
         helm fetch --untar ${chartName} --version=${chartVersion} -d ${deploymentsDir}
+        chartName=${chartName}
+        chartDirectoryName=\${chartName##*/}
         for valueFile in ${deploymentsDir}/*.yaml; do
             manifestsDir="${deploymentsDir}/manifests"
             manifestsFileName=\${valueFile##*/}
             manifestsFileNameWithoutExtension=\${manifestsFileName%.*}
             if [ ! "\${valueFile##*/}" == "values.yaml" ]; then manifestsDir="\${manifestsDir}-\${manifestsFileNameWithoutExtension}" ; fi
             mkdir -p \${manifestsDir}
-            chartName=${chartName}
-            chartDirectoryName=\${chartName##*/}
             chartDirectory=${deploymentsDir}/\${chartDirectoryName}
             helm template -f \${valueFile} --namespace ${namespace} --output-dir "\${manifestsDir}" "\${chartDirectory}"
             helm template \${chartDirectory} -f \${valueFile} --namespace ${namespace} > \${manifestsDir}/\${chartDirectoryName}/${appName}.yaml
-            rm -rf ${deploymentsDir}/\${chartDirectoryName}
         done
+        rm -rf ${deploymentsDir}/\${chartDirectoryName}
     """
 }
