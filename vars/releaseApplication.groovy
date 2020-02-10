@@ -12,7 +12,12 @@ def call(body) {
     timestamps {
         stakaterNode(config) {
             withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
-                checkout scm
+                if (gitConfig.cloneUsingToken) {
+                    git.configureRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret)
+                }
+                else {
+                    checkout scm
+                }
 
                 def appConfig = new io.stakater.app.AppConfig()
                 Map packageConfig = appConfig.getPackageConfig(config)
@@ -36,10 +41,6 @@ def call(body) {
 
                 // Required variables for generating charts
                 def deploymentsDir = WORKSPACE + "/deployment"
-
-                if (gitConfig.cloneUsingToken) {
-                    git.configureRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret)
-                }
 
                 String dockerImage = ""
                 String version = ""
