@@ -211,6 +211,15 @@ def runGoReleaser(String repoDir){
   """
 }
 
+def cloneRepoWithCredentials(String repoURL, String username, String password, String branchName) {
+    def common = new io.stakater.Common()
+    String newURL = common.replaceCredentialsInHttpURL(repoURL, username, password)
+    sh """
+        git clone $newURL
+        git checkout $branchName
+    """
+}
+
 def configureRepoWithCredentials(String repoURL, String username, String password) {
     def common = new io.stakater.Common()
     String newURL = common.replaceCredentialsInHttpURL(repoURL, username, password)

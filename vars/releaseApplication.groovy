@@ -41,12 +41,12 @@ def call(body) {
                 def buildException = null
 
                 if (gitConfig.cloneUsingToken) {
-                    git.configureRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret)
+                    git.cloneRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret, repoBranch)
                 }
                 else {
                     checkout scm
                 }
-                
+
                 container(name: 'tools') {
                     try {
                         echo "Image NAME: ${baseConfig.imageName}"
