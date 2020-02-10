@@ -87,6 +87,7 @@ def generateManifestsUsingValues(String chartRepoUrl, String chartName, String c
         helm repo add stakater ${chartRepoUrl}
         helm repo update
         helm fetch --untar ${chartName} --version=${chartVersion}
+        ls ${deploymentsDir}/
         for valueFile in ${deploymentsDir}/*.yaml; do
         echo "value file: \${valueFile}"
         manifestsDir= ${deploymentsDir} + "manifests"
