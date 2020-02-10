@@ -30,6 +30,7 @@ def call(body) {
                 def notificationManager = new io.stakater.notifications.NotificationManager()
                 def nexus = new io.stakater.repository.Nexus()
                 def aws = new io.stakater.cloud.Amazon()
+                def templates = new io.stakater.charts.Templates()
 
                 // Required variables for generating charts
                 def deploymentsDir = WORKSPACE + "/deployments"
