@@ -33,7 +33,7 @@ def call(body) {
                 def templates = new io.stakater.charts.Templates()
 
                 // Required variables for generating charts
-                def deploymentsDir = WORKSPACE + "/deployments"
+                def deploymentsDir = WORKSPACE + "/deployment"
 
                 if (gitConfig.cloneUsingToken) {
                     git.configureRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret)
