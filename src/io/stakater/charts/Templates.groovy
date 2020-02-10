@@ -90,7 +90,7 @@ def generateManifestsUsingValues(String chartRepoUrl, String chartName, String c
         for valueFile in ${deploymentsDir}/*.yaml; do
             echo "value file: \${valueFile}"
             manifestsDir="${deploymentsDir}/manifests"
-            if [ ! "\${valueFile##*/}" == "values.yaml" ]; then manifestsDir="\${manifestsDir}-\${valueFile//+(*\\/|.*)}" ; fi
+            if [ ! "\${valueFile##*/}" == "values.yaml" ]; then manifestsDir="\${manifestsDir}-\${\${valueFile##*/}%.*}" ; fi
             mkdir -p \${manifestsDir}
             chartName=${chartName}
             chartDir=\${chartName##*/}
