@@ -11,6 +11,8 @@ def call(body) {
     
     timestamps {
         stakaterNode(config) {
+            withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
+                checkout scm
 
                 def appConfig = new io.stakater.app.AppConfig()
                 Map packageConfig = appConfig.getPackageConfig(config)
@@ -44,8 +46,6 @@ def call(body) {
                 def buildException = null
 
                 container(name: 'tools') {
-                    withCurrentRepo(gitUsername: gitUser, gitEmail: gitEmailID, useToken: cloneUsingToken,
-                            tokenSecretName: tokenSecretName) { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                     try {
                         echo "Image NAME: ${baseConfig.imageName}"
                         echo "Repo Owner: ${baseConfig.repoOwner}"
