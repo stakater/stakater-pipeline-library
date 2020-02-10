@@ -215,7 +215,7 @@ def cloneRepoWithCredentials(String repoURL, String username, String password, S
     def common = new io.stakater.Common()
     String newURL = common.replaceCredentialsInHttpURL(repoURL, username, password)
     sh """
-        git clone $newURL
+        git clone $newURL && cd "\$(basename "\$1" .git)"
         git checkout $branchName
     """
 }
