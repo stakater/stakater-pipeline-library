@@ -31,6 +31,7 @@ def call(body) {
                 def aws = new io.stakater.cloud.Amazon()
                 def templates = new io.stakater.charts.Templates()
                 def cloneUsingToken = config.usePersonalAccessToken ?: false
+                def isPullRequest = repoBranch.contains("PR-") ? true : false
 
                 // Required variables for generating charts
                 def deploymentsDir = WORKSPACE + "/deployment"
@@ -39,7 +40,7 @@ def call(body) {
                 String version = ""
                 def buildException = null
 
-                if (cloneUsingToken) {
+                if (cloneUsingToken && !isPullRequest) {
                     git.cloneRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret, repoBranch)
                 }
                 else {
@@ -124,17 +125,18 @@ def call(body) {
                             }
                         }
 
+                        stage("Generate Chart Templates"){
+                            if (kubernetesConfig.kubernetesGenerateManifests && !isPullRequest) {
+                                // Generate manifests from chart using pre-defined values.yaml
+                                templates.generateManifestsUsingValues(kubernetesConfig.kubernetesPublicChartRepositoryURL,
+                                        kubernetesConfig.kubernetesChartName, kubernetesConfig.kubernetesChartVersion,
+                                        kubernetesConfig.kubernetesNamespace, deploymentsDir, baseConfig.name)
+                                git.commitChangesUsingToken(WORKSPACE, "Update chart templates")
+                            }
+                        }
+
                         // If master
                         if (utils.isCD()) {
-                            stage("Generate Chart Templates"){
-                                if (kubernetesConfig.kubernetesGenerateManifests) {
-                                    // Generate manifests from chart using pre-defined values.yaml
-                                    templates.generateManifestsUsingValues(kubernetesConfig.kubernetesPublicChartRepositoryURL,
-                                            kubernetesConfig.kubernetesChartName, kubernetesConfig.kubernetesChartVersion,
-                                            kubernetesConfig.kubernetesNamespace, deploymentsDir, baseConfig.name)
-                                    git.commitChangesUsingToken(WORKSPACE, "Update chart templates")
-                                }
-                            }
                             stage('Upload Helm Chart') {
                                 if (packageConfig.publishChart) {
                                     chartManager.uploadChart(chartRepository, packageConfig.chartRepositoryURL, baseConfig.kubernetesDir,
