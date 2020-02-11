@@ -124,18 +124,17 @@ def call(body) {
                             }
                         }
 
-                        stage("Generate Chart Templates"){
-                            if (kubernetesConfig.kubernetesGenerateManifests) {
-                                // Generate manifests from chart using pre-defined values.yaml
-                                templates.generateManifestsUsingValues(kubernetesConfig.kubernetesPublicChartRepositoryURL,
-                                        kubernetesConfig.kubernetesChartName, kubernetesConfig.kubernetesChartVersion,
-                                        kubernetesConfig.kubernetesNamespace, deploymentsDir, baseConfig.name)
-                                git.commitChangesUsingToken(WORKSPACE, "Update chart templates")
-                            }
-                        }
-
                         // If master
                         if (utils.isCD()) {
+                            stage("Generate Chart Templates"){
+                                if (kubernetesConfig.kubernetesGenerateManifests) {
+                                    // Generate manifests from chart using pre-defined values.yaml
+                                    templates.generateManifestsUsingValues(kubernetesConfig.kubernetesPublicChartRepositoryURL,
+                                            kubernetesConfig.kubernetesChartName, kubernetesConfig.kubernetesChartVersion,
+                                            kubernetesConfig.kubernetesNamespace, deploymentsDir, baseConfig.name)
+                                    git.commitChangesUsingToken(WORKSPACE, "Update chart templates")
+                                }
+                            }
                             stage('Upload Helm Chart') {
                                 if (packageConfig.publishChart) {
                                     chartManager.uploadChart(chartRepository, packageConfig.chartRepositoryURL, baseConfig.kubernetesDir,
