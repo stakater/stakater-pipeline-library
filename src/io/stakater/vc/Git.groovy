@@ -50,6 +50,7 @@ def commitChangesUsingToken(String repoDir, String commitMessage) {
     String messageToCheck = "nothing to commit, working tree clean"
     sh """
         cd ${repoDir}
+        git branch
         git add .
         if ! git status | grep '${messageToCheck}' ; then
             git commit -m "${commitMessage}"
@@ -208,6 +209,15 @@ def runGoReleaser(String repoDir){
     cd ${repoDir}
     goreleaser
   """
+}
+
+def cloneRepoWithCredentials(String repoURL, String username, String password, String branchName) {
+    def common = new io.stakater.Common()
+    String newURL = common.replaceCredentialsInHttpURL(repoURL, username, password)
+    sh """
+        git clone $newURL .
+        git checkout $branchName
+    """
 }
 
 def configureRepoWithCredentials(String repoURL, String username, String password) {

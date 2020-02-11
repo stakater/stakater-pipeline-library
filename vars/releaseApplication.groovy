@@ -12,7 +12,6 @@ def call(body) {
     timestamps {
         stakaterNode(config) {
             withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
-                checkout scm
 
                 def appConfig = new io.stakater.app.AppConfig()
                 Map packageConfig = appConfig.getPackageConfig(config)
@@ -21,23 +20,31 @@ def call(body) {
                 Map notificationConfig = appConfig.getNotificationConfig(config)
                 Map baseConfig = appConfig.getBaseConfig(config, repoName, repoOwner, WORKSPACE)
                 Map ecrConfig = appConfig.getEcrConfig(config)
+                Map kubernetesConfig = appConfig.getKubernetesConfig(config)
 
                 def docker = new io.stakater.containers.Docker()
-                def stakaterCommands = new io.stakater.StakaterCommands()
                 def git = new io.stakater.vc.Git()
                 def utils = new io.fabric8.Utils()
                 def chartManager = new io.stakater.charts.ChartManager()
                 def notificationManager = new io.stakater.notifications.NotificationManager()
                 def nexus = new io.stakater.repository.Nexus()
                 def aws = new io.stakater.cloud.Amazon()
+                def templates = new io.stakater.charts.Templates()
+                def cloneUsingToken = config.usePersonalAccessToken ?: false
 
-                if (gitConfig.cloneUsingToken) {
-                    git.configureRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret)
-                }
+                // Required variables for generating charts
+                def deploymentsDir = WORKSPACE + "/deployment"
 
                 String dockerImage = ""
                 String version = ""
                 def buildException = null
+
+                if (cloneUsingToken) {
+                    git.cloneRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret, repoBranch)
+                }
+                else {
+                    checkout scm
+                }
 
                 container(name: 'tools') {
                     try {
@@ -100,7 +107,7 @@ def call(body) {
 
                         stage('Run Synthetic/E2E Tests') {
                             if (packageConfig.executeE2E) {
-                                echo "Running synthetic tests for application:  ${packageConfig.e2eTestJob}"  
+                                echo "Running synthetic tests for application:  ${repoName}"
                                 // def testJob = build job: packageConfig.e2eTestJob, propagate:false
                                 build config.e2eJobName
                                 // e2eTestStage(appName: baseConfig.name, e2eJobName: packageConfig.e2eTestJob, 
@@ -116,6 +123,17 @@ def call(body) {
                                 // ])
                             }
                         }
+
+                        stage("Generate Chart Templates"){
+                            if (kubernetesConfig.kubernetesGenerateManifests) {
+                                // Generate manifests from chart using pre-defined values.yaml
+                                templates.generateManifestsUsingValues(kubernetesConfig.kubernetesPublicChartRepositoryURL,
+                                        kubernetesConfig.kubernetesChartName, kubernetesConfig.kubernetesChartVersion,
+                                        kubernetesConfig.kubernetesNamespace, deploymentsDir, baseConfig.name)
+                                git.commitChangesUsingToken(WORKSPACE, "Update chart templates")
+                            }
+                        }
+
                         // If master
                         if (utils.isCD()) {
                             stage('Upload Helm Chart') {

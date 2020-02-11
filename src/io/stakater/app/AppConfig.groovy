@@ -31,8 +31,7 @@ Map getPackageConfig(Map config) {
     packageConfig.chartRepositoryURL = config.chartRepositoryURL ?: ""
     packageConfig.publishChart = ! packageConfig.chartRepositoryURL.equals("")
 
-    packageConfig.e2eTestJob = config.e2eTestJob ?: ""
-    packageConfig.executeE2E = ! packageConfig.e2eTestJob.equals("")
+    packageConfig.executeE2E = config.e2eTestJob ?: false
 
     packageConfig.runIntegrationTest = config.runIntegrationTest ?: false
 
@@ -78,6 +77,17 @@ Map getNotificationConfig(Map config) {
     notificationConfig.slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
     
     return notificationConfig
+}
+
+Map getKubernetesConfig(Map config) {
+    Map kubernetesConfig = [:]
+
+    kubernetesConfig.kubernetesGenerateManifests = config.kubernetesGenerateManifests ?: false
+    kubernetesConfig.kubernetesPublicChartRepositoryURL = config.kubernetesPublicChartRepositoryURL ?: "https://stakater.github.io/stakater-charts"
+    kubernetesConfig.kubernetesChartName = config.kubernetesChartName ?: "stakater/application"
+    kubernetesConfig.kubernetesChartVersion = config.kubernetesChartVersion ?: "0.0.12"
+    kubernetesConfig.kubernetesNamespace = config.kubernetesNamespace ?: "default"
+    return kubernetesConfig
 }
 
 Map getEcrConfig(Map config) {

@@ -79,3 +79,26 @@ def generateManifests(String chartDir, String chartName, String manifestsDir){
         done
     """
 }
+
+def generateManifestsUsingValues(String chartRepoUrl, String chartName, String chartVersion, String namespace,
+                                 String deploymentsDir, String appName){
+    sh """
+        helm init --client-only
+        helm repo add stakater ${chartRepoUrl}
+        helm repo update
+        helm fetch --untar ${chartName} --version=${chartVersion} -d ${deploymentsDir}
+        chartName=${chartName}
+        chartDirectoryName=\${chartName##*/}
+        for valueFile in ${deploymentsDir}/*.yaml; do
+            manifestsDir="${deploymentsDir}/manifests"
+            manifestsFileName=\${valueFile##*/}
+            manifestsFileNameWithoutExtension=\${manifestsFileName%.*}
+            if [ ! "\${valueFile##*/}" == "values.yaml" ]; then manifestsDir="\${manifestsDir}-\${manifestsFileNameWithoutExtension}" ; fi
+            mkdir -p \${manifestsDir}
+            chartDirectory=${deploymentsDir}/\${chartDirectoryName}
+            helm template -f \${valueFile} --namespace ${namespace} --output-dir "\${manifestsDir}" "\${chartDirectory}"
+            helm template \${chartDirectory} -f \${valueFile} --namespace ${namespace} > \${manifestsDir}/\${chartDirectoryName}/${appName}.yaml
+        done
+        rm -rf ${deploymentsDir}/\${chartDirectoryName}
+    """
+}
