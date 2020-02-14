@@ -96,8 +96,8 @@ def generateManifestsUsingValues(String chartRepoUrl, String chartName, String c
             if [ ! "\${valueFile##*/}" == "values.yaml" ]; then manifestsDir="\${manifestsDir}-\${manifestsFileNameWithoutExtension}" ; fi
             mkdir -p \${manifestsDir}
             chartDirectory=${deploymentsDir}/\${chartDirectoryName}
-            helm template -f \${valueFile} --namespace ${namespace} --output-dir "\${manifestsDir}" "\${chartDirectory}"
-            helm template \${chartDirectory} -f \${valueFile} --namespace ${namespace} > \${manifestsDir}/\${chartDirectoryName}/${appName}.yaml
+            helm template -f \${valueFile} --namespace ${namespace} -name ${namespace}-${appName} --output-dir "\${manifestsDir}" "\${chartDirectory}"
+            helm template \${chartDirectory} -f \${valueFile} --namespace ${namespace} --name ${namespace}-${appName} > \${manifestsDir}/\${chartDirectoryName}/${appName}.yaml
         done
         rm -rf ${deploymentsDir}/\${chartDirectoryName}
     """
