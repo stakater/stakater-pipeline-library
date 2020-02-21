@@ -132,6 +132,14 @@ def call(body) {
                                         kubernetesConfig.kubernetesChartName, kubernetesConfig.kubernetesChartVersion,
                                         kubernetesConfig.kubernetesNamespace, deploymentsDir, baseConfig.name)
                                 git.commitChangesUsingToken(WORKSPACE, "Update chart templates")
+                                if(kubernetesConfig.commitToManifestsRepo) {
+                                    String sourceFilePath= WORKSPACE + "/deployment/manifests/" +
+                                            kubernetesConfig.kubernetesChartName.substring(kubernetesConfig
+                                                    .kubernetesChartName.lastIndexOf("/") + 1) + "/" + baseConfig.name + ".yaml"
+                                    git.commitFileToRepo(sourceFilePath, kubernetesConfig.manifestsRepoUrl,
+                                            kubernetesConfig.manifestsFilePath, "Updating manifest for ${baseConfig.name}",
+                                            gitConfig.user, gitConfig.tokenSecret)
+                                }
                             }
                         }
 

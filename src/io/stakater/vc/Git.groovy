@@ -74,7 +74,7 @@ def checkoutRepo(String repoUrl, String branch, String dir) {
 
 def checkoutRepoUsingToken(String username, String tokenSecretName, String repoUrl, String branch, String dir) {
     def flow = new StakaterCommands()
-    def tokenSecret = flow.getProviderTokenFromJenkinsSecret(tokenSecretName)    
+    def tokenSecret = flow.getProviderTokenFromJenkinsSecret(tokenSecretName)
     echo "RepoURL: ${repoUrl}"
     String result = repoUrl.substring(repoUrl.indexOf('@')+1)
     result = result.replaceAll(":", '/')
@@ -89,7 +89,7 @@ def addCommentToPullRequest(String message, String user) {
     def provider = flow.getProvider(url)
     echo "provider: ${provider}"
     def project = flow.getProject(provider)
-  
+
     def providerToken = flow.getProviderToken(provider)
     switch(provider) {
         case "github":
@@ -97,7 +97,7 @@ def addCommentToPullRequest(String message, String user) {
             break
         case "gitlab":
             def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME == null ? env.REPO_CLONE_BRANCH : env.BRANCH_NAME, providerToken)
-            result.each{value -> 
+            result.each{value ->
                 def prMessage = "@${value.author.username} " + message
                 echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
                 flow.postPRComment(prMessage, value.iid, project, provider, providerToken, user)
@@ -106,10 +106,10 @@ def addCommentToPullRequest(String message, String user) {
         case "bitbucket":
             def result = flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken, user)
             break
-            
+
         default:
-            error "${provider} is not supported" 
-            break   
+            error "${provider} is not supported"
+            break
     }
 }
 //Overloaded function to send the token if already got that
@@ -127,7 +127,7 @@ def addCommentToPullRequest(String message, String token, String user) {
             break
         case "gitlab":
             def result = flow.getGitLabMergeRequestsByBranchName(project, env.BRANCH_NAME == null ? env.REPO_CLONE_BRANCH : env.BRANCH_NAME, providerToken)
-            result.each{value -> 
+            result.each{value ->
                 def prMessage = "@${value.author.username} " + message
                 echo "Commenting on MR with id: ${value.iid}, and message: ${prMessage}"
                 flow.postPRComment(prMessage, value.iid, project, provider, providerToken, user)
@@ -136,10 +136,10 @@ def addCommentToPullRequest(String message, String token, String user) {
         case "bitbucket":
             def result = flow.postPRComment(message, env.CHANGE_ID, "${env.REPO_OWNER}/${env.REPO_NAME}", provider, providerToken, user)
             break
-            
+
         default:
-            error "${provider} is not supported" 
-            break   
+            error "${provider} is not supported"
+            break
     }
 }
 def getGitAuthor() {
@@ -205,7 +205,7 @@ def push(def repoDir, String branchName) {
     """
 }
 def runGoReleaser(String repoDir){
-  sh """
+    sh """
     cd ${repoDir}
     goreleaser
   """
@@ -220,6 +220,28 @@ def cloneRepoWithCredentials(String repoURL, String username, String password, S
     """
 }
 
+def commitFileToRepo(String sourceFilePath, String destinationRepoUrl, String destinationPath, String commitMessage,
+                     String username, String password) {
+    String messageToCheck = "nothing to commit, working tree clean"
+    def common = new io.stakater.Common()
+    String newURL = common.replaceCredentialsInHttpURL(destinationRepoUrl, username, password)
+    sh """
+        cd ..
+        mkdir destination-repo-temp
+        cd destination-repo-temp
+        git clone $newURL .
+        yes | cp -rf $sourceFilePath $destinationPath
+        git add .
+        if ! git status | grep '${messageToCheck}' ; then
+            git commit -m "${commitMessage}"
+            git push
+        else
+            echo \\"nothing to do\\"
+        fi
+        cd $WORKSPACE
+    """
+}
+
 def configureRepoWithCredentials(String repoURL, String username, String password) {
     def common = new io.stakater.Common()
     String newURL = common.replaceCredentialsInHttpURL(repoURL, username, password)
@@ -229,7 +251,7 @@ def configureRepoWithCredentials(String repoURL, String username, String passwor
 }
 
 def ignoredFilesChanged(List<String> ignoreFiles) {
-    
+
     def result = true
     def raw = sh(returnStdout: true, script: 'git diff --name-only HEAD $(git describe --tags --abbrev=0)').trim()
     def files = raw.split()

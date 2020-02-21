@@ -75,7 +75,7 @@ Map getNotificationConfig(Map config) {
     notificationConfig.notifySlack = config.notifySlack == false ? false : true
     notificationConfig.slackChannel = "${env.SLACK_CHANNEL}"
     notificationConfig.slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
-    
+
     return notificationConfig
 }
 
@@ -87,12 +87,15 @@ Map getKubernetesConfig(Map config) {
     kubernetesConfig.kubernetesChartName = config.kubernetesChartName ?: "stakater/application"
     kubernetesConfig.kubernetesChartVersion = config.kubernetesChartVersion ?: "0.0.12"
     kubernetesConfig.kubernetesNamespace = config.kubernetesNamespace ?: "default"
+    kubernetesConfig.commitToManifestsRepo = config.commitToManifestsRepo ?: false
+    kubernetesConfig.manifestsRepoUrl = config.manifestsRepoUrl ?: "https://github.com/stakater/StakaterNordmart.git"
+    kubernetesConfig.manifestsFilePath = config.manifestsFilePath ?: "apps/"
     return kubernetesConfig
 }
 
 Map getEcrConfig(Map config) {
     Map ecrConfig = [:]
-    
+
     ecrConfig.isEcr = config.isEcr ?: false
     ecrConfig.ecrRegion = config.ecrRegion ?: 'us-west-1'
 
