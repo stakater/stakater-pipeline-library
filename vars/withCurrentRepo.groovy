@@ -37,8 +37,7 @@ def call(Map parameters = [:], body) {
         if(cloneUsingToken){
             git.checkoutRepoUsingToken(gitUsername, tokenSecretName, repoUrl, repoCloneBranch, workspaceDir)
         } else {
-            git.addHostsToKnownHosts()
-            git.checkoutRepo(repoUrl, repoCloneBranch, workspaceDir)
+            git.checkoutRepoUsingTokenWithDefaults(gitUsername, repoUrl, repoCloneBranch, workspaceDir)
         }
 
         ws(workspaceDir) {

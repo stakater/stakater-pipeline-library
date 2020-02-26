@@ -83,6 +83,18 @@ def checkoutRepoUsingToken(String username, String tokenSecretName, String repoU
     """
 }
 
+def checkoutRepoUsingTokenWithDefaults(String username, String repoUrl, String branch, String dir) {
+    def flow = new StakaterCommands()
+    def provider = flow.getProvider(repoUrl)
+    def tokenSecret = flow.getProviderToken(provider)
+    echo "RepoURL: ${repoUrl}"
+    String result = repoUrl.substring(repoUrl.indexOf('@')+1)
+    result = result.replaceAll(":", '/')
+    sh """
+        git clone -b ${branch} https://${username}:${tokenSecret}@${result} ${dir}
+    """
+}
+
 def addCommentToPullRequest(String message, String user) {
     def flow = new StakaterCommands()
     def url = flow.getScmPushUrl()

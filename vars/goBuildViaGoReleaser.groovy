@@ -77,6 +77,7 @@ def call(body) {
                               cd ${goProjectDir}
                               export DOCKER_TAG=${version}
                               export BUILDER=${builder}
+                              export DOCKER_IMAGE=${dockerRepositoryURL}/${dockerImage}
                               make binary-image
                               make push
                             """
