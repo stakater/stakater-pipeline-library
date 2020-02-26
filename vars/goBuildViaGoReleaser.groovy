@@ -43,6 +43,9 @@ def call(body) {
                 def version = ""
                 def prNumber = "${env.REPO_BRANCH}"                        
                 def dockerRepositoryURL = config.dockerRepositoryURL ?: "docker.io"
+                def gitUsername = config.gitUsername ?: "stakater-user"
+                def gitEmail = config.gitEmail ?: "stakater@gmail.com"
+                git.setUserInfo(gitUsername, gitEmail)
 
                 try {
                     stage('Create Version'){
@@ -156,7 +159,7 @@ def call(body) {
                                 echo "Public chart repository Git URL: ${publicChartGitURL}"
 
                                 def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
-                                chartManager.uploadToStakaterCharts(packagedChartLocation, publicChartRepositoryURL, publicChartGitURL)
+                                chartManager.uploadToStakaterCharts(gitUsername, packagedChartLocation, publicChartRepositoryURL, publicChartGitURL)
                             }
                         }
 

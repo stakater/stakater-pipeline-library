@@ -64,7 +64,7 @@ def uploadToChartMuseum(String location, String chartName, String fileName, Stri
     chartMuseum.upload(location, chartName, fileName, chartRepositoryURL, cmUsername, cmPassword)
 }
 
-def uploadToStakaterCharts(String packagedChart, String publicChartRepositryURL, String publicChartGitURL) {
+def uploadToStakaterCharts(String gitUsername, String packagedChart, String publicChartRepositryURL, String publicChartGitURL) {
     def git = new io.stakater.vc.Git()
     def splittedGitURL = publicChartGitURL.split("/")
     
@@ -72,14 +72,14 @@ def uploadToStakaterCharts(String packagedChart, String publicChartRepositryURL,
     chartRepoName = chartRepoName.replace(".git", "")
     echo "Parsed chart repo name from GIT URL: ${chartRepoName}"
     
-    git.checkoutRepo(publicChartGitURL, "master", chartRepoName)
+    git.checkoutRepoUsingTokenWithDefaults(gitUsername, publicChartGitURL, "master", chartRepoName)
     sh """
         mv ${packagedChart} ${chartRepoName}/docs
         cd ${chartRepoName}
         helm repo index docs --url ${publicChartRepositryURL}
     """
 
-    git.commitChanges(chartRepoName, "Update charts")
+    git.commitChangesUsingToken(chartRepoName, "Update charts")
 }
 
 /**
