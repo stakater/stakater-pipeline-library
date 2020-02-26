@@ -123,10 +123,10 @@ def call(body) {
                                 find . -type f -name '*.yaml' -exec cat {} + > ${kubernetesDir}/${repoName.toLowerCase()}.yaml
                             """
 
-                            git.commitChanges(WORKSPACE, "Bump Version to ${version}")
+                            git.commitChangesUsingToken(WORKSPACE, "Bump Version to ${version}")
 
                             print "Pushing Tag ${version} to Git"
-                            git.createTagAndPush(WORKSPACE, version)
+                            git.createTagAndPushUsingToken(WORKSPACE, version)
                             git.runGoReleaser(goProjectDir)
                         }
 
