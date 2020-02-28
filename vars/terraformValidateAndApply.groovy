@@ -54,7 +54,7 @@ def call(body) {
                 terraform apply -auto-approve
               """
 
-              git.commitChanges(WORKSPACE, "Update terraform state")
+              git.commitChangesUsingToken(WORKSPACE, "Update terraform state")
             }
           }
 
