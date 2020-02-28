@@ -41,8 +41,8 @@ def call(body) {
             sh """
               export ${exportKey}=\$${exportValue}
               
-              terraform init
-              terraform validate
+              terraform init              
+              terraform plan
             """
           }
 
