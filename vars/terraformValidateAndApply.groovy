@@ -41,8 +41,8 @@ def call(body) {
             sh """
               export ${exportKey}=\$${exportValue}
               
-              terraform init
-              terraform validate
+              terraform init              
+              terraform plan
             """
           }
 
@@ -62,7 +62,7 @@ def call(body) {
             slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [])
 
             def commentMessage = "Terraform ${utils.isCD() ? "Apply" : "Validate"} successful"
-            git.addCommentToPullRequest(commentMessage)
+            git.addCommentToPullRequest(commentMessage, repoOwner)
           }
 
         }
@@ -70,7 +70,7 @@ def call(body) {
           slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
 
           def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
-          git.addCommentToPullRequest(commentMessage)
+          git.addCommentToPullRequest(commentMessage, repoOwner)
           sh """
               stk notify jira --comment "${commentMessage}"
           """
