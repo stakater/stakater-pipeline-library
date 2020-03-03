@@ -88,7 +88,7 @@ def call(body) {
                     slack.sendDefaultFailureNotification(slackWebHookURL, slackChannel, [slack.createErrorField(e)])
 
                     def commentMessage = "Yikes! You better fix it before anyone else finds out! [Build ${env.BUILD_NUMBER}](${env.BUILD_URL}) has Failed!"
-                    git.addCommentToPullRequest(commentMessage)
+                    git.addCommentToPullRequest(commentMessage,repoOwner)
 
                     throw e
                 }
@@ -97,7 +97,7 @@ def call(body) {
                     slack.sendDefaultSuccessNotification(slackWebHookURL, slackChannel, [slack.createDockerImageField("${dockerImage}:${version}")])
 
                     def commentMessage = "Image is available for testing. `docker pull ${dockerImage}:${version}`"
-                    git.addCommentToPullRequest(commentMessage)
+                    git.addCommentToPullRequest(commentMessage,repoOwner)
                 }
             }
         }
