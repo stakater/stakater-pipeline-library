@@ -407,7 +407,7 @@ def createImageVersionForCiAndCd(String repoUrl, String imagePrefix, String prNu
         def version = readFile('commandResult').trim()
         sh "rm commandResult .VERSION"
         version = 'v' + version
-        git.createTagAndPush(WORKSPACE, version)
+        git.createTagAndPushUsingToken(WORKSPACE, version)
         if("github".equalsIgnoreCase(getProvider(repoUrl))) {
             createGitHubRelease(version)
         }
