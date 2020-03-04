@@ -20,7 +20,7 @@ def call(body) {
         def dockerRepositoryURL = config.dockerRepositoryURL ?: common.getEnvValue('DOCKER_REPOSITORY_URL')
 
         container(name: 'tools') {
-            withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
+            withCurrentRepo(useToken: true, tokenSecretName: 'GithubToken') { def repoUrl, def repoName, def repoOwner, def repoBranch ->
                 def imageName = repoName.split("dockerfile-").last().toLowerCase()
                 if (repoOwner.startsWith('stakater-')){
                     repoOwner = 'stakater'
