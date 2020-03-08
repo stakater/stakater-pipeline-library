@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: task-create-jar
+spec:
+  inputs:
+    resources:
+      - name: source
+        type: git
+  steps:
+    - name: maven-build
+      image: maven:3.6.0-jdk-8-slim
+      workingDir: /workspace/source
+      # Error: Could not create local repository at /.m2/repository (LocalRepositoryNotAccessibleException) if
+      # securityContext is not privileged
+      securityContext:
+        privileged: true
+      command: ["mvn"]
+      args:
+        - "clean"
+        - "package"

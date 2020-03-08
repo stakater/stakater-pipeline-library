@@ -1,0 +1,23 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: stakater-nordmart-inventory-git-source
+spec:
+  type: git
+  params:
+    - name: revision
+      value: master
+    - name: url
+      value: https://github.com/USERNAME/stakater-nordmart-inventory
+---
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: stakater-nordmart-inventory-image
+spec:
+  type: image
+  params:
+    - name: url
+      value: us.icr.io/stakater/USERNAME-stakater-nordmart-inventory
+---

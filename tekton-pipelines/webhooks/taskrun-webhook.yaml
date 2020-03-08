@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: task-run-create-webhook
+spec:
+  taskRef:
+    name: create-webhook
+  inputs:
+    params:
+      - name: GitHubOrg
+        value: "USERNAME"
+      - name: GitHubUser
+        value: "USERNAME"
+      - name: GitHubRepo
+        value: "stakater-nordmart-inventory"
+      - name: GitHubSecretName
+        value: webhook-secret
+      - name: GitHubAccessTokenKey
+        value: token
+      - name: GitHubSecretStringKey
+        value: secret
+      - name: ExternalDomain
+        value: stakater-nordmart-inventory-eventlistener-NAMESPACE_NAME.stktrur-200210-1-345785d9ad39a5ed2bf7de019084c0fb-0000.eu-de.containers.appdomain.cloud
+  timeout: 1000s
+  serviceAccountName: stakater-tekton-createwebhook

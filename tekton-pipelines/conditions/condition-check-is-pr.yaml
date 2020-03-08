@@ -1,0 +1,11 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Condition
+metadata:
+  name: condition-check-prnumber-not-empty
+spec:
+  params:
+    - name: prnumber
+  check:
+    image: alpine
+    command: ["/bin/sh"]
+    args: ['-ce', "[[ -z $prnumber ]]" ]

@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  # `generateName` will use the value as a prefix and generate unique name adding a random suffix at runtime
+  generateName: inventory-pipeline-
+  name: inventory-pipeline
+spec:
+  pipelineRef:
+    name: pipeline-maven
+  timeout: "0h5m30s"
+  serviceAccountName: "stakater-tekton-builder"
+  resources:
+    - name: app-git
+      resourceRef:
+        name: stakater-nordmart-inventory-git-source
+    - name: app-image
+      resourceRef:
+        name: stakater-nordmart-inventory-image
+# You can pass the values directly as well if you don't want to create PipelineResources Separately
+#    - name: app-git
+#      resourceSpec:
+#        type: git
+#        params:
+#          - name: revision
+#            value: master
+#          - name: url
+#            value: https://github.com/stakater-lab/stakater-nordmart-inventory.git

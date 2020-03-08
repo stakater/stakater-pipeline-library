@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: task-hello-world
+spec:
+  steps:
+    - name: echo-hello-world
+      image: docker.io/library/busybox
+      command:
+        - /bin/sh
+      args:
+        - -c
+        - "echo hello world"
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: taskrun-hello-world
+spec:
+  taskRef:
+    name: task-hello-world

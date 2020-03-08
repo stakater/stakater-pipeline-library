@@ -1,0 +1,13 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: task-echo-status
+spec:
+  steps:
+    - name: build-simple
+      image: docker.io/library/busybox
+      command:
+        - /bin/sh
+      args:
+        - -c
+        - "echo Running pipeline"
