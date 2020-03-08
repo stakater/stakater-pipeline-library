@@ -106,6 +106,9 @@ spec:
             filter: >-
               (header.match('X-GitHub-Event', 'pull_request') &&
                body.action == 'opened' || body.action == 'synchronize')
+            overlays:
+            - key: intercepted.short_sha
+              expression: 'truncate(body.pull_request.head.sha, 7)'
       binding:
         name: inventory-triggerbinding-pullrequest
       template:
