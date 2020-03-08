@@ -1,0 +1,53 @@
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: stakater-tekton-createwebhook
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - tekton.dev
+    resources:
+      - eventlisteners
+    verbs:
+      - get
+      - list
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - networking.istio.io
+    resources:
+      - virtualservices
+      - gateways
+    verbs:
+      - create
+      - get
+      - list
+      - delete
+      - update
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: stakater-tekton-createwebhook
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: stakater-tekton-createwebhook
+subjects:
+  - kind: ServiceAccount
+    name: stakater-tekton-createwebhook
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: stakater-tekton-createwebhook

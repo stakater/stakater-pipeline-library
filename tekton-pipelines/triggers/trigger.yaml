@@ -1,0 +1,144 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: inventory-triggertemplate
+spec:
+  params:
+    - name: gitrevision
+      description: The git revision
+      default: master
+    - name: gitrepositoryurl
+      description: The git repository url
+    - name: image_registry_url
+      description: The container registry url
+    - name: namespace
+      description: The namespace to create the resources
+    - name: prnumber
+      description: PR number in case of pull request, Empty value if it's a push event
+      default: NA
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1alpha1
+      kind: PipelineResource
+      metadata:
+        name: source-repo-$(uid)
+        namespace: $(params.namespace)
+      spec:
+        type: git
+        params:
+          - name: revision
+            value: $(params.gitrevision)
+          - name: url
+            value: $(params.gitrepositoryurl)
+    - apiVersion: tekton.dev/v1alpha1
+      kind: PipelineResource
+      metadata:
+        name: image-source-$(uid)
+        namespace: $(params.namespace)
+      spec:
+        type: image
+        params:
+          - name: url
+            value: $(params.image_registry_url)
+    - apiVersion: tekton.dev/v1alpha1
+      kind: PipelineRun
+      metadata:
+        name: inventory-pipeline-run-$(uid)
+        namespace: $(params.namespace)
+      spec:
+        serviceAccountName: stakater-tekton-builder
+        pipelineRef:
+          name: pipeline-maven
+        resources:
+          - name: app-git
+            resourceRef:
+              name: source-repo-$(uid)
+          - name: app-image
+            resourceRef:
+              name: image-source-$(uid)
+        params:
+        - name: prnumber
+          value: $(params.prnumber)
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: inventory-triggerbinding-push
+spec:
+  params:
+    - name: gitrevision
+      value: $(body.head_commit.id)
+    - name: prnumber
+      value: NA
+    - name: namespace
+      value: NAMESPACE_NAME
+    - name: gitrepositoryurl
+      value: "https://github.com/$(body.repository.full_name)"
+    - name: image_registry_url
+      value: "us.icr.io/stakater/USERNAME-stakater-nordmart-inventory"
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: inventory-triggerbinding-pullrequest
+spec:
+  params:
+    - name: gitrevision
+      value: $(body.pull_request.head.sha)
+    - name: prnumber
+      value: $(body.pull_request.number)
+    - name: namespace
+      value: NAMESPACE_NAME
+    - name: gitrepositoryurl
+      value: "https://github.com/$(body.repository.full_name)"
+    - name: image_registry_url
+      value: "us.icr.io/stakater/USERNAME-stakater-nordmart-inventory"
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: inventory-eventlistener
+spec:
+  serviceAccountName: stakater-tekton-builder
+  triggers:
+    - name: pullrequest-trigger
+      interceptors:
+        - cel:
+            filter: >-
+              (header.match('X-GitHub-Event', 'pull_request') &&
+               body.action == 'opened' || body.action == 'synchronize')
+      binding:
+        name: inventory-triggerbinding-pullrequest
+      template:
+        name: inventory-triggertemplate
+    - name: push-trigger
+      #This intercepts the event and will only trigger pipeline if it's a push event(Not PR) and on master branch
+      interceptors:
+        - cel:
+            filter: >-
+              (header.match('X-GitHub-Event', 'push') &&
+               body.ref == 'refs/heads/master')
+      binding:
+        name: inventory-triggerbinding-push
+      template:
+        name: inventory-triggertemplate
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    expose: "true"
+    category: route
+    annotations:
+      haproxy.router.openshift.io/timeout: 120s
+  name: stakater-nordmart-inventory-eventlistener
+spec:
+  port:
+    targetPort: https
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: el-inventory-eventlistener
+    weight: 100
+  wildcardPolicy: None

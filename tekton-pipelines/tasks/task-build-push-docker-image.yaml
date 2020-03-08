@@ -1,0 +1,175 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: task-build-push-docker-image
+spec:
+  inputs:
+    resources:
+      - name: source
+        type: git
+    # TaskRun/PipelineRun is used to override override the default parameter values
+    params:
+      - name: tlsVerify
+        description: Verify the TLS on the registry endpoint
+        default: "true"
+      - name: destinationImageName
+        description: The destination image name that will be pushed to container registry
+        default: "$(outputs.resources.builtImage.url)"
+      - name: prnumber
+        description: In case of PR, PR number that is to be used in image tag. If this field is empty it means that it's a commit on master branch
+        default: "NA"
+      - name: gitrevision
+        description: The git revision
+        default: "$(inputs.resources.source.revision)"
+      - name: gitrepositoryurl
+        description: The git repository url
+        default: "$(inputs.resources.source.url)"
+      - name: dockerFilePath
+        description: Path to DockerFile. Required to build docker image
+        default: "Dockerfile"
+  outputs:
+    resources:
+      - name: builtImage
+        type: image
+  stepTemplate:
+    resources:
+      limits:
+        cpu: 1
+        memory: 2Gi
+  steps:
+    - name: create-tag-file
+      image: stakater/alpine-git
+      command: ["/bin/bash"]
+      workingdir: /workspace/source/
+      args:
+        - -c
+        - |
+          imageTag=latest
+          echo "Git revision: $(inputs.params.gitrevision)"
+          if [ $(inputs.params.prnumber) != "NA" ]; then
+              # This is a PR
+              gitrevision=$(inputs.params.gitrevision)
+              imageTag="SNAPSHOT-PR-$(inputs.params.prnumber)-${gitrevision:(-4)}"
+          elif [ $(inputs.params.prnumber) == "NA" ] && [ $(git rev-parse --abbrev-ref HEAD) == "master" ]; then
+              # Commit pushed on master branch
+              # Retrieve current tag
+              git pull --tags >/dev/null 2>&1
+              # ERROR: fatal: No tags can describe '<revision-sha>'. when using `git describe --abbrev=0 --tags`
+              #Working alternative = (git describe --tags $(git rev-list --tags --max-count=1))
+              VERSION=$(git tag --sort=taggerdate | tail -1)
+              echo "Current tag for master: $VERSION"
+
+              # Split version and increment path by 1
+              VERSION=${VERSION:-'0.0.0'}
+              MAJOR="${VERSION%%.*}"; VERSION="${VERSION#*.}"
+              MINOR="${VERSION%%.*}"; VERSION="${VERSION#*.}"
+              PATCH="${VERSION%%.*}"; VERSION="${VERSION#*.}"
+              PATCH=$((PATCH+1))
+
+              imageTag="$MAJOR.$MINOR.$PATCH"
+          else
+              #Not a PR and not a commit on master branch
+              gitrevision=$(inputs.params.gitrevision)
+              imageTag=${gitrevision:(-8)}
+          fi
+          echo "Image tag is $imageTag"
+          echo $imageTag > /workspace/source/GIT_TAG
+    - name: maven-build
+      image: maven:3.6.0-jdk-8-slim
+      workingDir: /workspace/source
+      # Error: Could not create local repository at /.m2/repository (LocalRepositoryNotAccessibleException) if
+      # securityContext is not privileged
+      securityContext:
+        privileged: true
+      command: ["mvn"]
+      args:
+        - "clean"
+        - "package"
+    - name: build-image
+      image: quay.io/buildah/stable
+      workingdir: /workspace/source/
+      command: ["/bin/bash"]
+      args:
+        - -c
+        - |
+          export IMAGE_TAG=$(cat /workspace/source/GIT_TAG)
+          buildah --storage-driver=vfs build-using-dockerfile --tls-verify=$(inputs.params.tlsVerify) --layers -f /workspace/source/$(inputs.params.dockerFilePath) -t $(inputs.params.destinationImageName):$IMAGE_TAG .
+      volumeMounts:
+        - name: varlibcontainers
+          mountPath: /var/lib/containers
+      # override security context as container image build need to run as root
+      securityContext:
+        allowPrivilegeEscalation: true
+        runAsUser: 0
+        privileged: true
+    - name: push-image
+      image: quay.io/buildah/stable
+      command: ["/bin/bash"]
+      args:
+        - -c
+        - |
+          export IMAGE_TAG=$(cat /workspace/source/GIT_TAG)
+          buildah --storage-driver=vfs push --tls-verify=$(inputs.params.tlsVerify) $(inputs.params.destinationImageName):$IMAGE_TAG docker://$(inputs.params.destinationImageName):$IMAGE_TAG
+      volumeMounts:
+        - name: varlibcontainers
+          mountPath: /var/lib/containers
+      securityContext:
+        allowPrivilegeEscalation: true
+        runAsUser: 0
+        privileged: true
+    - name: push-master-tags
+      image: stakater/alpine-git
+      command: ["/bin/bash"]
+      workingdir: /workspace/source/
+      env:
+        - name: GIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: stakater-git-auth
+              key: password
+        - name: GIT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: stakater-git-auth
+              key: username
+        - name: GIT_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: stakater-git-auth
+              key: email
+      args:
+        - -c
+        - |
+          if [ $(inputs.params.prnumber) == "NA" ] && [ $(git rev-parse --abbrev-ref HEAD) == "master" ]; then
+              export IMAGE_TAG=$(cat /workspace/source/GIT_TAG)
+              git config --global user.name $GIT_USERNAME
+              git config --global user.email $GIT_EMAIL
+              git config --global user.password $GIT_PASSWORD
+              git tag -am "Bump version to $IMAGE_TAG" $IMAGE_TAG
+              git push --tags
+          fi
+    - name: add-comment-on-github
+      env:
+        - name: GITHUBTOKEN
+          valueFrom:
+            secretKeyRef:
+              name: stakater-git-auth
+              key: password
+      image: stakater/alpine-git
+      command: ["/bin/bash"]
+      workingdir: /workspace/source/
+      args:
+        - -c
+        - |
+          export IMAGE_TAG=$(cat /workspace/source/GIT_TAG)
+          REPO_URL=$(inputs.params.gitrepositoryurl)
+          #Remove protocol
+          REPO_NAME=${REPO_URL#*//}
+          #Remove baseurl
+          REPO_NAME=${REPO_NAME#*/}
+          curl -s -H "Authorization: token ${GITHUBTOKEN}" \
+          -X POST -d '{"body": "Tekton - Pipeline ran successfully and image $(inputs.params.destinationImageName):'$IMAGE_TAG' is available"}' \
+          "https://api.github.com/repos/${REPO_NAME}/issues/$(inputs.params.prnumber)/comments"
+  volumes:
+    - name: varlibcontainers
+      emptyDir: {}
