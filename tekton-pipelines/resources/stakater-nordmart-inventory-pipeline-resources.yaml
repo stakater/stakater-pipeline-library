@@ -19,5 +19,5 @@ spec:
   type: image
   params:
     - name: url
-      value: us.icr.io/stakater/USERNAME-stakater-nordmart-inventory
+      value: tektonlab/USERNAME-stakater-nordmart-inventory
 ---

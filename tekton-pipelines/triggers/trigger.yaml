@@ -74,7 +74,7 @@ spec:
     - name: gitrepositoryurl
       value: "https://github.com/$(body.repository.full_name)"
     - name: image_registry_url
-      value: "us.icr.io/stakater/USERNAME-stakater-nordmart-inventory"
+      value: "tektonlab/USERNAME-stakater-nordmart-inventory"
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: TriggerBinding
@@ -91,7 +91,7 @@ spec:
     - name: gitrepositoryurl
       value: "https://github.com/$(body.repository.full_name)"
     - name: image_registry_url
-      value: "us.icr.io/stakater/USERNAME-stakater-nordmart-inventory"
+      value: "tektonlab/USERNAME-stakater-nordmart-inventory"
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: EventListener
@@ -106,9 +106,9 @@ spec:
             filter: >-
               (header.match('X-GitHub-Event', 'pull_request') &&
                body.action == 'opened' || body.action == 'synchronize')
-            overlays:
-            - key: intercepted.short_sha
-              expression: 'truncate(body.pull_request.head.sha, 7)'
+#            overlays:
+#            - key: intercepted.short_sha
+#              expression: 'truncate(body.pull_request.head.sha, 7)'
       binding:
         name: inventory-triggerbinding-pullrequest
       template:
@@ -131,8 +131,6 @@ metadata:
   labels:
     expose: "true"
     category: route
-    annotations:
-      haproxy.router.openshift.io/timeout: 120s
   name: stakater-nordmart-inventory-eventlistener
 spec:
   port:
