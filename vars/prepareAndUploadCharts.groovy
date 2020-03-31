@@ -67,7 +67,7 @@ def call(body) {
                         def commitMessage = "Bump Version to ${chartVersion}"
                         git.commitChanges(WORKSPACE, commitMessage)
                         print "Pushing Tag ${chartVersion} to Git"
-                        git.createTagAndPush(WORKSPACE, chartVersion, commitMessage)
+                        git.createTagAndPushUsingToken(WORKSPACE, chartVersion, commitMessage)
                         stakaterCommands.createGitHubRelease(chartVersion)
                     }
                 }
