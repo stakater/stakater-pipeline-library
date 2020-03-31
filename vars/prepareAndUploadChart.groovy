@@ -21,6 +21,9 @@ def call(body) {
     def chartRepositoryURL =  config.chartRepositoryURL ?: common.getEnvValue('CHART_REPOSITORY_URL')
     def chartName = config.chartName
     def repoOwner = config.repositoryOwner
+    def gitUsername = config.gitUsername ?: "stakater-user"
+    def gitEmail = config.gitEmail ?: "stakater@gmail.com"
+
     def packageName
 
     if(chartName == '') {
@@ -54,7 +57,7 @@ def call(body) {
                     echo "Public chart repository Git URL: ${publicChartGitURL}"
 
                     def packagedChartLocation = WORKSPACE + "/" + chartName.toLowerCase() + "/" + packageName;
-                    chartManager.uploadToStakaterCharts(packagedChartLocation, publicChartRepositoryURL, publicChartGitURL)
+                    chartManager.uploadToStakaterCharts(gitUsername, packagedChartLocation, publicChartRepositoryURL, publicChartGitURL)
                 }
             }
         }
