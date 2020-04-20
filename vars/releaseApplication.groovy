@@ -158,6 +158,7 @@ def call(body) {
 
                             stage("Deploy") {
                                 if (deploymentConfig.deployManifest) {
+                                    sleep(600)
                                     sh """
                                         make deploy IMAGE_NAME=${dockerImage} IMAGE_TAG=${version} NAMESPACE=${deploymentConfig.namespace}
                                     """
