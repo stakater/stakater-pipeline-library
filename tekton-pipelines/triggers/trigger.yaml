@@ -74,7 +74,7 @@ spec:
     - name: gitrepositoryurl
       value: "https://github.com/$(body.repository.full_name)"
     - name: image_registry_url
-      value: "tektonlab/USERNAME-stakater-nordmart-inventory"
+      value: "tektonlab/USERNAME-$(body.repository.full_name)"
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: TriggerBinding
@@ -91,7 +91,7 @@ spec:
     - name: gitrepositoryurl
       value: "https://github.com/$(body.repository.full_name)"
     - name: image_registry_url
-      value: "tektonlab/USERNAME-stakater-nordmart-inventory"
+      value: "tektonlab/USERNAME-$(body.repository.full_name)"
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: EventListener
