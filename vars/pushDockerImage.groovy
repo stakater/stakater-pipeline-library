@@ -21,7 +21,7 @@ def call(body) {
 
         container(name: 'tools') {
             withCurrentRepo(useToken: true, tokenSecretName: 'GithubToken') { def repoUrl, def repoName, def repoOwner, def repoBranch ->
-                def imageName = repoName.split("dockerfile-").last().toLowerCase()
+                def imageName = config.imageName ? config.imageName : repoName.split("dockerfile-").last().toLowerCase()
                 if (repoOwner.startsWith('stakater-')){
                     repoOwner = 'stakater'
                 }
@@ -29,7 +29,7 @@ def call(body) {
                 def dockerImage = "${dockerRepositoryURL}/${repoOwner.toLowerCase()}/${imageName}"
                 // If image Prefix is passed, use it, else pass empty string to create versions
                 def imagePrefix = config.imagePrefix ? config.imagePrefix + '-' : ''
-                def dockerImageVersion = stakaterCommands.createImageVersionForCiAndCd(repoUrl, imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
+                def dockerImageVersion = config.imageVersion ? config.imageVersion : stakaterCommands.createImageVersionForCiAndCd(repoUrl, imagePrefix, "${env.BRANCH_NAME}", "${env.BUILD_NUMBER}")
 
                 try {
                     stage('Canary Release') {
