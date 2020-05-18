@@ -9,22 +9,22 @@ def call(body) {
     body()
 
     stakaterNode(config) {
-        container(name: 'tools') {
-            withCurrentRepo { def repoUrl, def repoName, def repoOwner, def repoBranch ->
-                def charts = config.charts.toArray()
-                def makePublic = config.isPublic ?: false
-                def usePrefix = config.usePrefix ?: false
-                def templates = new io.stakater.charts.Templates()
-                def common = new io.stakater.Common()
-                def git = new io.stakater.vc.Git()
-                def utils = new io.fabric8.Utils()
-                def slack = new io.stakater.notifications.Slack()
-                def stakaterCommands = new io.stakater.StakaterCommands()
+        withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
+            
+            def charts = config.charts.toArray()
+            def makePublic = config.isPublic ?: false
+            def usePrefix = config.usePrefix ?: false
+            def templates = new io.stakater.charts.Templates()
+            def common = new io.stakater.Common()
+            def git = new io.stakater.vc.Git()
+            def utils = new io.fabric8.Utils()
+            def slack = new io.stakater.notifications.Slack()
+            def stakaterCommands = new io.stakater.StakaterCommands()
 
-                // Slack variables
-                def slackChannel = "${env.SLACK_CHANNEL}"
-                def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
-                
+            // Slack variables
+            def slackChannel = "${env.SLACK_CHANNEL}"
+            def slackWebHookURL = "${env.SLACK_WEBHOOK_URL}"
+            container(name: 'tools') {
                 def chartVersion = ''
                 if(usePrefix){
                     chartVersion = common.shOutput("stk generate version --version-file .version")
