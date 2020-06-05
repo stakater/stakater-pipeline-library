@@ -65,7 +65,7 @@ def call(body) {
                     }
                 }
                 container(name: 'builder') {
-                    //try {
+                    try {
                         stage('Build Application') {
                             app.build(baseConfig.appType, version, baseConfig.goal)
                         }
@@ -77,11 +77,11 @@ def call(body) {
                                 }
                             }
                         }
-                   // }
-                    //catch (e) {
-                      //  print "caught exception during build phase"
-                      //  buildException = e
-                   // }
+                    }
+                    catch (e) {
+                        print "caught exception during build phase"
+                        buildException = e
+                    }
                 }
 
                 container(name: 'tools') {
