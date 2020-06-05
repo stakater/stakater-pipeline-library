@@ -96,6 +96,7 @@ def build(String appType, String version, String goal) {
     def builder = new io.stakater.builder.Build()
     String parsedGoal = parseGoalEnvironment(goal)
 
+    println "TODO: build: $version , $parsedGoal"
     switch(appType) {
         case "angular":
             builder.buildAngularApplication(version, parsedGoal)
