@@ -184,7 +184,7 @@ def getStakaterPodContainers(Map parameters = [:]) {
 
 def getStakaterPodDefaultContainer(Map parameters = [:]) {
     String name = parameters.get('name', 'tools')
-    String image = parameters.get('image', 'stakater/pipeline-tools:v2.1.2')
+    String image = parameters.get('image', 'stakater/pipeline-tools:v2.1.3')
     String command = parameters.get('command', '/bin/sh -c')
     String args = parameters.get('args', 'cat')
     Boolean privileged = parameters.get('privileged', true)
