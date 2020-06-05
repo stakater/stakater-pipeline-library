@@ -89,6 +89,7 @@ def parseGoalEnvironment(String goal){
         parsedGoal = parsedGoal.replaceAll('#ENVIRONMENT','stage')
     }
     echo "Parsed goal from ${goal} to ${parsedGoal}"
+    echo "after parsedgoal"
     return parsedGoal
 }
 
@@ -96,7 +97,7 @@ def build(String appType, String version, String goal) {
     def builder = new io.stakater.builder.Build()
     String parsedGoal = parseGoalEnvironment(goal)
 
-    println "TODO: build: $version , $parsedGoal"
+    echo "TODO: build: $version , $parsedGoal"
     switch(appType) {
         case "angular":
             builder.buildAngularApplication(version, parsedGoal)
