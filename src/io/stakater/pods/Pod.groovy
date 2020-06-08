@@ -10,15 +10,14 @@ Map setDockerConfig(Map parameters = [:]) {
     setPodVolumes(parameters)
     setDefaultContainerEnvVarsConfig(parameters)
 
-    // Don't mount docker socket if useBuildah is true or isDockerMount is true
-    if (!((parameters.containsKey("useBuildah") && parameters.get('useBuildah', true )) ||
-            parameters.containsKey("isDockerMount") && parameters.get('isDockerMount', false ))) {
+    // Don't mount docker socket if useBuildah is true or isDockerMount is false
+    if (!parameters.get('useBuildah', false ) && parameters.get('isDockerMount', true )) {
         parameters.podVolumes.isDockerMount = true
         parameters.podContainers.defaultContainer.envVarsConfig.isDocker = true
     }
 
-    // Don't mount docker config if isDockerConfig is false
-    if (!(parameters.containsKey("isDockerConfig") && parameters.get('isDockerConfig', false ))) {
+    // Don't mount docker config if isDockerConfig exists and is false
+    if (parameters.get('isDockerConfig', true )) {
         parameters.podVolumes.isDockerConfig = true
     }
     return parameters
