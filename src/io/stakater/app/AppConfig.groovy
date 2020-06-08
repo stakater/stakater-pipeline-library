@@ -23,6 +23,8 @@ Map getPackageConfig(Map config) {
     packageConfig.chartPackageName = ""
     packageConfig.helmVersion = ""
     packageConfig.dockerRepositoryURL = config.dockerRepositoryURL ?: ""
+    packageConfig.useBuildah = config.useBuildah ?: false
+    packageConfig.buildahVerifyTls = config.buildahVerifyTls ?: false
 
     packageConfig.javaRepositoryURL = config.javaRepositoryURL ?: ""
     packageConfig.publishArtifact = ! packageConfig.javaRepositoryURL.equals("")

@@ -23,6 +23,7 @@ def call(body) {
                 Map kubernetesConfig = appConfig.getKubernetesConfig(config)
 
                 def docker = new io.stakater.containers.Docker()
+                def buildah = new io.stakater.containers.Buildah()
                 def git = new io.stakater.vc.Git()
                 def utils = new io.fabric8.Utils()
                 def chartManager = new io.stakater.charts.ChartManager()
@@ -96,8 +97,16 @@ def call(body) {
                         }
 
                         stage('Image build & push') {
-                            docker.buildImageWithTagCustom(dockerImage, version)
-                            docker.pushTagCustom(dockerImage, version)
+                            if (packageConfig.useBuildah) {
+                                echo "Using buildah to build image"
+                                buildah.buildImageWithTagCustom(dockerImage, version, packageConfig.buildahVerifyTls)
+                                buildah.pushTagCustom(dockerImage, version, packageConfig.buildahVerifyTls)
+                            }
+                            else {
+                                echo "Using docker to build image"
+                                docker.buildImageWithTagCustom(dockerImage, version)
+                                docker.pushTagCustom(dockerImage, version)
+                            }
                         }
 
                         stage('Package chart' ) {
