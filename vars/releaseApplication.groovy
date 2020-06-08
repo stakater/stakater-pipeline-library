@@ -53,25 +53,25 @@ def call(body) {
                         echo "Image NAME: ${baseConfig.imageName}"
                         echo "Repo Owner: ${baseConfig.repoOwner}"
 
-                        stage('Create Version') {
+                        stage('Create version') {
                             dockerImage = "${packageConfig.dockerRepositoryURL}/${baseConfig.repoOwner.toLowerCase()}/${baseConfig.imageName}"
                             version = app.getImageVersion(repoUrl, baseConfig.imagePrefix, repoBranch, "${env.BUILD_NUMBER}")
                             echo "Version: ${version}"
                         }
                     }
                     catch (e) {
-                        print "caught exception during build phase"
+                        print "caught exception during create version stage"
                         buildException = e
                     }
                 }
                 container(name: 'builder') {
                     try {
-                        stage('Build Application') {
+                        stage('Build application') {
                             app.build(baseConfig.appType, version, baseConfig.goal)
                         }
 
                         if (utils.isCD()) {
-                            stage('Publish Artifact') {
+                            stage('Publish artifact') {
                                 if (packageConfig.publishArtifact) {
                                     nexus.pushAppArtifact(baseConfig.imageName, version, packageConfig.javaRepositoryURL, packageConfig.artifactType)
                                 }
@@ -79,7 +79,7 @@ def call(body) {
                         }
                     }
                     catch (e) {
-                        print "caught exception during build phase"
+                        print "caught exception during build & publish stage"
                         buildException = e
                     }
                 }
@@ -96,7 +96,7 @@ def call(body) {
                             throw buildException
                         }
 
-                        stage('Image build & push') {
+                        stage('Build & push image') {
                             if (packageConfig.useBuildah) {
                                 echo "Using buildah to build image"
                                 buildah.buildImageWithTagCustom(dockerImage, version, packageConfig.buildahVerifyTls)
@@ -115,7 +115,7 @@ def call(body) {
                             }
                         }
 
-                        stage('Run Synthetic/E2E Tests') {
+                        stage('Run Synthetic/E2E tests') {
                             if (packageConfig.executeE2E) {
                                 echo "Running synthetic tests for application:  ${repoName}"
                                 // def testJob = build job: packageConfig.e2eTestJob, propagate:false
@@ -134,7 +134,7 @@ def call(body) {
                             }
                         }
 
-                        stage("Generate Chart Templates"){
+                        stage("Generate chart templates"){
                             if (kubernetesConfig.kubernetesGenerateManifests && !isPullRequest) {
                                 // Generate manifests from chart using pre-defined values.yaml
                                 templates.generateManifestsUsingValues(kubernetesConfig.kubernetesPublicChartRepositoryURL,
@@ -154,14 +154,14 @@ def call(body) {
 
                         // If master
                         if (utils.isCD()) {
-                            stage('Upload Helm Chart') {
+                            stage('Upload helm chart') {
                                 if (packageConfig.publishChart) {
                                     chartManager.uploadChart(chartRepository, packageConfig.chartRepositoryURL, baseConfig.kubernetesDir,
                                             nexusChartRepoName, repoName, packageConfig.chartPackageName)
                                 }
                             }
 
-                            stage("Create Git Tag"){
+                            stage("Create git tag"){
                                 app.createAndPushTag(gitConfig.cloneUsingToken, WORKSPACE, version)
                             }
 
