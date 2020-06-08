@@ -6,30 +6,21 @@ def setToolsImage(Map parameters = [:], String image) {
     parameters.podContainers.defaultContainer.image = image
 }
 
-def mountDockerSocket(Map parameters = [:]) {
-    setPodVolumes(parameters)
-    parameters.podVolumes.isDockerMount = true
-}
-
 Map setDockerConfig(Map parameters = [:]) {
-    parameters.podVolumes.isDockerMount = true
-    parameters.podContainers.defaultContainer.envVarsConfig.isDocker = true
-    parameters.podVolumes.isDockerConfig = true
-
-    if ((parameters.containsKey("useBuildah") && parameters.get('useBuildah', true )) ||
-            parameters.containsKey("isDockerMount") && parameters.get('isDockerMount', false )) {
-        parameters.podVolumes.isDockerMount = false
-        parameters.podContainers.defaultContainer.envVarsConfig.isDocker = false
-    }
-    else {
-        mountDockerSocket(parameters)
-    }
-
-    if (parameters.containsKey("isDockerConfig") && parameters.get('isDockerConfig', false )) {
-        parameters.podVolumes.isDockerConfig = false
-    }
-
+    setPodVolumes(parameters)
     setDefaultContainerEnvVarsConfig(parameters)
+
+    // Don't mount docker socket if useBuildah is true or isDockerMount is true
+    if (!((parameters.containsKey("useBuildah") && parameters.get('useBuildah', true )) ||
+            parameters.containsKey("isDockerMount") && parameters.get('isDockerMount', false ))) {
+        parameters.podVolumes.isDockerMount = true
+        parameters.podContainers.defaultContainer.envVarsConfig.isDocker = true
+    }
+
+    // Don't mount docker config if isDockerConfig is false
+    if (!(parameters.containsKey("isDockerConfig") && parameters.get('isDockerConfig', false ))) {
+        parameters.podVolumes.isDockerConfig = true
+    }
     return parameters
 }
 
