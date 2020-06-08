@@ -2,7 +2,6 @@
 package io.stakater.builder
 
 def buildMavenApplication(String version, String mavenGoal = "clean package"){
-    println "TODO: buildMavenApplication"
     sh "mvn -version"
     sh "mvn versions:set -DnewVersion=${version} -f pom.xml"
     mavenGoal.split(';').each { goal ->

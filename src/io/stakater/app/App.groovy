@@ -92,7 +92,6 @@ def parseGoalEnvironment(String goal){
         parsedGoal = parsedGoal.replaceAll('#ENVIRONMENT','stage')
     }
     echo "Parsed goal from ${goal} to ${parsedGoal}"
-    echo "after parsedgoal"
     return parsedGoal
 }
 
