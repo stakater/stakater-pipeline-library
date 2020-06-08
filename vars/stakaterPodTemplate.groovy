@@ -4,6 +4,9 @@ import io.fabric8.Fabric8Commands
 def call(Map parameters = [:], body) {
     def flow = new Fabric8Commands()
 
+    println "StakaterPodTemplate Parameters: "
+    parameters.each{ k, v -> println "${k}:${v}" }
+
     def defaultLabel = buildId('stakater-node')
     def label = parameters.get('label', defaultLabel)
     def serviceAccount = parameters.get('serviceAccount', 'jenkins')

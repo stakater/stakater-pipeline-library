@@ -2,6 +2,9 @@
 package io.stakater.app
 
 Map configure(Map parameters = [:]) {
+    println "Pipeline Parameters: "
+    parameters.each{ k, v -> println "${k}:${v}" }
+
     String appType = parameters.appType ?: "angular"
 
     configureByAppType(appType, parameters)

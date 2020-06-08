@@ -12,11 +12,24 @@ def mountDockerSocket(Map parameters = [:]) {
 }
 
 Map setDockerConfig(Map parameters = [:]) {
-    mountDockerSocket(parameters)
-    setDefaultContainerEnvVarsConfig(parameters)
-
-    parameters.podVolumes.isDockerConfig = true
+    parameters.podVolumes.isDockerMount = true
     parameters.podContainers.defaultContainer.envVarsConfig.isDocker = true
+    parameters.podVolumes.isDockerConfig = true
+
+    if ((parameters.containsKey("useBuildah") && parameters.get('useBuildah', true )) ||
+            parameters.containsKey("isDockerMount") && parameters.get('isDockerMount', false )) {
+        parameters.podVolumes.isDockerMount = false
+        parameters.podContainers.defaultContainer.envVarsConfig.isDocker = false
+    }
+    else {
+        mountDockerSocket(parameters)
+    }
+
+    if (parameters.containsKey("isDockerConfig") && parameters.get('isDockerConfig', false )) {
+        parameters.podVolumes.isDockerConfig = false
+    }
+
+    setDefaultContainerEnvVarsConfig(parameters)
     return parameters
 }
 
