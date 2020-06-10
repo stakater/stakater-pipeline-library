@@ -8,13 +8,13 @@ def buildImageWithTagCustom(def imageName, def tag, def verifyTls) {
 
 def buildImageWithTagCustom(def buildContext, def imageName, def tag, def verifyTls) {
     sh """
-        buildah --storage-driver=vfs build-using-dockerfile --tls-verify=${verifyTls} --layers -f ${buildContext} -t ${imageName}:${tag} .
+        buildah --storage-driver=vfs build-using-dockerfile --format=docker --tls-verify=${verifyTls} --layers -f ${buildContext} -t ${imageName}:${tag} .
     """
 }
 
 def pushTagCustom(def imageName, def tag, def verifyTls) {
     sh """
-        buildah --storage-driver=vfs push --tls-verify=${verifyTls} ${imageName}:${tag} docker://${imageName}:${tag}
+        buildah --storage-driver=vfs push --format=docker --tls-verify=${verifyTls} ${imageName}:${tag} docker://${imageName}:${tag}
     """
 }
 
