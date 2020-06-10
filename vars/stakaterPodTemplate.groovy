@@ -4,6 +4,9 @@ import io.fabric8.Fabric8Commands
 def call(Map parameters = [:], body) {
     def flow = new Fabric8Commands()
 
+    println "StakaterPodTemplate Parameters: "
+    parameters.each{ k, v -> println "${k}:${v}" }
+
     def defaultLabel = buildId('stakater-node')
     def label = parameters.get('label', defaultLabel)
     def serviceAccount = parameters.get('serviceAccount', 'jenkins')
@@ -184,7 +187,7 @@ def getStakaterPodContainers(Map parameters = [:]) {
 
 def getStakaterPodDefaultContainer(Map parameters = [:]) {
     String name = parameters.get('name', 'tools')
-    String image = parameters.get('image', 'stakater/pipeline-tools:v2.1.2')
+    String image = parameters.get('image', 'stakater/pipeline-tools:v2.1.3')
     String command = parameters.get('command', '/bin/sh -c')
     String args = parameters.get('args', 'cat')
     Boolean privileged = parameters.get('privileged', true)

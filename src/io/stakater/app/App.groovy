@@ -2,6 +2,9 @@
 package io.stakater.app
 
 Map configure(Map parameters = [:]) {
+    println "Pipeline Parameters: "
+    parameters.each{ k, v -> println "${k}:${v}" }
+
     String appType = parameters.appType ?: "angular"
 
     configureByAppType(appType, parameters)
@@ -96,6 +99,7 @@ def build(String appType, String version, String goal) {
     def builder = new io.stakater.builder.Build()
     String parsedGoal = parseGoalEnvironment(goal)
 
+    echo "TODO: build: $version , $parsedGoal"
     switch(appType) {
         case "angular":
             builder.buildAngularApplication(version, parsedGoal)

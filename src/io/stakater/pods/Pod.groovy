@@ -6,17 +6,20 @@ def setToolsImage(Map parameters = [:], String image) {
     parameters.podContainers.defaultContainer.image = image
 }
 
-def mountDockerSocket(Map parameters = [:]) {
-    setPodVolumes(parameters)
-    parameters.podVolumes.isDockerMount = true
-}
-
 Map setDockerConfig(Map parameters = [:]) {
-    mountDockerSocket(parameters)
+    setPodVolumes(parameters)
     setDefaultContainerEnvVarsConfig(parameters)
 
-    parameters.podVolumes.isDockerConfig = true
-    parameters.podContainers.defaultContainer.envVarsConfig.isDocker = true
+    // Don't mount docker socket if useBuildah is true or isDockerMount is false
+    if (!parameters.get('useBuildah', false ) && parameters.get('isDockerMount', true )) {
+        parameters.podVolumes.isDockerMount = true
+        parameters.podContainers.defaultContainer.envVarsConfig.isDocker = true
+    }
+
+    // Don't mount docker config if isDockerConfig exists and is false
+    if (parameters.get('isDockerConfig', true )) {
+        parameters.podVolumes.isDockerConfig = true
+    }
     return parameters
 }
 
