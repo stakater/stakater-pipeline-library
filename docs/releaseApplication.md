@@ -34,6 +34,9 @@ The releaseApplication can be used with the following parameters:
 | kubernetesChartName           | `stakater/application`                         | Helm chart against which manifests will be generated|
 | kubernetesChartVersion           | `0.0.12`                         | Helm chart version|
 | kubernetesNamespace           | `default`                         | Namespace which will be used to generate k8s resources |
+| useBuildah           | `false`                         | Use buildah to build and push Image |
+| buildahVerifyTls           | `false`                         | Verify TLS when using buildah |
+
 
 Passing "#ENVIRONMENT" in goals would dynamically replace it with prod if the branch against which release application 
 was called is master, else it will replace it with stage.
