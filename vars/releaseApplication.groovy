@@ -11,7 +11,7 @@ def call(body) {
     
     timestamps {
         stakaterNode(config) {
-            withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch ->
+            withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch, def repoCloneBranch ->
 
                 def appConfig = new io.stakater.app.AppConfig()
                 Map packageConfig = appConfig.getPackageConfig(config)
@@ -42,7 +42,7 @@ def call(body) {
                 def buildException = null
 
                 if (cloneUsingToken && !isPullRequest) {
-                    git.cloneRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret, repoBranch)
+                    git.cloneRepoWithCredentials(repoUrl, gitConfig.user, gitConfig.tokenSecret, repoCloneBranch)
                 }
                 else {
                     checkout scm
