@@ -11,7 +11,7 @@ def call(body) {
     
     timestamps {
         stakaterNode(config) {
-            withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch, def repoCloneBranch ->
+            withSCM { String repoUrl, String repoName, String repoOwner, String repoBranch, String repoCloneBranch ->
 
                 def appConfig = new io.stakater.app.AppConfig()
                 Map packageConfig = appConfig.getPackageConfig(config)
