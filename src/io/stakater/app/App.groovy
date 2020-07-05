@@ -35,6 +35,9 @@ Map configureByAppType(String appType, Map parameters = [:]) {
         case "dotnet":
             configureDotnetApp(parameters)
         break
+        case "python":
+            configureDotnetApp(parameters)
+        break
     }
     return parameters
 }
@@ -63,6 +66,11 @@ Map configureNodeApp(Map parameters = [:]) {
 Map configureDotnetApp(Map parameters = [:]) {
     parameters.goal = parameters.goal ?: "restore;publish -c Release -o out"
     parameters.builderImage = parameters.builderImage ?: "stakater/builder-dotnet:2.2-centos7"
+}
+
+Map configurePythonApp(Map parameters = [:]) {
+    parameters.goal = parameters.goal ?: "install -r requirements.txt"
+    parameters.builderImage = parameters.builderImage ?: "python:3.7.8"
 }
 
 Map createBuilderContainer(String image) {
@@ -114,6 +122,9 @@ def build(String appType, String version, String goal) {
             builder.buildNodeApplication(version, parsedGoal)
         break
         case "dotnet":
+            builder.buildDotnetApplication(version, parsedGoal)
+        break
+        case "python":
             builder.buildDotnetApplication(version, parsedGoal)
         break
     }

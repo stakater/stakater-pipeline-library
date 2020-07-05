@@ -6,6 +6,7 @@
 3. Java Maven
 4. Java Gradle
 5. ASP .NET
+6. Python
 
 ## Configuration
 
@@ -13,7 +14,7 @@ The releaseApplication can be used with the following parameters:
 
 | Name            | Default Value                   | Description                       |
 |-----------------|-------------------------|-----------------------------------|
-| appType                | `maven`     | The type of application to be deployed e.g.`node|angular|maven|dotnet|gradle`|
+| appType                | `maven`     | The type of application to be deployed e.g. `node|angular|maven|dotnet|gradle|python`|
 | builderImage     | `stakater/builder-angular:7.0.7-node8.16-alpine-v0.0.1`| docker image to use for the particular `appType`.|
 | goal                   | `install;run build:stage`              | build goal for the application.|
 | notifySlack            | `false`                           | Should notify slack for pipeline results or not.|
