@@ -40,6 +40,13 @@ def buildAngularApplication(String version, String angularGoal="install;run buil
     }
 }
 
+def buildPythonApplication(String version, String pythonGoal="install -r *.txt;") {
+    
+    pythonGoal.split(';').each { goal ->
+        sh "python3 ${goal}"
+    }
+}
+
 def deployHelmChart(String chartDir){
     sh """        
         make install-chart

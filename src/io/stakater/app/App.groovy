@@ -36,7 +36,7 @@ Map configureByAppType(String appType, Map parameters = [:]) {
             configureDotnetApp(parameters)
         break
         case "python":
-            configureDotnetApp(parameters)
+            configurePythonApp(parameters)
         break
     }
     return parameters
@@ -69,7 +69,7 @@ Map configureDotnetApp(Map parameters = [:]) {
 }
 
 Map configurePythonApp(Map parameters = [:]) {
-    parameters.goal = parameters.goal ?: "install -r requirements.txt"
+    parameters.goal = parameters.goal ?: "install -r *.txt"
     parameters.builderImage = parameters.builderImage ?: "python:3.7.8"
 }
 
@@ -125,7 +125,7 @@ def build(String appType, String version, String goal) {
             builder.buildDotnetApplication(version, parsedGoal)
         break
         case "python":
-            builder.buildDotnetApplication(version, parsedGoal)
+            builder.buildPythonApplication(version, parsedGoal)
         break
     }
 }
