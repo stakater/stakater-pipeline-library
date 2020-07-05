@@ -35,5 +35,4 @@ def call(Map parameters = [:], body) {
             body()
         }
     }
-
 }

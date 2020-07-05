@@ -5,7 +5,7 @@ def call(Map parameters = [:], body) {
     def defaultLabel = buildId('python')
     def label = parameters.get('label', defaultLabel)
 
-    nodejsTemplate(parameters) {
+    pythonTemplate(parameters) {
         node(label) {
             body()
         }
