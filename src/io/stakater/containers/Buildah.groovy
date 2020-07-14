@@ -3,12 +3,8 @@ package io.stakater.containers
 
 
 def buildImageWithTagCustom(def imageName, def tag, def verifyTls) {
-    buildImageWithTagCustom(".", imageName, tag, verifyTls)
-}
-
-def buildImageWithTagCustom(def buildContext, def imageName, def tag, def verifyTls) {
     sh """
-        buildah --storage-driver=vfs build-using-dockerfile --format=docker --tls-verify=${verifyTls} --layers -f ${buildContext} -t ${imageName}:${tag} .
+        buildah --storage-driver=vfs build-using-dockerfile --format=docker --tls-verify=${verifyTls} -t ${imageName}:${tag} .
     """
 }
 
