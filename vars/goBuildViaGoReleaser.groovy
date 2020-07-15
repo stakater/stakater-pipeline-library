@@ -7,6 +7,7 @@ def call(body) {
     body()
 
     toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:v2.0.18'
+    skipTests = config.skipTests ?: false
 
     toolsNode(toolsImage: toolsImage) {
         container(name: 'tools') {
@@ -66,11 +67,13 @@ def call(body) {
                         """
                     }
 
-                    stage('Run Tests') {
-                        sh """
-                            cd ${goProjectDir}
-                            make test
-                        """
+                    if(!skipTests) {
+                        stage('Run Tests') {
+                            sh """
+                                cd ${goProjectDir}
+                                make test
+                            """
+                        }
                     }
 
                     if (utils.isCI()) {
