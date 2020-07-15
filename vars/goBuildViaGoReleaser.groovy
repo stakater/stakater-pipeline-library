@@ -67,7 +67,7 @@ def call(body) {
                         """
                     }
 
-                    if(skipTests) {
+                    if(!skipTests) {
                         stage('Run Tests') {
                             sh """
                                 cd ${goProjectDir}
