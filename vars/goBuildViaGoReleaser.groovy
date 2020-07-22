@@ -8,7 +8,7 @@ def call(body) {
 
     toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:v2.0.18'
     skipTests = config.skipTests ?: false
-    runVerify = config.runVerify ?: false
+    verify = config.verify ?: false
 
     toolsNode(toolsImage: toolsImage) {
         container(name: 'tools') {
@@ -68,7 +68,7 @@ def call(body) {
                         """
                     }
 
-                    if(runVerify) {
+                    if(verify) {
                         stage('Run Verify') {
                             sh """
                                 cd ${goProjectDir}
