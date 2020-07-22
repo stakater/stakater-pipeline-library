@@ -8,6 +8,7 @@ def call(body) {
 
     toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:v2.0.18'
     skipTests = config.skipTests ?: false
+    runVerify = config.runVerify ?: false
 
     toolsNode(toolsImage: toolsImage) {
         container(name: 'tools') {
@@ -65,6 +66,15 @@ def call(body) {
                             export DOCKER_IMAGE=${dockerImage}
                             make install
                         """
+                    }
+
+                    if(runVerify) {
+                        stage('Run Verify') {
+                            sh """
+                                cd ${goProjectDir}
+                                make verify
+                            """
+                        }
                     }
 
                     if(!skipTests) {
