@@ -9,6 +9,8 @@ def call(body) {
     toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:v2.0.18'
     skipTests = config.skipTests ?: false
     verify = config.verify ?: false
+    renderChart = config.renderChart ?: true
+    publishChart = ! config.publicChartRepositoryURL.equals("")
 
     toolsNode(toolsImage: toolsImage) {
         container(name: 'tools') {
@@ -128,16 +130,18 @@ def call(body) {
                                 stk notify jira --comment "Version ${version} of ${repoName} has been successfully built and released."
                             """
 
-                            // Render chart from templates
-                            templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, dockerImage)
-                            // Generate manifests from chart
-                            templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
-                            
-                            // Generate combined manifest
-                            sh """
-                                cd ${manifestsDir}
-                                find . -type f -name '*.yaml' -exec cat {} + > ${kubernetesDir}/${repoName.toLowerCase()}.yaml
-                            """
+                            if (renderChart) {
+                                // Render chart from templates
+                                templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, dockerImage)
+                                // Generate manifests from chart
+                                templates.generateManifests(chartDir, repoName.toLowerCase(), manifestsDir)
+
+                                // Generate combined manifest
+                                sh """
+                                    cd ${manifestsDir}
+                                    find . -type f -name '*.yaml' -exec cat {} + > ${kubernetesDir}/${repoName.toLowerCase()}.yaml
+                                """
+                            }
 
                             git.commitChangesUsingToken(WORKSPACE, "Bump Version to ${version}")
 
@@ -146,33 +150,35 @@ def call(body) {
                             git.runGoReleaser(goProjectDir)
                         }
 
-                        stage('Chart: Init Helm') {
-                            helm.init(true)
-                        }
-
-                        stage('Chart: Prepare') {
-                            helm.lint(chartDir, repoName.toLowerCase())
-                            chartPackageName = helm.package(chartDir, repoName.toLowerCase())
-                        }
-
-                        stage('Chart: Upload') {
-                            echo "Executing chart upload step"
-                            String cmUsername = "${env.CHARTMUSEUM_USERNAME}"
-                            String cmPassword = "${env.CHARTMUSEUM_PASSWORD}"
-                            String publicChartRepositoryURL = config.publicChartRepositoryURL
-                            String publicChartGitURL = config.publicChartGitURL
-
-                            if (config.chartRepositoryURL) {
-                                echo "Uploading to custom chart repository: ${chartRepositoryURL}"
-                                chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)                        
+                        if (renderChart && publishChart) {
+                            stage('Chart: Init Helm') {
+                                helm.init(true)
                             }
 
-                            if (publicChartRepositoryURL && publicChartGitURL) {
-                                echo "Uploading to public chart repository: ${publicChartRepositoryURL}"
-                                echo "Public chart repository Git URL: ${publicChartGitURL}"
+                            stage('Chart: Prepare') {
+                                helm.lint(chartDir, repoName.toLowerCase())
+                                chartPackageName = helm.package(chartDir, repoName.toLowerCase())
+                            }
 
-                                def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
-                                chartManager.uploadToStakaterCharts(gitUsername, packagedChartLocation, publicChartRepositoryURL, publicChartGitURL)
+                            stage('Chart: Upload') {
+                                echo "Executing chart upload step"
+                                String cmUsername = "${env.CHARTMUSEUM_USERNAME}"
+                                String cmPassword = "${env.CHARTMUSEUM_PASSWORD}"
+                                String publicChartRepositoryURL = config.publicChartRepositoryURL
+                                String publicChartGitURL = config.publicChartGitURL
+
+                                if (config.chartRepositoryURL) {
+                                    echo "Uploading to custom chart repository: ${chartRepositoryURL}"
+                                    chartManager.uploadToChartMuseum(chartDir, repoName.toLowerCase(), chartPackageName, cmUsername, cmPassword, chartRepositoryURL)
+                                }
+
+                                if (publicChartRepositoryURL && publicChartGitURL) {
+                                    echo "Uploading to public chart repository: ${publicChartRepositoryURL}"
+                                    echo "Public chart repository Git URL: ${publicChartGitURL}"
+
+                                    def packagedChartLocation = chartDir + "/" + repoName.toLowerCase() + "/" + chartPackageName;
+                                    chartManager.uploadToStakaterCharts(gitUsername, packagedChartLocation, publicChartRepositoryURL, publicChartGitURL)
+                                }
                             }
                         }
 
