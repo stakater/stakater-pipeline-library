@@ -9,8 +9,7 @@ def call(body) {
     toolsImage = config.toolsImage ?: 'stakater/pipeline-tools:v2.0.18'
     skipTests = config.skipTests ?: false
     verify = config.verify ?: false
-    renderChart = config.renderChart ?: true
-    publishChart = ! config.publicChartRepositoryURL.equals("")
+    skipChart = config.skipChart ?: false
 
     toolsNode(toolsImage: toolsImage) {
         container(name: 'tools') {
@@ -130,7 +129,7 @@ def call(body) {
                                 stk notify jira --comment "Version ${version} of ${repoName} has been successfully built and released."
                             """
 
-                            if (renderChart) {
+                            if (!skipChart) {
                                 // Render chart from templates
                                 templates.renderChart(chartTemplatesDir, chartDir, repoName.toLowerCase(), version, dockerImage)
                                 // Generate manifests from chart
@@ -150,7 +149,7 @@ def call(body) {
                             git.runGoReleaser(goProjectDir)
                         }
 
-                        if (renderChart && publishChart) {
+                        if (!skipChart) {
                             stage('Chart: Init Helm') {
                                 helm.init(true)
                             }
