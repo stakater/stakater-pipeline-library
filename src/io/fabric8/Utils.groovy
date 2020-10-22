@@ -221,7 +221,7 @@ def isCI(){
 
 def isCD(){
   def branch = getBranch()
-  if(!branch || branch.equals('master')){
+  if(!branch || branch.equals('master') || branch.equals('release-v1')){
     return true
   }
   // if we can't get the branch assume we're not in a CI pipeline as that would be a PR branch
