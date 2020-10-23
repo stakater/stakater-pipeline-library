@@ -439,7 +439,7 @@ def getImageVersionForCiAndCd(String imagePrefix, String prNumber, String buildN
     def imageVersion = ''
 
     // For CD
-    if (branchName.equalsIgnoreCase("master")) {
+    if (branchName.equalsIgnoreCase("master") || branchName.equalsIgnoreCase("release-v1")) {
         sh "stk generate version > commandResult"
         def version = readFile('commandResult').trim()
         sh "rm commandResult .VERSION"
@@ -471,7 +471,7 @@ def getImageVersionForCiAndCd(String repoUrl, String imagePrefix, String prNumbe
     def imageVersion = ''
 
     // For CD
-    if (branchName.equalsIgnoreCase("master")) {
+    if (branchName.equalsIgnoreCase("master") || branchName.equalsIgnoreCase("release-v1")) {
         sh "stk generate version > commandResult"
         def version = readFile('commandResult').trim()
         sh "rm commandResult .VERSION"
